@@ -1,0 +1,41 @@
+package san.investment.admin.controller;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import san.investment.admin.dto.login.LoginReqDto;
+import san.investment.admin.service.AuthService;
+import san.investment.common.dto.ApiResponseDto;
+
+@Slf4j
+@RestController
+@RequestMapping(path = "/v1/auth")
+@RequiredArgsConstructor
+public class AuthController {
+
+    private final AuthService authService;
+
+    @PostMapping(path = "/login")
+    public ResponseEntity login(@RequestBody LoginReqDto dto) {
+        log.info("[AuthController][login] dto : {}", dto);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping(path = "/refresh")
+    public ResponseEntity refresh() {
+        return ResponseEntity.ok().build();
+    }
+
+    /**
+     * 비밀번호 인코딩 처리 후 값 제공
+     *
+     * @param password
+     * @return
+     */
+    @GetMapping(path = "/password")
+    public ResponseEntity<String> generatePassword(@RequestParam(name = "password") String password) {
+        return new ResponseEntity<>(ApiResponseDto.makeResponse(authService.generatePassword(password)), HttpStatus.OK);
+    }
+}
