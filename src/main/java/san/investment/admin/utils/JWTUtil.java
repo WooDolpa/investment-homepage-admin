@@ -26,13 +26,14 @@ public class JWTUtil {
      * @param id
      * @return
      */
-    public String generateToken(String id) {
+    public String generateToken(String loginId, Integer id) {
 
         Instant now = Instant.now();
         Instant expiry = now.plusSeconds(EXPIRATION_TIME);
 
         return Jwts.builder()
-                .subject(id)
+                .subject(loginId)
+                .claim("id", id)
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(expiry))
                 .signWith(JWT_SECRET_KEY, Jwts.SIG.HS256)

@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import san.investment.admin.dto.login.LoginReqDto;
+import san.investment.admin.dto.login.LoginResDto;
 import san.investment.admin.service.AuthService;
 import san.investment.common.dto.ApiResponseDto;
 
@@ -17,14 +18,21 @@ public class AuthController {
 
     private final AuthService authService;
 
+    /**
+     * 로그인
+     *
+     * @param dto
+     * @return
+     */
     @PostMapping(path = "/login")
-    public ResponseEntity login(@RequestBody LoginReqDto dto) {
-        log.info("[AuthController][login] dto : {}", dto);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<LoginResDto> login(@RequestBody LoginReqDto dto) {
+        return ResponseEntity.ok()
+                .body(authService.login(dto));
     }
 
-    @PostMapping(path = "/refresh")
-    public ResponseEntity refresh() {
+
+    @GetMapping(path = "/refresh")
+    public ResponseEntity<Void> refresh() {
         return ResponseEntity.ok().build();
     }
 

@@ -3,9 +3,13 @@ package san.investment.admin.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import san.investment.admin.dto.login.LoginReqDto;
+import san.investment.admin.dto.login.LoginResDto;
 import san.investment.admin.dto.login.PasswordResDto;
 import san.investment.admin.repository.AdminRepository;
 import san.investment.admin.utils.JWTUtil;
@@ -23,13 +27,33 @@ public class AuthService {
     private final JWTUtil jwtUtil;
     private final AdminRepository adminRepository;
 
-    public void login(LoginReqDto dto) {
+    /**
+     * 로그인
+     *
+     * @param dto
+     * @return
+     */
+    public LoginResDto login(LoginReqDto dto) {
         // 아이디 검증
         Admin findAdmin = adminRepository.findByLoginId(dto.getId())
                 .orElseThrow(() -> new CustomException(ExceptionCode.INVALID_USER_ID));
         // 비밀번호 검증
+        if(!passwordEncoder.matches(dto.getPassword(), findAdmin.getPassword())) {
+            throw new CustomException(ExceptionCode.INVALID_PASSWORD);
+        }
         // 사용자 인증
+        Authentication authenticate = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(dto.getId(), dto.getPassword())
+        );
+        SecurityContextHolder.getContext().setAuthentication(authenticate);
         // Token 생성
+        String accessToken = jwtUtil.generateToken(findAdmin.getLoginId(), findAdmin.getAdminNo());
+        String refreshToken = jwtUtil.generateRefreshToken(findAdmin.getLoginId());
+
+        return LoginResDto.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
     }
 
     /**
