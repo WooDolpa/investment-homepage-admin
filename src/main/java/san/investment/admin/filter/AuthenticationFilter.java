@@ -6,9 +6,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
+import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+import san.investment.admin.security.CustomUserDetailService;
 import san.investment.admin.utils.JWTUtil;
 import san.investment.common.exception.CustomException;
 import san.investment.common.exception.ExceptionCode;
@@ -30,6 +35,7 @@ import java.util.List;
 public class AuthenticationFilter extends OncePerRequestFilter {
 
     private final AntPathMatcher antPathMatcher = new AntPathMatcher();
+    private final CustomUserDetailService userDetailService;
     private final JWTUtil jwtUtil;
 
     // Token 이 필요없는 URL
@@ -58,6 +64,20 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             log.warn("[AuthenticationFilter][doFilterInternal] Invalid Token");
             throw new CustomException(ExceptionCode.INVALID_TOKEN);
         }
+
+        // 토큰에서 ID 추출
+        String loginId = jwtUtil.resolveAdminId(token);
+        if(StringUtils.hasText(loginId)) {
+            // UserDetails(DB 사용자 인증)
+            UserDetails userDetails = userDetailService.loadUserByUsername(loginId);
+            // Authentication 객체 생성
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+            // SecurityContext 에 인증 정보 설정
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            log.debug("[AuthenticationFilter][doFilterInternal] 인증 설정 완료 : {}", loginId);
+        }
+
+        filterChain.doFilter(request, response);
     }
 
     /**

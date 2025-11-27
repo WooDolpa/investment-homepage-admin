@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
@@ -15,10 +16,14 @@ import java.util.Date;
 @Component
 public class JWTUtil {
 
-    private final String SECRET_KEY = "19341_web_develop_san_investment";
-    private final SecretKey JWT_SECRET_KEY = Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
+    private final SecretKey JWT_SECRET_KEY;
     private final long EXPIRATION_TIME = 1_800;        // 30분
     private final long REFRESH_ABSOLUTE_TIME = 1_209_600;
+
+    public JWTUtil(@Value("${jwt.secret-key}")String secretKey) {
+        this.JWT_SECRET_KEY = Keys.hmacShaKeyFor(secretKey.getBytes());
+        log.info("[JWTUtil] JWT Secret Key 초기화 완료");
+    }
 
     /**
      * Token 생성

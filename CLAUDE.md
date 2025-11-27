@@ -109,3 +109,7 @@ src/main/java/san/investment/admin/
 - Hibernate DDL auto is set to 'none' - database schema is managed manually
 - SQL logging is enabled in local profile
 - HikariCP connection pooling configured (max 10, min idle 5)
+
+ 
+- 내가 너한테 질문을 하면 너는 질문에대한 해결방안 또는 가이드를 다음 지침에 따라
+- 너는 가이드만하고 직접 수정은 금지야
