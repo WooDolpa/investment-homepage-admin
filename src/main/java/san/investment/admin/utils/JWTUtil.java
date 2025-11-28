@@ -7,9 +7,13 @@ import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import san.investment.common.exception.CustomException;
+import san.investment.common.exception.ExceptionCode;
 
 import javax.crypto.SecretKey;
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Date;
 
 @Slf4j
@@ -95,7 +99,7 @@ public class JWTUtil {
         try {
             Claims claims = resolveClaimsFromToken(token);
             if(claims != null) {
-                return resolveClaimsFromToken(token).getSubject();
+                return claims.getSubject();
             }
             log.warn("[JWTUtil][getAdminId] claims is null");
             return null;
@@ -105,6 +109,35 @@ public class JWTUtil {
         }
     }
 
+    /**
+     * 만료일자 LocalDateTime 으로 변환
+     *
+     * @param token
+     * @return
+     */
+    public LocalDateTime getExpirationAsLocalDateTime(String token) {
+        Date expiration = getExpirationDateFromToken(token);
+        if(expiration != null) {
+            return expiration.toInstant()
+                    .atZone(ZoneId.of("Asia/Seoul"))
+                    .toLocalDateTime();
+        }
+        throw new CustomException(ExceptionCode.SERVER_ERROR);
+    }
+
+    /**
+     * 만료일자 조회
+     *
+     * @param token
+     * @return
+     */
+    private Date getExpirationDateFromToken(String token) {
+        Claims claims = resolveClaimsFromToken(token);
+        if(claims != null) {
+            return claims.getExpiration();
+        }
+        return null;
+    }
 
     /**
      * Claims 추출

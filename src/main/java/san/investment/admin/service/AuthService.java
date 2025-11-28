@@ -8,24 +8,30 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import san.investment.admin.dto.login.LoginReqDto;
 import san.investment.admin.dto.login.LoginResDto;
 import san.investment.admin.dto.login.PasswordResDto;
-import san.investment.admin.repository.AdminRepository;
+import san.investment.admin.repository.admin.AdminRepository;
 import san.investment.admin.utils.JWTUtil;
-import san.investment.common.entity.Admin;
+import san.investment.common.entity.admin.Admin;
 import san.investment.common.exception.CustomException;
 import san.investment.common.exception.ExceptionCode;
+
+import java.time.LocalDateTime;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class AuthService {
 
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
     private final JWTUtil jwtUtil;
+    private final CcAuthService ccAuthService;
     private final AdminRepository adminRepository;
+
 
     /**
      * 로그인
@@ -33,6 +39,7 @@ public class AuthService {
      * @param dto
      * @return
      */
+    @Transactional
     public LoginResDto login(LoginReqDto dto) {
         // 아이디 검증
         Admin findAdmin = adminRepository.findByLoginId(dto.getId())
@@ -49,6 +56,12 @@ public class AuthService {
         // Token 생성
         String accessToken = jwtUtil.generateToken(findAdmin.getLoginId(), findAdmin.getAdminNo());
         String refreshToken = jwtUtil.generateRefreshToken(findAdmin.getLoginId());
+
+        // refresh 갱신
+        Integer adminNo = findAdmin.getAdminNo();
+        LocalDateTime expireDate = jwtUtil.getExpirationAsLocalDateTime(refreshToken);
+
+        ccAuthService.save(adminNo, refreshToken, expireDate);
 
         return LoginResDto.builder()
                 .accessToken(accessToken)

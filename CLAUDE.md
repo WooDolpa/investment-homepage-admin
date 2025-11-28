@@ -59,13 +59,17 @@ src/main/java/san/investment/admin/
 ### Multi-Module Structure
 - This admin application depends on `investment-homepage-common:1.0` which must be installed in mavenLocal
 - Shared entities are located in `san.investment.common.entity` package (from common module)
-- The `@EntityScan` annotation in AdminApplication.java scans the common module's entity package
+- Shared components and utilities are in `san.investment.common` package
+- `@EntityScan` scans `san.investment.common.entity` for entities
+- `@ComponentScan` scans both `san.investment.admin` and `san.investment.common` for Spring components
 
 ### Profile-Based Configuration
 - Profile is configured in build.gradle (line 58)
 - Default profile is 'local'
 - Resources are loaded from `src/main/resources/{profile}/`
-- Database credentials use environment variables: `MARIADB_URL`, `MARIADB_USERNAME`, `MARIADB_PASSWORD`
+- Environment variables required:
+  - Database: `MARIADB_URL`, `MARIADB_USERNAME`, `MARIADB_PASSWORD`
+  - JWT: `JWT_SECRET_KEY` (used for token signing)
 
 ### QueryDSL Setup
 - Generated Q-classes are placed in `src/main/generated`
@@ -83,8 +87,11 @@ src/main/java/san/investment/admin/
 ### JWT Implementation
 - Access token expiration: 30 minutes (1,800 seconds)
 - Refresh token expiration: 14 days (1,209,600 seconds)
-- Secret key is hardcoded in JWTUtil.java (should be externalized to configuration)
-- Token contains user ID in subject claim
+- Secret key loaded from environment variable `JWT_SECRET_KEY`
+- Access token contains: loginId (subject), id (claim)
+- Refresh token contains: id (subject)
+- JWTUtil provides `getExpirationAsLocalDateTime()` to extract expiration from tokens
+- **Timezone**: Token expiration dates are converted to "Asia/Seoul" timezone (JWTUtil.java:122)
 
 ### Authentication Flow (In Progress)
 - Login endpoint at `/v1/auth/login` validates credentials and generates JWT
@@ -97,7 +104,10 @@ src/main/java/san/investment/admin/
 ### When Working with Entities
 - Entity classes are in the common module (`san.investment.common.entity`)
 - Do not create entity classes in this module - they belong in the common module
-- After modifying entities, rebuild QueryDSL Q-classes with `./gradlew clean build`
+- After modifying entities in the common module:
+  1. Build the common module and install to mavenLocal: `./gradlew publishToMavenLocal`
+  2. Rebuild this admin module with QueryDSL Q-classes: `./gradlew clean build`
+- For composite primary keys, use either `@IdClass` or `@EmbeddedId` approach
 
 ### When Working with Security
 - AuthenticationFilter needs JWT validation implementation
@@ -107,8 +117,9 @@ src/main/java/san/investment/admin/
 ### Database
 - JPA auditing is enabled (JpaConfig.java)
 - Hibernate DDL auto is set to 'none' - database schema is managed manually
-- SQL logging is enabled in local profile
-- HikariCP connection pooling configured (max 10, min idle 5)
+- SQL logging is enabled in local profile (includes SQL, bind parameters, and result extraction)
+- HikariCP connection pooling configured (min idle 5, idle timeout 60000ms)
+- **Important**: Consider configuring database timezone to match application timezone (currently using Asia/Seoul)
 
  
 - 내가 너한테 질문을 하면 너는 질문에대한 해결방안 또는 가이드를 다음 지침에 따라
