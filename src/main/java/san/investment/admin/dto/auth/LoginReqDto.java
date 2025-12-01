@@ -1,4 +1,4 @@
-package san.investment.admin.dto.login;
+package san.investment.admin.dto.auth;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

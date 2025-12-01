@@ -11,6 +11,7 @@ import san.investment.common.exception.CustomException;
 import san.investment.common.exception.ExceptionCode;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -25,7 +26,7 @@ public class JWTUtil {
     private final long REFRESH_ABSOLUTE_TIME = 1_209_600;
 
     public JWTUtil(@Value("${jwt.secret-key}")String secretKey) {
-        this.JWT_SECRET_KEY = Keys.hmacShaKeyFor(secretKey.getBytes());
+        this.JWT_SECRET_KEY = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
         log.info("[JWTUtil] JWT Secret Key 초기화 완료");
     }
 
@@ -55,13 +56,14 @@ public class JWTUtil {
      * @param id
      * @return
      */
-    public String generateRefreshToken(String id) {
+    public String generateRefreshToken(String loginId, Integer id) {
 
         Instant now = Instant.now();
         Instant expiry = now.plusSeconds(REFRESH_ABSOLUTE_TIME);
 
         return Jwts.builder()
-                .subject(id)
+                .subject(loginId)
+                .claim("id", id)
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(expiry))
                 .signWith(JWT_SECRET_KEY, Jwts.SIG.HS256)
@@ -90,7 +92,7 @@ public class JWTUtil {
     }
 
     /**
-     * 관리자 번호 추출
+     * 관리자 아이디 추출
      *
      * @param token
      * @return
@@ -106,6 +108,28 @@ public class JWTUtil {
         }catch (Exception e){
             log.error("[JWTUtil][getAdminId] error message : {}", e.getMessage());
             return null;
+        }
+    }
+
+    /**
+     * 관리자 번호 추출
+     *
+     * @param token
+     * @return
+     */
+    public Integer resolveAdminNo(String token) {
+        try {
+            Claims claims = resolveClaimsFromToken(token);
+            if(claims == null) {
+                throw new CustomException(ExceptionCode.INVALID_TOKEN);
+            }
+            return claims.get("id", Integer.class);
+
+        } catch (CustomException e) {
+            throw e;
+        } catch (Exception e){
+            log.error("[JWTUtil][resolveAdminNo] error message : {}", e.getMessage());
+            throw new CustomException(ExceptionCode.INVALID_TOKEN);
         }
     }
 

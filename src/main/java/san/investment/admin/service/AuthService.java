@@ -9,9 +9,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import san.investment.admin.dto.login.LoginReqDto;
-import san.investment.admin.dto.login.LoginResDto;
-import san.investment.admin.dto.login.PasswordResDto;
+import san.investment.admin.dto.auth.*;
 import san.investment.admin.repository.admin.AdminRepository;
 import san.investment.admin.utils.JWTUtil;
 import san.investment.common.entity.admin.Admin;
@@ -55,7 +53,7 @@ public class AuthService {
         SecurityContextHolder.getContext().setAuthentication(authenticate);
         // Token 생성
         String accessToken = jwtUtil.generateToken(findAdmin.getLoginId(), findAdmin.getAdminNo());
-        String refreshToken = jwtUtil.generateRefreshToken(findAdmin.getLoginId());
+        String refreshToken = jwtUtil.generateRefreshToken(findAdmin.getLoginId(), findAdmin.getAdminNo());
 
         // refresh 갱신
         Integer adminNo = findAdmin.getAdminNo();
@@ -66,6 +64,35 @@ public class AuthService {
         return LoginResDto.builder()
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
+                .build();
+    }
+
+    /**
+     * access token 재발급
+     *
+     * @param dto
+     * @return
+     */
+    @Transactional
+    public RefreshResDto refreshAccessToken(RefreshReqDto dto) {
+
+        // 1. Refresh Token 검증
+        if(!jwtUtil.validateToken(dto.getRefreshToken())) {
+            // 유효하지 않으면 401 에러 발생
+            throw new CustomException(ExceptionCode.INVALID_REFRESH_TOKEN);
+        }
+        // 2. 사용자 번호 추출
+        Integer adminNo = jwtUtil.resolveAdminNo(dto.getRefreshToken());
+        // 3. 사용자 정보 조회
+        Admin admin = adminRepository.findById(adminNo).orElseThrow(() -> new CustomException(ExceptionCode.INVALID_USER_ID));
+        // 3. 토큰 존재 여부 및 만료 확인
+        ccAuthService.validateRefreshToken(adminNo, dto.getRefreshToken());
+        // 5. 새로운 Access Token 발급
+        String accessToken = jwtUtil.generateToken(admin.getLoginId(), admin.getAdminNo());
+
+        // 6. 응답 DTO 생성 및 반환
+        return RefreshResDto.builder()
+                .accessToken(accessToken)
                 .build();
     }
 
