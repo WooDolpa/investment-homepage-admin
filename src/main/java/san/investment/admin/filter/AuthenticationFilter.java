@@ -40,13 +40,14 @@ public class AuthenticationFilter extends OncePerRequestFilter {
 
     // Token 이 필요없는 URL
     private final static List<String> NO_NEED_TOKEN_API = Arrays.asList(
+            "/",
+            "/login",
             "/v1/auth/login",
             "/v1/auth/password",
             "/js/**",
             "/css/**",
             "/image/**",
-            "/scss/**",
-            "/api/file/**"
+            "/scss/**"
     );
 
     @Override

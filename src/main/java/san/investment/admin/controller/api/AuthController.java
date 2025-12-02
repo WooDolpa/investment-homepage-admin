@@ -1,4 +1,4 @@
-package san.investment.admin.controller;
+package san.investment.admin.controller.api;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
