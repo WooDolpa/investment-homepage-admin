@@ -17,15 +17,15 @@
                                 </div>
                             </div>
                             <div class="card-body">
-                                <form role="form" class="text-start">
+                                <form role="form" class="text-start" id="loginForm">
                                     <div class="input-group input-group-outline my-3">
-                                        <input type="text" class="form-control" value="" placeholder="아이디를 입력해주세요.">
+                                        <input type="text" class="form-control" value="" placeholder="아이디를 입력해주세요." id="loginId">
                                     </div>
                                     <div class="input-group input-group-outline mb-3">
-                                        <input type="password" class="form-control" value="" placeholder="비밀번호 입력해주세요.">
+                                        <input type="password" class="form-control" value="" placeholder="비밀번호 입력해주세요." id="password">
                                     </div>
                                     <div class="text-center">
-                                        <button type="button" class="btn bg-gradient-dark w-100 my-4 mb-2">로그인</button>
+                                        <button type="submit" class="btn bg-gradient-dark w-100 my-4 mb-2" id="loginBtn">로그인</button>
                                     </div>
                                 </form>
                             </div>
@@ -38,6 +38,43 @@
 </body>
 <th:block th:replace="~{fragments/common :: script}"></th:block>
 <script>
+    document.addEventListener("DOMContentLoaded", function() {
 
+        const loginForm = document.getElementById("loginForm");
+        const loginBtn = document.getElementById("loginBtn");
+
+        if(isAuthenticated()) {
+            window.location.href = '/';
+            return;
+        }
+
+        loginForm.addEventListener('submit', async function(e) {
+            e.preventDefault(); // 기본 폼 제출 방지
+
+            const loginId = document.getElementById('loginId').value.trim();
+            const password = document.getElementById('password').value;
+
+            if(!loginId) {
+                // 아이디 입력
+                console.log('아이디를 입력해주세요.');
+                return;
+            }
+
+            if(!password) {
+                // 비밀번호 입력
+                console.log('비밀번호를 입력해주세요.');
+                return;
+            }
+
+            try {
+                await login(loginId, password);
+                // 성공 시 메인페이지 이동
+
+            }catch (error) {
+
+            }
+        });
+
+    });
 </script>
 </html>
