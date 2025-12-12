@@ -26,11 +26,11 @@ async function handleUnauthorized() {
 }
 
 // 로그인 함수
-async function login(loginId, password) {
+async function login(id, password) {
     try {
         const response = await apiCall('/auth/login', {
             method: 'POST',
-            body: { loginId, password },
+            body: { id, password },
             requiresAuth: false
         });
 
@@ -41,8 +41,7 @@ async function login(loginId, password) {
         return response;
 
     }catch (error) {
-        console.error('로그인 실패:', error);
-        throw error;
+        san.errorAlert(error.message);
     }
 }
 

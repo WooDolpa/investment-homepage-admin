@@ -27,7 +27,7 @@
 })();
 
 // Verify navbar blur on scroll
-if (document.getElementById('navbarBlur')) {
+if (document.getElementById('navbarBlur') && document.getElementById('navbarBlur').getAttribute('data-scroll') == 'true') {
   navbarBlurOnScroll('navbarBlur');
 }
 

@@ -34,10 +34,6 @@ async function apiCall(endpoint, options = {}) {
 
         const response = await fetch(`${API_BASE_URL}${endpoint}`, fetchOptions);
 
-        if(response.status === 401) {
-            console.log(response);
-        }
-
         if(!response.ok) {
             const error = await response.json();
             throw new Error(error.message || 'API 호출 실패');
@@ -45,7 +41,6 @@ async function apiCall(endpoint, options = {}) {
 
         return await response.json();
     } catch (error) {
-        console.log('API 호출 에러', error);
         throw error;
     }
 }
