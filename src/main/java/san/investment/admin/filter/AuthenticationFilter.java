@@ -2,6 +2,7 @@ package san.investment.admin.filter;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -13,8 +14,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
+import san.investment.admin.http.CustomHttpServletRequest;
+import san.investment.admin.repository.admin.AdminRepository;
 import san.investment.admin.security.CustomUserDetailService;
 import san.investment.admin.utils.JWTUtil;
+import san.investment.common.constants.ApiConstants;
 import san.investment.common.exception.CustomException;
 import san.investment.common.exception.ExceptionCode;
 
@@ -37,6 +41,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
     private final AntPathMatcher antPathMatcher = new AntPathMatcher();
     private final CustomUserDetailService userDetailService;
     private final JWTUtil jwtUtil;
+    private final AdminRepository adminRepository;
 
     // Token 이 필요없는 URL
     private final static List<String> NO_NEED_TOKEN_API = Arrays.asList(
@@ -47,23 +52,46 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             "/js/**",
             "/css/**",
             "/image/**",
-            "/scss/**"
+            "/scss/**",
+            "/fonts/**",
+            "/favicon.ico",
+            "/.well-known/**"
     );
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
+        CustomHttpServletRequest customRequest = null;
+        try {
+            customRequest = new CustomHttpServletRequest(request);
+            log.info("[AuthenticationFilter][doFilterInternal] request uri : {}", customRequest.getRequestURI());
+        } catch (Exception e) {
+            log.error("[AuthenticationFilter][doFilterInternal] filter error : {}", e.getMessage());
+            throw new CustomException(ExceptionCode.SERVER_ERROR);
+        }
+
         // 토큰이 필요 없는 API 인 경우 통과
-        if(isNoNeedTokenApi(request)) {
-            filterChain.doFilter(request, response);
+        if(isNoNeedTokenApi(customRequest)) {
+            filterChain.doFilter(customRequest, response);
             return;
         }
 
-        String token = resolveAccessToken(request);
+        String token = resolveAccessToken(request.getCookies());
+
         // token 유효성 검사
         if(!jwtUtil.validateToken(token)) {
             log.warn("[AuthenticationFilter][doFilterInternal] Invalid Token");
-            throw new CustomException(ExceptionCode.INVALID_TOKEN);
+            // SecurityContext 초기화
+            SecurityContextHolder.clearContext();
+            // cookie 삭제
+            Cookie expireCookie = new Cookie("token", null);
+            expireCookie.setHttpOnly(true);
+            expireCookie.setPath("/");
+            expireCookie.setMaxAge(0);
+            response.addCookie(expireCookie);
+
+            response.sendRedirect("/login");
+            return;
         }
 
         // 토큰에서 ID 추출
@@ -76,24 +104,29 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             // SecurityContext 에 인증 정보 설정
             SecurityContextHolder.getContext().setAuthentication(authentication);
             log.debug("[AuthenticationFilter][doFilterInternal] 인증 설정 완료 : {}", loginId);
+
+            String adminName = jwtUtil.resolveAdminName(token);
+
+            customRequest.putHeader(ApiConstants.REQUEST_HEADER_ADMIN_ID, loginId);
+            customRequest.putHeader(ApiConstants.REQUEST_HEADER_ADMIN_NAME, adminName);
         }
 
-        filterChain.doFilter(request, response);
+        filterChain.doFilter(customRequest, response);
     }
 
     /**
      * Token 추출
      *
-     * @param request
+     * @param cookies
      * @return
      */
-    private String resolveAccessToken(HttpServletRequest request) {
-        String authorizationHeader = request.getHeader("Authorization");
-        if(authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            log.warn("[AuthenticationFilter][resolveAccessToken] Authorization 헤더가 없거나 형식이 잘못됨");
-            throw new CustomException(ExceptionCode.EXPIRE_TOKEN);
-        }
-        return authorizationHeader.substring(7);
+    private String resolveAccessToken(Cookie[] cookies) {
+        if(cookies == null) return null;
+        return Arrays.stream(cookies)
+                .filter(cookie -> "token".equals(cookie.getName()))
+                .map(Cookie::getValue)
+                .findFirst()
+                .orElse(null);
     }
 
     /**

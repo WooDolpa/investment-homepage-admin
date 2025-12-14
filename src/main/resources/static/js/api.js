@@ -5,21 +5,13 @@ async function apiCall(endpoint, options = {}) {
     const {
         method = 'GET',
         headers = {},
-        body = null,
-        requiresAuth = true
+        body = null
     } = options;
 
     const defaultHeaders = {
         'Content-Type': 'application/json',
         ...headers
     };
-
-    if(requiresAuth) {
-        const token = localStorage.getItem('accessToken');
-        if(token) {
-            defaultHeaders['Authorization'] = `Bearer ${token}`;
-        }
-    }
 
     const fetchOptions = {
         method,
@@ -29,7 +21,9 @@ async function apiCall(endpoint, options = {}) {
     if(body && method !== 'GET') {
         fetchOptions.body = JSON.stringify(body);
     }
+
     console.log('fetchOptions: ', fetchOptions);
+
     try {
 
         const response = await fetch(`${API_BASE_URL}${endpoint}`, fetchOptions);

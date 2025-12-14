@@ -1,5 +1,6 @@
 package san.investment.admin.service;
 
+import jakarta.servlet.http.Cookie;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,7 +28,6 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
     private final JWTUtil jwtUtil;
-    private final CcAuthService ccAuthService;
     private final AdminRepository adminRepository;
 
 
@@ -52,46 +52,9 @@ public class AuthService {
         );
         SecurityContextHolder.getContext().setAuthentication(authenticate);
         // Token 생성
-        String accessToken = jwtUtil.generateToken(findAdmin.getLoginId(), findAdmin.getAdminNo());
-        String refreshToken = jwtUtil.generateRefreshToken(findAdmin.getLoginId(), findAdmin.getAdminNo());
-
-        // refresh 갱신
-        Integer adminNo = findAdmin.getAdminNo();
-        LocalDateTime expireDate = jwtUtil.getExpirationAsLocalDateTime(refreshToken);
-
-        ccAuthService.save(adminNo, refreshToken, expireDate);
+        String accessToken = jwtUtil.generateToken(findAdmin.getLoginId(), findAdmin.getAdminNo(), findAdmin.getAdminName());
 
         return LoginResDto.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .build();
-    }
-
-    /**
-     * access token 재발급
-     *
-     * @param dto
-     * @return
-     */
-    @Transactional
-    public RefreshResDto refreshAccessToken(RefreshReqDto dto) {
-
-        // 1. Refresh Token 검증
-        if(!jwtUtil.validateToken(dto.getRefreshToken())) {
-            // 유효하지 않으면 401 에러 발생
-            throw new CustomException(ExceptionCode.INVALID_REFRESH_TOKEN);
-        }
-        // 2. 사용자 번호 추출
-        Integer adminNo = jwtUtil.resolveAdminNo(dto.getRefreshToken());
-        // 3. 사용자 정보 조회
-        Admin admin = adminRepository.findById(adminNo).orElseThrow(() -> new CustomException(ExceptionCode.INVALID_USER_ID));
-        // 3. 토큰 존재 여부 및 만료 확인
-        ccAuthService.validateRefreshToken(adminNo, dto.getRefreshToken());
-        // 5. 새로운 Access Token 발급
-        String accessToken = jwtUtil.generateToken(admin.getLoginId(), admin.getAdminNo());
-
-        // 6. 응답 DTO 생성 및 반환
-        return RefreshResDto.builder()
                 .accessToken(accessToken)
                 .build();
     }

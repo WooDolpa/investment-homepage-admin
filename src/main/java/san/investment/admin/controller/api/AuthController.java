@@ -1,5 +1,7 @@
 package san.investment.admin.controller.api;
 
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -7,8 +9,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import san.investment.admin.dto.auth.LoginReqDto;
 import san.investment.admin.dto.auth.LoginResDto;
-import san.investment.admin.dto.auth.RefreshReqDto;
-import san.investment.admin.dto.auth.RefreshResDto;
 import san.investment.admin.service.AuthService;
 import san.investment.common.dto.ApiResponseDto;
 
@@ -27,21 +27,17 @@ public class AuthController {
      * @return
      */
     @PostMapping(path = "/login")
-    public ResponseEntity<LoginResDto> login(@RequestBody LoginReqDto dto) {
-        return ResponseEntity.ok()
-                .body(authService.login(dto));
-    }
+    public ResponseEntity<LoginResDto> login(@RequestBody LoginReqDto dto, HttpServletResponse response) {
 
-    /**
-     * access token 재발급
-     *
-     * @param dto
-     * @return
-     */
-    @GetMapping(path = "/refresh")
-    public ResponseEntity<RefreshResDto> refresh(@RequestBody RefreshReqDto dto) {
+        LoginResDto loginResDto = authService.login(dto);
+        // 쿠키 저장
+        Cookie cookie = new Cookie("token", loginResDto.getAccessToken());
+        cookie.setHttpOnly(true);
+        cookie.setPath("/");
+        response.addCookie(cookie);
+
         return ResponseEntity.ok()
-                .body(authService.refreshAccessToken(dto));
+                .body(loginResDto);
     }
 
     /**

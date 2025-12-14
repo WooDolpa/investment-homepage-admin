@@ -33,10 +33,12 @@ public class JWTUtil {
     /**
      * Token 생성
      *
+     * @param loginId
      * @param id
+     * @param adminName
      * @return
      */
-    public String generateToken(String loginId, Integer id) {
+    public String generateToken(String loginId, Integer id, String adminName) {
 
         Instant now = Instant.now();
         Instant expiry = now.plusSeconds(EXPIRATION_TIME);
@@ -44,26 +46,7 @@ public class JWTUtil {
         return Jwts.builder()
                 .subject(loginId)
                 .claim("id", id)
-                .issuedAt(Date.from(now))
-                .expiration(Date.from(expiry))
-                .signWith(JWT_SECRET_KEY, Jwts.SIG.HS256)
-                .compact();
-    }
-
-    /**
-     * Refresh Token 생성
-     *
-     * @param id
-     * @return
-     */
-    public String generateRefreshToken(String loginId, Integer id) {
-
-        Instant now = Instant.now();
-        Instant expiry = now.plusSeconds(REFRESH_ABSOLUTE_TIME);
-
-        return Jwts.builder()
-                .subject(loginId)
-                .claim("id", id)
+                .claim("adminName", adminName)
                 .issuedAt(Date.from(now))
                 .expiration(Date.from(expiry))
                 .signWith(JWT_SECRET_KEY, Jwts.SIG.HS256)
@@ -124,6 +107,29 @@ public class JWTUtil {
                 throw new CustomException(ExceptionCode.INVALID_TOKEN);
             }
             return claims.get("id", Integer.class);
+
+        } catch (CustomException e) {
+            throw e;
+        } catch (Exception e){
+            log.error("[JWTUtil][resolveAdminNo] error message : {}", e.getMessage());
+            throw new CustomException(ExceptionCode.INVALID_TOKEN);
+        }
+    }
+
+    /**
+     * 관리자 명 추출
+     *
+     * @param token
+     * @return
+     */
+    public String resolveAdminName(String token) {
+
+        try {
+            Claims claims = resolveClaimsFromToken(token);
+            if(claims == null) {
+                throw new CustomException(ExceptionCode.INVALID_TOKEN);
+            }
+            return claims.get("adminName", String.class);
 
         } catch (CustomException e) {
             throw e;
