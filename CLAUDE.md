@@ -121,6 +121,128 @@ src/main/java/san/investment/admin/
 - HikariCP connection pooling configured (min idle 5, idle timeout 60000ms)
 - **Important**: Consider configuring database timezone to match application timezone (currently using Asia/Seoul)
 
- 
-- 내가 너한테 질문을 하면 너는 질문에대한 해결방안 또는 가이드를 다음 지침에 따라
-- 너는 가이드만하고 직접 수정은 금지야
+## Frontend Architecture
+
+### Template Structure (Thymeleaf)
+- Templates located in `src/main/resources/templates/`
+- Fragment system for reusable components:
+  - `fragments/common.html` - Head section with CSS imports
+  - `fragments/header.html` - Sidebar and navbar fragments
+  - `fragments/scripts.html` - JavaScript imports
+- Main pages: `login/login.html`, `company/company.html`
+
+### JavaScript Organization
+```
+src/main/resources/static/js/
+├── argon-dashboard.js     - Core dashboard functionality (sidebar toggle, dark mode, etc.)
+├── common.js              - SweetAlert2 wrapper utilities (san object)
+├── api.js                 - API request utilities
+├── auth.js                - Authentication helpers
+├── common/navbar.js       - Navbar event handlers (logout, etc.)
+└── login/login.js         - Login page logic
+```
+
+### Frontend Utilities (san object)
+Global `san` object in `common.js` provides SweetAlert2-based dialogs:
+- `san.warningAlert(message)` - Warning dialog
+- `san.errorAlert(message)` - Error dialog
+- `san.successAlert(message, callback)` - Success dialog with optional callback
+- `san.infoAlert(message)` - Info dialog
+- `san.confirm(message, confirmCallback, cancelCallback)` - Confirmation dialog
+
+**Custom styling:** SweetAlert2 uses custom classes defined in `custom.css`:
+- `.swal-popup-custom` - Popup container
+- `.swal-text-default` - Text content
+- `.btn-alert` - Button styling
+
+### CSS Structure
+- `argon-dashboard.css` - Main theme styles
+- `custom.css` - Project-specific overrides and SweetAlert2 custom styles
+- Font Awesome 6.x via CDN (kit: 796886f5b5)
+
+## Authentication & Authorization
+
+### Current Implementation Status
+✅ **Completed:**
+- Login with JWT generation (POST `/v1/auth/login`)
+- Logout with cookie clearing (POST `/v1/auth/logout`)
+- Password encoding utility (GET `/v1/auth/password` - dev only)
+- Cookie-based token storage (HttpOnly)
+- SecurityContext management
+
+⚠️ **In Progress:**
+- AuthenticationFilter JWT validation (filter registered but validation not implemented)
+
+### Authentication Flow
+1. **Login:**
+   - User submits credentials to `/v1/auth/login`
+   - AuthService validates against database (BCrypt)
+   - JWT generated with 30-minute expiration
+   - Token stored in HttpOnly cookie named `token`
+   - SecurityContext populated with authentication
+
+2. **Logout:**
+   - Client calls `/v1/auth/logout`
+   - SecurityContext cleared
+   - Token cookie deleted (maxAge=0)
+   - **Note:** Token remains valid until expiration (stateless JWT limitation)
+
+3. **Protected Requests:**
+   - Token sent via cookie
+   - AuthenticationFilter intercepts (validation TODO)
+   - JWT validated and claims extracted
+   - Request processed if valid
+
+### Public Endpoints
+Static resources and auth endpoints are public (SecurityConfig.java):
+- `/js/**`, `/css/**`, `/image/**`, `/scss/**`, `/fonts/**`
+- `GET /`, `GET /login`, `GET /company`
+- `POST /v1/auth/login`, `POST /v1/auth/logout`
+- `GET /v1/auth/password` (development only)
+
+## Common Patterns
+
+### Adding New API Endpoints
+1. Create DTO in `dto/` package
+2. Add controller method in `controller/api/`
+3. Implement service logic in `service/`
+4. Update SecurityConfig if public endpoint needed
+5. Use `ApiResponseDto.makeResponse()` for consistent responses
+
+### Working with QueryDSL
+```java
+// Inject JPAQueryFactory (configured in QueryDSLConfig)
+private final JPAQueryFactory queryFactory;
+
+// Use Q-classes from common module
+QEntity entity = QEntity.entity;
+List<Entity> results = queryFactory
+    .selectFrom(entity)
+    .where(entity.field.eq(value))
+    .fetch();
+```
+
+### Frontend Alert Patterns
+```javascript
+// Simple alert
+san.errorAlert('오류가 발생했습니다.');
+
+// With callback
+san.successAlert('저장되었습니다.', function() {
+    window.location.href = '/list';
+});
+
+// Confirmation
+san.confirm('정말 삭제하시겠습니까?',
+    function() { /* delete */ },
+    function() { /* cancel */ }
+);
+```
+
+## Working Guidelines
+
+- **Guidance Mode:** Provide solutions and guidance without directly modifying code
+- **Multi-Module Dependency:** Always rebuild common module before admin module when entities change
+- **Security:** Public endpoints must be explicitly added to SecurityConfig
+- **Timezone:** All date/time operations use Asia/Seoul timezone
+- **Profile:** Default profile is 'local' - ensure environment variables are set
