@@ -19,7 +19,8 @@ async function logout() {
     try {
 
         const response = await apiCall('/auth/logout', {
-            method: 'GET'
+            method: 'POST',
+            credentials: 'include'  // 쿠키포함
         });
 
         window.location.assign('/login');

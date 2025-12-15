@@ -7,6 +7,8 @@ const san = {
             confirmButtonText: '확인',
             buttonsStyling: false,
             customClass: {
+                popup: 'swal-popup-custom',
+                htmlContainer: 'swal-text-default',
                 confirmButton: 'btn-alert'
             }
         });
@@ -18,8 +20,67 @@ const san = {
             confirmButtonText: '확인',
             buttonsStyling: false,
             customClass: {
+                popup: 'swal-popup-custom',
+                htmlContainer: 'swal-text-default',
                 confirmButton: 'btn-alert'
             }
+        });
+    },
+    successAlert : function(message, callback) {
+        Swal.fire({
+            icon: 'success',
+            text: message,
+            confirmButtonText: '확인',
+            buttonsStyling: false,
+            customClass: {
+                popup: 'swal-popup-custom',
+                htmlContainer: 'swal-text-default',
+                confirmButton: 'btn-alert'
+            }
+        }).then((result) => {
+           if(result.isConfirmed && callback) {
+               callback();
+           }
+        });
+    },
+    infoAlert : function(message) {
+        Swal.fire({
+            icon: 'info',
+            text: message,
+            confirmButtonText: '확인',
+            buttonsStyling: false,
+            customClass: {
+                popup: 'swal-popup-custom',
+                htmlContainer: 'swal-text-default',
+                confirmButton: 'btn-alert'
+            }
+        });
+    },
+    confirm : function(message, confirmCallback, cancelCallback) {
+
+        const confirm = Swal.mixin({
+            customClass: {
+                popup: 'swal-popup-custom',
+                htmlContainer: 'swal-text-default',
+                confirmButton: 'btn btn-success',
+                cancelButton: 'btn btn-danger'
+            },
+            buttonsStyling: false
+        });
+
+        confirm.fire({
+            text: message,
+            icon: 'question',
+            showCancelButton: true,
+            cancelButtonText: '취소',
+            confirmButtonText: '확인',
+            reverseButtons: false
+        }).then((result) => {
+           if(result.isConfirmed) {
+               if(confirmCallback) confirmCallback();
+           } else if(result.dismiss === Swal.DismissReason.cancel) {
+               if(cancelCallback) cancelCallback();
+           }
         });
     }
 };

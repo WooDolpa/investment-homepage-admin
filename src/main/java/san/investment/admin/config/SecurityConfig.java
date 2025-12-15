@@ -50,6 +50,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/").permitAll()
                         .requestMatchers(HttpMethod.GET, "/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/v1/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/v1/auth/logout").permitAll()
                         .requestMatchers(HttpMethod.GET, "/v1/auth/password").permitAll()
                         .requestMatchers(HttpMethod.GET, "/company").permitAll()
                         .anyRequest().authenticated())

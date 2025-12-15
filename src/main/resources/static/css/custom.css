@@ -5,3 +5,47 @@
     border-radius: 5px;
     border: 1px solid #ddd;
 }
+
+/*
+=========================================
+SweetAlert2 Custom
+=========================================
+ */
+
+/* 내용 텍스트 스타일 */
+.swal-text-default {
+    color: #525f7f !important;
+    font-size: 16px !important;
+    line-height: 1.6 !important;
+    font-weight: bold;
+}
+/* 팝업 전체 스타일 */
+.swal-popup-custom {
+    border-radius: 10px !important;
+    padding: 25px !important;
+}
+
+.btn {
+    display: inline-block;
+    font-weight: normal;
+    text-align: center;
+    vertical-align: middle;
+    user-select: none;
+    font-size: 1rem;
+    line-height: 1.25;
+    white-space: nowrap;
+    border-width: 1px;
+    border-style: solid;
+    border-color: transparent;
+    border-image: initial;
+    margin: 0 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.25rem;
+    transition: 0.15s ease-in-out;
+}
+
+.btn-danger {
+    color: rgb(255, 255, 255);
+    background-color: rgb(220, 53, 69);
+    border-color: rgb(220, 53, 69);
+}

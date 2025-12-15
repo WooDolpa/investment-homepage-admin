@@ -48,6 +48,7 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             "/",
             "/login",
             "/v1/auth/login",
+            "/v1/auth/logout",
             "/v1/auth/password",
             "/js/**",
             "/css/**",
