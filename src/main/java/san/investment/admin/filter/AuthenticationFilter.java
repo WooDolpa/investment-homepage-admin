@@ -54,7 +54,6 @@ public class AuthenticationFilter extends OncePerRequestFilter {
             "/css/**",
             "/image/**",
             "/scss/**",
-            "/fonts/**",
             "/favicon.ico",
             "/.well-known/**"
     );

@@ -5,26 +5,30 @@
 </head>
 <body class="bg-white">
     <main class="main-content  mt-0">
-        <div class="page-header align-items-start min-vh-45 border-radius-lg"></div>
-        <div class="container">
-            <div class="row mt-lg-n10 mt-md-n11 mt-n10 justify-content-center">
+        <div class="page-header align-items-start min-height-300 m-3 border-radius-xl">
+            <span class="mask opacity-6"></span>
+        </div>
+        <div class="container mb-4">
+            <div class="row mt-lg-n12 mt-md-n12 mt-n12 justify-content-center">
                 <div class="col-xl-4 col-lg-5 col-md-7 mx-auto">
-                    <div class="card mt-5">
-                        <div class="card-header pb-0 text-start">
-                            <h3 class="font-weight-bolder">San Investment Admin</h3>
+                    <div class="card mt-8">
+                        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                            <div class="bg-gradient-dark shadow-dark border-radius-lg py-3 pe-1 text-center py-4">
+                                <h4 class="font-weight-bolder text-white mt-1">San Investment Admin</h4>
+                            </div>
                         </div>
                         <div class="card-body">
                             <form role="form" class="text-start" id="loginForm">
-                                <label>아이디</label>
-                                <div class="mb-3">
-                                    <input type="text" class="form-control" placeholder="아이디를 입력해주세요." aria-label="Email" id="loginId">
+                                <div class="input-group input-group-static mb-4">
+                                    <label>아이디</label>
+                                    <input type="text" class="form-control" placeholder="아이디를 입력해주세요." id="loginId">
                                 </div>
-                                <label>비밀번호</label>
-                                <div class="mb-3">
-                                    <input type="password" class="form-control" placeholder="비밀번호를 입력해주세요." aria-label="Password" id="password">
+                                <div class="input-group input-group-static mb-4">
+                                    <label>비밀번호</label>
+                                    <input type="password" class="form-control" placeholder="비밀번호를 입력해주세요." id="password">
                                 </div>
                                 <div class="text-center">
-                                    <button type="submit" class="btn btn-primary w-100 mt-4 mb-0">로그인</button>
+                                    <button type="submit" class="btn bg-gradient-dark w-100 mt-3 mb-0">로그인</button>
                                 </div>
                             </form>
                         </div>

@@ -1,32 +1,74 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <th:block th:fragment="sidebar">
-    <div class="min-height-300 bg-dark position-absolute w-100"></div>
-    <aside class="sidenav bg-white navbar navbar-vertical navbar-expand-xs border-0 border-radius-xl my-3 fixed-start ms-4 " id="sidenav-main">
+    <aside class="sidenav navbar navbar-vertical navbar-expand-xs border-radius-lg fixed-start ms-2  bg-white my-2" id="sidenav-main">
 
         <div class="sidenav-header">
-            <a class="navbar-brand m-0" href="/company" target="_blank">
-                <span class="ms-1 font-weight-bold" th:text="${adminName ?: '관리자'}"></span>
+            <i class="fas fa-times p-3 cursor-pointer text-dark opacity-5 position-absolute end-0 top-0 d-none d-xl-none" aria-hidden="true" id="iconSidenav"></i>
+            <a class="navbar-brand px-4 py-3 m-0" href="javascript:">
+                <span class="ms-1 text-sm text-dark">San Investment Admin</span>
             </a>
         </div>
-
-        <hr class="horizontal dark mt-0">
-
-        <div class="collapse navbar-collapse h-auto sidebar-sm" id="sidenav-collapse-main">
+        <hr class="horizontal dark mt-0 mb-2">
+        <div class="collapse navbar-collapse  w-auto h-auto" id="sidenav-collapse-main">
             <ul class="navbar-nav">
+                <li class="nav-item mb-2 mt-0">
+                    <a data-bs-toggle="collapse" href="#ProfileNav" class="nav-link text-dark" aria-controls="ProfileNav" role="button" aria-expanded="false">
+                        <span class="nav-link-text ms-2 ps-1" th:text="${adminName ?: '관리자'}"></span>
+                    </a>
+                    <div class="collapse" id="ProfileNav" style="">
+                        <ul class="nav ">
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" href="../../pages/pages/profile/overview.html">
+                                    <span class="sidenav-mini-icon"> MP </span>
+                                    <span class="sidenav-normal  ms-3  ps-1"> My Profile </span>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark " href="javascript:">
+                                    <span class="sidenav-mini-icon"> L </span>
+                                    <span class="sidenav-normal  ms-3  ps-1"> Logout </span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </li>
+                <hr class="horizontal dark mt-0">
                 <li class="nav-item">
-                    <a data-bs-toggle="collapse" href="#dashboardsExamples" class="nav-link " aria-controls="dashboardsExamples" role="button" aria-expanded="false">
-                        <div class="icon text-center d-flex align-items-center justify-content-center">
-                            <i class="fa-regular fa-building text-dark text-sm opacity-10"></i>
-                        </div>
-                        <span class="nav-link-text ms-1">회사</span>
+                    <a data-bs-toggle="collapse" href="#dashboardsExamples" class="nav-link text-dark " aria-controls="dashboardsExamples" role="button" aria-expanded="false">
+                        <i class="material-symbols-corporate_fare opacity-5">corporate_fare</i>
+                        <span class="nav-link-text ms-1 ps-1">Dashboards</span>
                     </a>
                     <div class="collapse " id="dashboardsExamples">
-                        <ul class="nav ms-4">
+                        <ul class="nav ">
                             <li class="nav-item ">
-                                <a class="nav-link " href="../../../pages/dashboards/landing.html">
-                                    <span class="sidenav-mini-icon"> C </span>
-                                    <span class="sidenav-normal"> 회사관리 </span>
+                                <a class="nav-link text-dark " href="../../pages/dashboards/analytics.html">
+                                    <span class="sidenav-mini-icon"> A </span>
+                                    <span class="sidenav-normal  ms-1  ps-1"> Analytics </span>
+                                </a>
+                            </li>
+                            <li class="nav-item ">
+                                <a class="nav-link text-dark " href="../../pages/dashboards/discover.html">
+                                    <span class="sidenav-mini-icon"> D </span>
+                                    <span class="sidenav-normal  ms-1  ps-1"> Discover </span>
+                                </a>
+                            </li>
+                            <li class="nav-item ">
+                                <a class="nav-link text-dark " href="../../pages/dashboards/sales.html">
+                                    <span class="sidenav-mini-icon"> S </span>
+                                    <span class="sidenav-normal  ms-1  ps-1"> Sales </span>
+                                </a>
+                            </li>
+                            <li class="nav-item ">
+                                <a class="nav-link text-dark " href="../../pages/dashboards/automotive.html">
+                                    <span class="sidenav-mini-icon"> A </span>
+                                    <span class="sidenav-normal  ms-1  ps-1"> Automotive </span>
+                                </a>
+                            </li>
+                            <li class="nav-item ">
+                                <a class="nav-link text-dark " href="../../pages/dashboards/smart-home.html">
+                                    <span class="sidenav-mini-icon"> S </span>
+                                    <span class="sidenav-normal  ms-1  ps-1"> Smart Home </span>
                                 </a>
                             </li>
                         </ul>
@@ -49,6 +91,7 @@
                     </div>
                 </a>
             </div>
+            <!-- Mobile -->
             <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4" id="navbar">
                 <div class="ms-md-auto pe-md-3 d-flex align-items-center"></div>
                 <ul class="navbar-nav  justify-content-end">

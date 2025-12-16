@@ -1,6 +1,10 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 
+<th:block th:fragment="tableScripts">
+    <script th:src="@{/js/plugins/datatables.js}"></script>
+</th:block>
+
 <th:block th:fragment="commonScripts">
     <script th:src="@{/js/common/navbar.js}"></script>
 </th:block>
