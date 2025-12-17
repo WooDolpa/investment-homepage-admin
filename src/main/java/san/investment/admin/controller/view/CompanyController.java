@@ -15,7 +15,8 @@ public class CompanyController {
         String adminName = request.getHeader(ApiConstants.REQUEST_HEADER_ADMIN_NAME);
 
         model.addAttribute("adminName", adminName);
-
+        model.addAttribute("menuActive", "company");
+        model.addAttribute("subMenuActive", "manage");
         return "company/company";
     }
 }

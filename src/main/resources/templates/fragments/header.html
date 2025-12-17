@@ -35,40 +35,16 @@
                 </li>
                 <hr class="horizontal dark mt-0">
                 <li class="nav-item">
-                    <a data-bs-toggle="collapse" href="#dashboardsExamples" class="nav-link text-dark " aria-controls="dashboardsExamples" role="button" aria-expanded="false">
-                        <i class="material-symbols-corporate_fare opacity-5">corporate_fare</i>
-                        <span class="nav-link-text ms-1 ps-1">Dashboards</span>
+                    <a data-bs-toggle="collapse" href="#company" class="nav-link text-dark" role="button" aria-expanded="false">
+                        <i class="material-symbols-rounded opacity-5">enterprise</i>
+                        <span class="nav-link-text ms-1 ps-1">회사</span>
                     </a>
-                    <div class="collapse " id="dashboardsExamples">
+                    <div th:classappend="${menuActive == 'company'} ? 'collapse show' : 'collapse'" id="company">
                         <ul class="nav ">
-                            <li class="nav-item ">
-                                <a class="nav-link text-dark " href="../../pages/dashboards/analytics.html">
-                                    <span class="sidenav-mini-icon"> A </span>
-                                    <span class="sidenav-normal  ms-1  ps-1"> Analytics </span>
-                                </a>
-                            </li>
-                            <li class="nav-item ">
-                                <a class="nav-link text-dark " href="../../pages/dashboards/discover.html">
-                                    <span class="sidenav-mini-icon"> D </span>
-                                    <span class="sidenav-normal  ms-1  ps-1"> Discover </span>
-                                </a>
-                            </li>
-                            <li class="nav-item ">
-                                <a class="nav-link text-dark " href="../../pages/dashboards/sales.html">
-                                    <span class="sidenav-mini-icon"> S </span>
-                                    <span class="sidenav-normal  ms-1  ps-1"> Sales </span>
-                                </a>
-                            </li>
-                            <li class="nav-item ">
-                                <a class="nav-link text-dark " href="../../pages/dashboards/automotive.html">
-                                    <span class="sidenav-mini-icon"> A </span>
-                                    <span class="sidenav-normal  ms-1  ps-1"> Automotive </span>
-                                </a>
-                            </li>
-                            <li class="nav-item ">
-                                <a class="nav-link text-dark " href="../../pages/dashboards/smart-home.html">
-                                    <span class="sidenav-mini-icon"> S </span>
-                                    <span class="sidenav-normal  ms-1  ps-1"> Smart Home </span>
+                            <li th:classappend="${subMenuActive == 'manage'} ? 'nav-item active' : 'nav-item'">
+                                <a th:classappend="${subMenuActive == 'manage'} ? 'nav-link text-dark active' : 'nav-link text-dark'" href="/company">
+                                    <span class="sidenav-mini-icon"> M </span>
+                                    <span class="sidenav-normal  ms-1  ps-1"> 회사관리 </span>
                                 </a>
                             </li>
                         </ul>
@@ -80,33 +56,34 @@
 </th:block>
 <th:block th:fragment="navbar">
     <!-- Navbar -->
-    <nav class="navbar navbar-main navbar-expand-lg  px-0 mx-4 shadow-none border-radius-xl z-index-sticky " id="navbarBlur" data-scroll="false">
-        <div class="container-fluid py-1 px-3">
-            <div class="sidenav-toggler sidenav-toggler-inner d-xl-block d-none">
-                <a href="javascript:" class="nav-link p-0">
+    <nav class="navbar navbar-main navbar-expand-lg position-sticky mt-2 top-1 px-0 py-1 mx-3 shadow-none border-radius-lg z-index-sticky" id="navbarBlur" data-scroll="true">
+        <div class="container-fluid py-1 px-2">
+            <div class="sidenav-toggler sidenav-toggler-inner d-xl-block d-none ">
+                <a href="javascript:" class="nav-link text-body p-0">
                     <div class="sidenav-toggler-inner">
-                        <i class="sidenav-toggler-line bg-white"></i>
-                        <i class="sidenav-toggler-line bg-white"></i>
-                        <i class="sidenav-toggler-line bg-white"></i>
+                        <i class="sidenav-toggler-line"></i>
+                        <i class="sidenav-toggler-line"></i>
+                        <i class="sidenav-toggler-line"></i>
                     </div>
                 </a>
             </div>
-            <!-- Mobile -->
+
             <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4" id="navbar">
                 <div class="ms-md-auto pe-md-3 d-flex align-items-center"></div>
                 <ul class="navbar-nav  justify-content-end">
-                    <li class="nav-item d-flex align-items-center">
-                        <a href="javascript:" class="nav-link text-white font-weight-bold px-0" id="logoutIcons">
-                            <i class="fa fa-user me-sm-1"></i>
-                            <span class="d-sm-inline d-none">로그아웃</span>
+                    <li class="nav-item">
+                        <a href="javascript:" class="px-1 py-0 nav-link line-height-0" id="logoutIcons">
+                            <i class="material-symbols-rounded">
+                                logout
+                            </i>
                         </a>
                     </li>
                     <li class="nav-item d-xl-none ps-3 d-flex align-items-center">
-                        <a href="javascript:" class="nav-link text-white p-0" id="iconNavbarSidenav">
+                        <a href="javascript:" class="nav-link text-body p-0" id="iconNavbarSidenav">
                             <div class="sidenav-toggler-inner">
-                                <i class="sidenav-toggler-line bg-white"></i>
-                                <i class="sidenav-toggler-line bg-white"></i>
-                                <i class="sidenav-toggler-line bg-white"></i>
+                                <i class="sidenav-toggler-line"></i>
+                                <i class="sidenav-toggler-line"></i>
+                                <i class="sidenav-toggler-line"></i>
                             </div>
                         </a>
                     </li>

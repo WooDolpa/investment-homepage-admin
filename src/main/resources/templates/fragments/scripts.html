@@ -3,6 +3,14 @@
 
 <th:block th:fragment="tableScripts">
     <script th:src="@{/js/plugins/datatables.js}"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const dataTableBasic = new simpleDatatables.DataTable("#datatable-basic", {
+                searchable: false,
+                fixedHeight: true
+            });
+        });
+    </script>
 </th:block>
 
 <th:block th:fragment="commonScripts">
