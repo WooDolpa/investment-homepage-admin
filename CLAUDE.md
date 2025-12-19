@@ -228,6 +228,13 @@ api.post('/endpoint', { data: 'value' })
 - `nucleo-icons.css`, `nucleo-svg.css` - Nucleo icon sets
 - `custom.css` - Project-specific overrides and SweetAlert2 custom styles
 
+### DataTables Configuration (simpleDatatables v5.3.5)
+- Configured in `fragments/scripts.html` with the `tableScripts` fragment
+- Custom layout with search and per-page selector right-aligned
+- Per-page text label removed via JavaScript DOM manipulation
+- Responsive flexbox layout with `flexWrap: 'wrap'` for mobile devices
+- Default options: searchable, fixedHeight, perPageSelect [5, 10, 15, 20, 25]
+
 ## Common Patterns
 
 ### Adding New API Endpoints

@@ -6,9 +6,59 @@
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             const dataTableBasic = new simpleDatatables.DataTable("#datatable-basic", {
-                searchable: false,
-                fixedHeight: true
+                searchable: true,
+                fixedHeight: true,
+                perPageSelect: [5, 10, 15, 20, 25],
+                perPage: 10
             });
+
+            // 검색박스와 페이지 선택을 우측 정렬
+            const wrapper = document.querySelector('#datatable-basic').closest('.dataTable-wrapper');
+            if (wrapper) {
+                const top = wrapper.querySelector('.dataTable-top');
+                if (top) {
+                    // 컨테이너 스타일
+                    top.style.display = 'flex';
+                    top.style.justifyContent = 'flex-end';
+                    top.style.alignItems = 'center';
+                    top.style.gap = '10px';
+                    top.style.flexWrap = 'wrap';
+                    top.style.marginBottom = '1rem';
+
+                    const dropdown = top.querySelector('.dataTable-dropdown');
+                    const search = top.querySelector('.dataTable-search');
+
+                    if (dropdown && search) {
+                        // 순서 변경
+                        dropdown.style.order = '2';
+                        search.style.order = '1';
+
+                        // 페이지 드롭다운 스타일
+                        const dropdownLabel = dropdown.querySelector('label');
+                        if (dropdownLabel) {
+                            dropdownLabel.style.margin = '0';
+                            const select = dropdownLabel.querySelector('select');
+                            if (select) {
+                                // 텍스트 제거
+                                dropdownLabel.textContent = '';
+                                dropdownLabel.appendChild(select);
+                                // 드롭다운 크기 조정
+                                select.style.minWidth = '70px';
+                                select.style.height = '40px';
+                                select.style.padding = '0.5rem';
+                            }
+                        }
+
+                        // 검색박스 스타일
+                        const searchInput = search.querySelector('input');
+                        if (searchInput) {
+                            searchInput.style.height = '40px';
+                            searchInput.style.minWidth = '200px';
+                            searchInput.style.padding = '0.5rem';
+                        }
+                    }
+                }
+            }
         });
     </script>
 </th:block>
