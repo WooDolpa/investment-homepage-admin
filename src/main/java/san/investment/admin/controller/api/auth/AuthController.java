@@ -1,4 +1,4 @@
-package san.investment.admin.controller.api;
+package san.investment.admin.controller.api.auth;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -10,7 +10,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import san.investment.admin.dto.auth.LoginReqDto;
 import san.investment.admin.dto.auth.LoginResDto;
-import san.investment.admin.service.AuthService;
+import san.investment.admin.service.auth.AuthService;
 import san.investment.common.dto.ApiResponseDto;
 
 @Slf4j
