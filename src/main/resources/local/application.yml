@@ -33,3 +33,9 @@ logging:
 
 jwt:
   secret-key: ${JWT_SECRET_KEY}
+
+file:
+  save:
+    url: ${FILE_SAVE_URL}
+  company:
+    url: company/
