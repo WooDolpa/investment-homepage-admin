@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <th:block th:replace="~{fragments/common :: head}"></th:block>
+  <th:block th:replace="~{fragments/common :: dashboard}"></th:block>
+  <link rel="stylesheet" href="/css/company/company_update.css">
+
+  <!-- Quill Editor -->
+  <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+  <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+
+  <!-- Daum 우편번호 서비스 -->
+  <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+</head>
+<body>
+  <th:block th:replace="~{fragments/header :: header}"></th:block>
+  <th:block th:replace="~{fragments/header :: sidebar}"></th:block>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="content-wrapper">
+      <!-- Page Header -->
+      <div class="page-header">
+        <div class="page-title-section">
+          <h2 class="page-title">회사 수정</h2>
+          <p class="page-subtitle">회사 정보를 단계별로 입력하세요</p>
+        </div>
+      </div>
+
+      <!-- Step Indicator -->
+      <div class="step-indicator">
+        <div class="step-item active" data-step="1">
+          <div class="step-circle">
+            <span class="step-number">1</span>
+          </div>
+          <div class="step-label">기본정보</div>
+        </div>
+        <div class="step-line"></div>
+        <div class="step-item" data-step="2">
+          <div class="step-circle">
+            <span class="step-number">2</span>
+          </div>
+          <div class="step-label">이미지</div>
+        </div>
+      </div>
+
+      <!-- Form Container -->
+      <div class="form-container">
+        <input type="hidden" id="companyNo" th:value="${company.companyNo}">
+        <!-- Apply Button (Top Right) -->
+        <div class="form-header-actions">
+          <button class="apply-button" id="applyButton">
+            <span class="material-icons">check</span>
+            적용
+          </button>
+        </div>
+
+        <!-- Step 1: 기본정보 -->
+        <div class="form-step active" id="step1">
+          <h3 class="form-step-title">기본정보</h3>
+
+          <div class="form-group full-width">
+            <label class="form-label">회사명</label>
+            <input type="text" class="form-input" id="companyName" placeholder="회사명을 입력하세요" th:value="${company.companyName}">
+          </div>
+
+          <div class="form-group full-width">
+            <label class="form-label">회사정보</label>
+            <div id="companyInfoEditor" style="height: 500px;"></div>
+            <input type="hidden" id="companyInfo" th:value="${company.companyInfo}">
+          </div>
+
+          <div class="form-group full-width">
+            <label class="form-label">우편번호</label>
+            <div class="postcode-wrapper">
+              <input type="text" class="form-input" id="postCode" placeholder="우편번호" readonly th:value="${company.postCode}">
+              <button type="button" class="search-address-button" id="searchAddressButton">
+                <span class="material-icons">search</span>
+                주소찾기
+              </button>
+            </div>
+          </div>
+
+          <div class="form-group full-width">
+            <label class="form-label">주소</label>
+            <input type="text" class="form-input" id="address" placeholder="주소를 입력하세요" readonly th:value="${company.address}">
+          </div>
+
+          <div class="form-group full-width">
+            <label class="form-label">주소 상세</label>
+            <input type="text" class="form-input" id="addressDetail" placeholder="상세주소를 입력하세요" th:value="${company.addressDetail}">
+          </div>
+        </div>
+
+        <!-- Step 2: 이미지 -->
+        <div class="form-step" id="step2">
+          <h3 class="form-step-title">이미지</h3>
+
+          <div class="form-group full-width">
+            <label class="form-label">로고 이미지</label>
+            <div class="file-upload-area">
+              <input type="file" class="file-input" id="logoImage" accept="image/*">
+              <div class="file-upload-placeholder">
+                <span class="material-icons">cloud_upload</span>
+                <p>클릭하여 로고 이미지를 업로드하세요</p>
+                <span class="file-upload-hint">권장 크기: 200 x 200px</span>
+              </div>
+              <div class="file-preview" id="logoPreview"></div>
+            </div>
+          </div>
+
+          <div class="form-group full-width">
+            <label class="form-label">메인 이미지</label>
+            <div class="file-upload-area">
+              <input type="file" class="file-input" id="mainImage" accept="image/*">
+              <div class="file-upload-placeholder">
+                <span class="material-icons">cloud_upload</span>
+                <p>클릭하여 메인 이미지를 업로드하세요</p>
+                <span class="file-upload-hint">권장 크기: 1200 x 600px</span>
+              </div>
+              <div class="file-preview" id="mainPreview"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Form Navigation (Bottom) -->
+        <div class="form-navigation">
+          <div class="nav-left">
+            <button class="nav-button secondary-button" id="listButton">
+              <span class="material-icons">list</span>
+              목록
+            </button>
+          </div>
+          <div class="nav-right">
+            <button class="nav-button secondary-button" id="prevButton" disabled>
+              <span class="material-icons">navigate_before</span>
+              이전
+            </button>
+            <button class="nav-button primary-button" id="nextButton">
+              다음
+              <span class="material-icons">navigate_next</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+<th:block th:replace="~{fragments/common :: script}"></th:block>
+<th:block th:replace="~{fragments/scripts :: commonScripts}"></th:block>
+<script th:src="@{/js/company/company_update.js}"></script>
+</html>

@@ -70,7 +70,7 @@ const san = {
 
         confirm.fire({
             text: message,
-            icon: 'question',
+            icon: 'info',
             showCancelButton: true,
             cancelButtonText: '취소',
             confirmButtonText: '확인',
