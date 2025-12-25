@@ -191,7 +191,7 @@ src/main/resources/static/js/
 ├── api.js                 - API request utilities (api object)
 ├── auth.js                - Authentication helpers
 ├── common/navbar.js       - Navbar event handlers (logout, etc.)
-└── login/login.js         - Login page logic
+└── login/login_cc.js         - Login page logic
 ```
 
 ### Frontend Utilities

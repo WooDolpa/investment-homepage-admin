@@ -1,32 +1,76 @@
-document.addEventListener("DOMContentLoaded", function() {
+// Login Form Handler
+document.addEventListener('DOMContentLoaded', function() {
 
-    const loginForm = document.getElementById("loginForm");
+    const loginForm = document.getElementById('loginForm');
+    const usernameInput = document.getElementById('loginId');
+    const passwordInput = document.getElementById('password');
+    const loginButton = loginForm.querySelector('.login-button');
 
-    loginForm.addEventListener('submit', async function(e) {
-        e.preventDefault(); // 기본 폼 제출 방지
+    // Form Submit Event
+    loginForm.addEventListener('submit', function(e) {
+        e.preventDefault();
 
-        const loginId = document.getElementById('loginId').value.trim();
-        const password = document.getElementById('password').value;
+        const username = usernameInput.value.trim();
+        const password = passwordInput.value.trim();
 
-        if(!loginId) {
-            // 아이디 입력
-            san.warningAlert('아이디를 입력해주세요.');
+        // Basic Validation
+        if (!validateForm(username, password)) {
             return;
         }
 
-        if(!password) {
-            // 비밀번호 입력
-            san.warningAlert('비밀번호를 입력해주세요.');
-            return;
+        // Disable button during processing
+        loginButton.disabled = true;
+        loginButton.textContent = '로그인 중...';
+
+        // Simulate login process (Replace with actual API call)
+        setTimeout(function() {
+            handleLogin(username, password);
+        }, 1000);
+    });
+
+    // Form Validation
+    function validateForm(username, password) {
+        if (!username) {
+            san.infoAlert('아이디를 입력해주세요.');
+            usernameInput.focus();
+            return false;
         }
+
+        if (!password) {
+            san.infoAlert('비밀번호를 입력해주세요.');
+            passwordInput.focus();
+            return false;
+        }
+
+        return true;
+    }
+
+    // Login Handler
+    async function handleLogin(loginId, password) {
 
         try {
             await login(loginId, password);
-            // 성공 시 메인페이지 이동
-
         }catch (error) {
+            resetForm();
+        }
+    }
 
+    // Reset Form State
+    function resetForm() {
+        loginButton.disabled = false;
+        loginButton.textContent = '로그인';
+    }
+
+    // Input Enter Key Handler
+    usernameInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            passwordInput.focus();
         }
     });
 
+    passwordInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            loginForm.dispatchEvent(new Event('submit'));
+        }
+    });
 });
