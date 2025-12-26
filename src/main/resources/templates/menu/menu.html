@@ -1,12 +1,133 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <th:block th:replace="~{fragments/common :: head}"></th:block>
-  <th:block th:replace="~{fragments/common :: dashboard}"></th:block>
+    <th:block th:replace="~{fragments/common :: head}"></th:block>
+    <th:block th:replace="~{fragments/common :: dashboard}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/menu/menu.css}" />
 </head>
 <body>
 <th:block th:replace="~{fragments/header :: header}"></th:block>
 <th:block th:replace="~{fragments/header :: sidebar}"></th:block>
+<!-- Main Content -->
+<main class="main-content">
+    <div class="content-wrapper">
+        <!-- Search Area -->
+        <div class="search-section">
+            <h2 class="section-title-main">메뉴 관리</h2>
+            <p class="section-subtitle">메뉴 정보를 조회하고 관리하세요</p>
+            <div class="search-container">
+                <div class="search-row">
+                    <label class="search-label">검색</label>
+                    <div class="custom-select-wrapper">
+                        <div class="custom-select" id="searchTypeSelect">
+                            <div class="custom-select-trigger">
+                                <span id="selectedSearchType">메뉴명</span>
+                                <span class="material-icons arrow-icon">expand_more</span>
+                            </div>
+                            <div class="custom-options">
+                                <div class="custom-option selected" data-value="menuName">메뉴명</div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="searchType" value="menuName">
+                    </div>
+                    <input
+                            type="text"
+                            class="search-input"
+                            id="searchKeyword"
+                            placeholder="메뉴명을 입력하세요"
+                    >
+                    <button class="search-button" id="searchButton">
+                        <span class="material-icons">search</span>
+                        검색
+                    </button>
+                </div>
+                <div class="search-row">
+                    <label class="search-label">상태</label>
+                    <div class="custom-select-wrapper">
+                        <div class="custom-select" id="statusSelect">
+                            <div class="custom-select-trigger">
+                                <span id="selectedStatus">전체</span>
+                                <span class="material-icons arrow-icon">expand_more</span>
+                            </div>
+                            <div class="custom-options">
+                                <div class="custom-option selected" data-value="">전체</div>
+                                <div class="custom-option" data-value="Y">사용</div>
+                                <div class="custom-option" data-value="N">미사용</div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="searchStatus" value="">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menu Table -->
+        <div class="table-section">
+            <div class="section-header">
+                <h3 class="section-title">메뉴 목록</h3>
+            </div>
+
+            <div class="table-container">
+                <table class="data-table">
+                    <thead>
+                    <tr>
+                        <th>메뉴명</th>
+                        <th>순번</th>
+                        <th>상태</th>
+                        <th>작업</th>
+                    </tr>
+                    </thead>
+                    <tbody id="menuTableBody">
+                    <!-- Menu data will be loaded from API -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</main>
+<!-- Edit Modal -->
+<div class="modal-overlay" id="editModal">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h3 class="modal-title">메뉴 수정</h3>
+            <button class="modal-close" id="modalClose">
+                <span class="material-icons">close</span>
+            </button>
+        </div>
+        <div class="modal-content">
+            <div class="form-group">
+                <label class="form-label">메뉴명</label>
+                <input type="text" class="form-input" id="editMenuName" placeholder="메뉴명을 입력하세요">
+            </div>
+            <div class="form-group">
+                <label class="form-label">순번</label>
+                <input type="number" class="form-input" id="editMenuOrder" placeholder="순번을 입력하세요" min="1">
+            </div>
+            <div class="form-group">
+                <label class="form-label">상태</label>
+                <div class="custom-select-wrapper">
+                    <div class="custom-select" id="editStatusSelect">
+                        <div class="custom-select-trigger">
+                            <span id="selectedEditStatus">사용</span>
+                            <span class="material-icons arrow-icon">expand_more</span>
+                        </div>
+                        <div class="custom-options">
+                            <div class="custom-option selected" data-value="Y">사용</div>
+                            <div class="custom-option" data-value="N">미사용</div>
+                        </div>
+                    </div>
+                    <input type="hidden" id="editMenuStatus" value="Y">
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-button secondary-button" id="cancelButton">취소</button>
+            <button class="modal-button primary-button" id="updateButton">수정</button>
+        </div>
+    </div>
+</div>
 </body>
+<th:block th:replace="~{fragments/common :: script}"></th:block>
 <th:block th:replace="~{fragments/scripts :: commonScripts}"></th:block>
+<script th:src="@{/js/menu/menu.js}"></script>
 </html>

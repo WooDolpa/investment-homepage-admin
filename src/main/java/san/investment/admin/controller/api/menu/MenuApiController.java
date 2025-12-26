@@ -4,10 +4,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import san.investment.admin.dto.menu.MenuResDto;
+import san.investment.admin.dto.menu.MenuUpdReqDto;
 import san.investment.admin.service.menu.MenuService;
 import san.investment.common.dto.ApiResponseDto;
 
@@ -31,18 +30,26 @@ public class MenuApiController {
     /**
      * 메뉴 리스트 조회
      *
-     * @param sort
-     * @param direction
-     * @param offset
-     * @param size
      * @return
      */
-    public ResponseEntity<String> findMenuList(@RequestParam(name = "sort", required = false) String sort,
-                                               @RequestParam(name = "direction", required = false) String direction,
-                                               @RequestParam(name = "offset", required = false) Integer offset,
-                                               @RequestParam(name = "size", required = false) Integer size) {
+    @GetMapping(path = "/list")
+    public ResponseEntity<String> findMenuList(@RequestParam(name = "searchType", required = false) String searchType,
+                                               @RequestParam(name = "keyword", required = false) String keyword,
+                                               @RequestParam(name = "dataStatus", required = false) String dataStatus) {
 
-        List<MenuResDto> menuList = menuService.findMenuList(sort, direction, offset, size);
+        List<MenuResDto> menuList = menuService.findMenuList(searchType, keyword, dataStatus);
         return new ResponseEntity<>(ApiResponseDto.makeResponse(menuList), HttpStatus.OK);
+    }
+
+    /**
+     * 메뉴 수정
+     *
+     * @param dto
+     * @return
+     */
+    @PutMapping
+    public ResponseEntity<String> updateMenu(@RequestBody MenuUpdReqDto dto) {
+        menuService.updateMenu(dto);
+        return new ResponseEntity<>(ApiResponseDto.makeSuccessResponse(), HttpStatus.OK);
     }
 }

@@ -1,8 +1,11 @@
 package san.investment.admin.repository.menu;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import san.investment.admin.enums.SearchType;
 import san.investment.common.entity.menu.Menu;
+import san.investment.common.enums.DataStatus;
+
+import java.util.List;
+import java.util.Optional;
 
 /**
  * packageName : san.investment.admin.repository.menu
@@ -13,5 +16,5 @@ import san.investment.common.entity.menu.Menu;
  */
 public interface MenuCustomRepository {
 
-    Page<Menu> findMenuPage(Pageable pageable);
+    Optional<List<Menu>> findMenuList(SearchType searchType, String keyword, DataStatus dataStatus);
 }
