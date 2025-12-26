@@ -75,6 +75,7 @@ src/main/java/san/investment/admin/
 - Environment variables required:
   - Database: `MARIADB_URL`, `MARIADB_USERNAME`, `MARIADB_PASSWORD`
   - JWT: `JWT_SECRET_KEY` (used for token signing)
+  - File Upload: `FILE_SAVE_URL` (base directory for uploaded files)
 
 ### QueryDSL Setup
 - Generated Q-classes are placed in `src/main/generated`
@@ -85,7 +86,7 @@ src/main/java/san/investment/admin/
 - JWT-based authentication (stateless sessions)
 - Custom AuthenticationFilter validates JWT on every request
 - CustomHttpServletRequest wrapper injects admin info into request headers
-- Public endpoints: `/js/**`, `/css/**`, `/image/**`, `/scss/**`, `/favicon.ico`, `/.well-known/**`
+- Public endpoints: `/js/**`, `/css/**`, `/image/**`, `/scss/**`, `/uploads/**`, `/favicon.ico`, `/.well-known/**`
 - Public routes: `GET /`, `GET /login`, `GET /company`, `POST /v1/auth/login`, `POST /v1/auth/logout`, `GET /v1/auth/password`
 - All other endpoints require authentication
 - CORS configured with `http://localhost:8080` (SecurityConfig.java:65)
@@ -153,6 +154,31 @@ src/main/java/san/investment/admin/
 - HikariCP connection pooling configured (min idle 5, idle timeout 60000ms)
 - **Important**: All date/time operations use Asia/Seoul timezone
 
+### File Upload Architecture
+- **Storage**: Files are physically saved to `${FILE_SAVE_URL}/subdirectory/filename`
+- **URL Mapping**: WebMvcConfig maps `/uploads/**` to the file system directory
+- **FileUtil**: Returns web-accessible paths (e.g., `/uploads/company/1/logo.png`) instead of absolute file system paths
+- **Security**: `/uploads/**` is publicly accessible (configured in SecurityConfig)
+- **Multipart Config**: Max file size 500MB, max request size 500MB (application.yml)
+- **Path Convention**: `file.company.url: company/` - subdirectory for company-related files
+
+**File Upload Pattern:**
+```java
+// Controller
+@PutMapping
+public ResponseEntity<String> updateCompany(
+    @RequestPart(value = "logoFile", required = false) MultipartFile logoFile,
+    @RequestPart(value = "mainFile", required = false) MultipartFile mainFile,
+    @RequestPart(value = "jsonBody") String jsonBody) {
+    // Parse JSON and call service
+}
+
+// Service
+String subDirectory = companyUrl.concat(String.valueOf(companyNo)); // "company/1"
+String fileUrl = fileUtil.saveFile(file, subDirectory); // Returns "/uploads/company/1/filename.ext"
+entity.changeLogoUrl(fileUrl); // Save web path to database
+```
+
 ## Frontend Architecture
 
 ### Template Structure (Thymeleaf)
@@ -213,13 +239,22 @@ src/main/resources/static/js/
 // GET request
 api.get('/endpoint')
 
-// POST request
+// POST request with JSON
 api.post('/endpoint', { data: 'value' })
 
-// Other methods: api.put(), api.patch(), api.delete()
+// PUT request with FormData (for file uploads)
+const formData = new FormData();
+formData.append('file', fileInput.files[0]);
+formData.append('jsonBody', new Blob([JSON.stringify(data)], { type: 'application/json' }));
+api.put('/endpoint', formData)
+
+// Other methods: api.patch(), api.delete()
 ```
 - Base URL: `/v1`
-- Automatically includes Content-Type header
+- Automatically includes `credentials: 'same-origin'` to send JWT cookies
+- Auto-detects FormData vs JSON and sets appropriate Content-Type
+- For FormData: Browser automatically sets `multipart/form-data` with boundary
+- For JSON: Sets `Content-Type: application/json` and stringifies body
 - Returns parsed JSON response
 - Throws errors for non-OK responses
 
@@ -294,13 +329,77 @@ api.get('/auth/user')
     .then(data => console.log(data))
     .catch(error => san.errorAlert(error.message));
 
-// POST with data
+// POST with JSON data
 api.post('/auth/login', { id: 'user', password: 'pass' })
     .then(response => {
         san.successAlert('로그인 성공', () => {
             window.location.href = '/dashboard';
         });
     });
+
+// PUT with file upload (multipart/form-data)
+const formData = new FormData();
+if (logoFile) {
+    formData.append('logoFile', logoFile);
+}
+if (mainFile) {
+    formData.append('mainFile', mainFile);
+}
+const jsonBody = {
+    companyNo: companyNo,
+    companyName: companyName,
+    // ... other fields
+};
+formData.append('jsonBody', new Blob([JSON.stringify(jsonBody)], { type: 'application/json' }));
+
+api.put('/company', formData)
+    .then(data => {
+        san.successAlert('저장되었습니다.', () => {
+            window.location.reload();
+        });
+    })
+    .catch(error => {
+        san.errorAlert('저장 중 오류가 발생했습니다.');
+    });
+```
+
+### File Upload with Image Preview Pattern
+```javascript
+// Load existing image from server
+function loadImagePreview(imageUrl, previewContainer) {
+    if (imageUrl) {
+        previewContainer.innerHTML = `<img src="${imageUrl}" alt="Existing Image">`;
+        previewContainer.classList.add('active');
+        previewContainer.parentElement.querySelector('.file-upload-placeholder').style.display = 'none';
+    }
+}
+
+// On page load, display existing images
+api.get('/company')
+    .then(data => {
+        if (data && data.data) {
+            if (data.data.logoUrl) {
+                loadImagePreview(data.data.logoUrl, logoPreview);
+            }
+            if (data.data.mainImgUrl) {
+                loadImagePreview(data.data.mainImgUrl, mainPreview);
+            }
+        }
+    });
+
+// Handle new file selection
+fileInput.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            previewContainer.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+            previewContainer.classList.add('active');
+            // Hide placeholder
+        };
+        reader.readAsDataURL(file);
+    }
+});
 ```
 
 ## Working Guidelines
@@ -310,3 +409,5 @@ api.post('/auth/login', { id: 'user', password: 'pass' })
 - **Timezone:** All date/time operations use Asia/Seoul timezone
 - **Profile:** Default profile is 'local' - ensure environment variables are set
 - **Icons:** Use Material Symbols Rounded as primary icon system for consistency
+- **File Uploads:** Always use api.js with FormData - it handles credentials and Content-Type automatically
+- **Image URLs:** Server returns web-accessible paths (`/uploads/...`) not file system paths
