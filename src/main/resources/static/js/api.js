@@ -8,18 +8,29 @@ async function apiCall(endpoint, options = {}) {
         body = null
     } = options;
 
-    const defaultHeaders = {
-        'Content-Type': 'application/json',
-        ...headers
-    };
-
     const fetchOptions = {
         method,
-        headers: defaultHeaders
+        credentials: 'same-origin'  // Include cookies (JWT token)
     };
 
-    if(body && method !== 'GET') {
-        fetchOptions.body = JSON.stringify(body);
+    // FormData인 경우 Content-Type을 설정하지 않음 (브라우저가 자동으로 boundary 추가)
+    if (body instanceof FormData) {
+        fetchOptions.body = body;
+        // headers는 추가하지 않음
+        if (Object.keys(headers).length > 0) {
+            fetchOptions.headers = headers;
+        }
+    } else {
+        // JSON 데이터인 경우
+        const defaultHeaders = {
+            'Content-Type': 'application/json',
+            ...headers
+        };
+        fetchOptions.headers = defaultHeaders;
+
+        if(body && method !== 'GET') {
+            fetchOptions.body = JSON.stringify(body);
+        }
     }
 
     console.log('fetchOptions: ', fetchOptions);

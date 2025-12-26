@@ -44,6 +44,7 @@ public class SecurityConfig {
                                 "/css/**",
                                 "/image/**",
                                 "/scss/**",
+                                "/uploads/**",
                                 "/favicon.ico",
                                 "/.well-known/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/login").permitAll()

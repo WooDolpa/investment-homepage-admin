@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let currentStep = 1;
     const totalSteps = 2;
+    let companyNo = null;
 
     // Initialize Quill Editor
     let quillEditor = null;
@@ -168,67 +169,88 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Load image preview from URL
+    function loadImagePreview(imageUrl, previewContainer) {
+        if (imageUrl) {
+            previewContainer.innerHTML = `<img src="${imageUrl}" alt="Existing Image">`;
+            previewContainer.classList.add('active');
+            previewContainer.parentElement.querySelector('.file-upload-placeholder').style.display = 'none';
+        }
+    }
+
     // Handle form submission
     function handleSubmit() {
-        // Collect form data
-        const formData = {
-            // Step 1: 기본정보
-            companyName: document.getElementById('companyName').value,
-            companyInfo: document.getElementById('companyInfo').value,
-            postCode: document.getElementById('postCode').value,
-            address: document.getElementById('address').value,
-            addressDetail: document.getElementById('addressDetail').value,
-
-            // Step 2: 이미지
-            logoImage: logoInput.files[0],
-            mainImage: mainInput.files[0]
-        };
+        // Collect form values
+        const companyName = document.getElementById('companyName').value;
+        const companyInfo = document.getElementById('companyInfo').value;
+        const postCode = document.getElementById('postCode').value;
+        const address = document.getElementById('address').value;
+        const addressDetail = document.getElementById('addressDetail').value;
+        const logoFile = logoInput.files[0];
+        const mainFile = mainInput.files[0];
 
         // Validation
-        if (!formData.companyName) {
+        if (!companyName) {
             san.warningAlert('회사명을 입력해주세요.');
             showStep(1);
             document.getElementById('companyName').focus();
             return;
         }
 
-        if (!formData.companyInfo) {
+        if (!companyInfo) {
             san.warningAlert('회사 정보를 입력해주세요.');
             showStep(1);
             quillEditor.focus();
             return;
         }
 
-        if (!formData.postCode || !formData.address) {
+        if (!postCode || !address) {
             san.warningAlert('주소를 입력해주세요.');
             showStep(1);
             document.getElementById('searchAddressButton').focus();
             return;
         }
 
-        console.log('Form data to submit:', formData);
+        // Create FormData for multipart/form-data request
+        const formData = new FormData();
 
-        // TODO: API call to update company information
-        // Example:
-        // fetch('/api/company/update', {
-        //     method: 'POST',
-        //     body: JSON.stringify(formData),
-        //     headers: {
-        //         'Content-Type': 'application/json'
-        //     }
-        // })
-        // .then(response => response.json())
-        // .then(data => {
-        //     alert('회사 정보가 수정되었습니다.');
-        //     window.location.href = 'company.html';
-        // })
-        // .catch(error => {
-        //     console.error('Error:', error);
-        //     alert('저장 중 오류가 발생했습니다.');
-        // });
+        // Add logo file (optional - only if new file is selected)
+        if (logoFile) {
+            formData.append('logoFile', logoFile);
+        }
 
-        alert('회사 정보가 저장되었습니다.\n(실제 API 연동 시 저장됩니다)');
-        // window.location.href = 'company.html';
+        // Add main file (optional - only if new file is selected)
+        if (mainFile) {
+            formData.append('mainFile', mainFile);
+        }
+
+        // Create JSON body for CompanyUpdDto
+        const jsonBody = {
+            companyNo: companyNo,
+            companyName: companyName,
+            companyInfo: companyInfo,
+            postCode: postCode,
+            address: address,
+            addressDetail: addressDetail
+        };
+
+        // Add JSON body as Blob
+        formData.append('jsonBody', new Blob([JSON.stringify(jsonBody)], { type: 'application/json' }));
+
+        console.log('Submitting company update:', jsonBody);
+
+        // Call PUT API using api.put()
+        api.put('/company', formData)
+            .then(data => {
+                console.log('Company updated successfully:', data);
+                san.successAlert('회사 정보가 수정되었습니다.', function() {
+                    window.location.reload();
+                });
+            })
+            .catch(error => {
+                console.error('Error updating company:', error);
+                san.errorAlert('저장 중 오류가 발생했습니다.');
+            });
     }
 
     // Step indicator click
@@ -250,6 +272,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data && data.data) {
                     const company = data.data;
 
+                    // Store company number
+                    companyNo = company.companyNo;
+
                     // Set basic info
                     document.getElementById('companyName').value = company.companyName || '';
 
@@ -263,6 +288,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     document.getElementById('postCode').value = company.postCode || '';
                     document.getElementById('address').value = company.address || '';
                     document.getElementById('addressDetail').value = company.addressDetail || '';
+
+                    // Load logo image preview
+                    if (company.logoUrl) {
+                        loadImagePreview(company.logoUrl, logoPreview);
+                    }
+
+                    // Load main image preview
+                    if (company.mainImgUrl) {
+                        loadImagePreview(company.mainImgUrl, mainPreview);
+                    }
 
                     console.log('Company data loaded:', company);
                 }

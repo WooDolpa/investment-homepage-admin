@@ -48,7 +48,7 @@ public class CompanyApiController {
      */
     @PutMapping
     public ResponseEntity<String> updateCompany(@RequestPart(value = "logoFile", required = false) MultipartFile logoFile,
-                                                @RequestPart(value = "mainFile") MultipartFile mainFile,
+                                                @RequestPart(value = "mainFile", required = false) MultipartFile mainFile,
                                                 @RequestPart(value = "jsonBody") String jsonBody) {
 
         CompanyUpdDto dto = null;
@@ -60,6 +60,7 @@ public class CompanyApiController {
             throw new CustomException(ExceptionCode.INVALID_PARAMETER);
         }
 
+        log.info("[CompanyApiController][updateCompany] dto: {}", dto);
         companyService.updateCompany(dto, logoFile, mainFile);
         return new ResponseEntity<>(ApiResponseDto.makeSuccessResponse(), HttpStatus.OK);
     }

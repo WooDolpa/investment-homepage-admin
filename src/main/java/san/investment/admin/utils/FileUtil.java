@@ -42,7 +42,8 @@ public class FileUtil {
                 Path saveFilePath = baseDirectory.resolve(fileName);
                 Files.copy(file.getInputStream(), saveFilePath, StandardCopyOption.REPLACE_EXISTING);
 
-                fileUrl = saveFilePath.toString();
+                // Return web-accessible URL path instead of absolute file system path
+                fileUrl = "/uploads/" + subDirectory + "/" + fileName;
             }
 
         } catch (IOException e) {
