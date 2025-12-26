@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="~{fragments/common :: head}"></th:block>
+    <th:block th:replace="~{fragments/common :: dashboard}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/portfolio/portfolio.css}" />
+</head>
+<body>
+    <th:block th:replace="~{fragments/header :: header}"></th:block>
+    <th:block th:replace="~{fragments/header :: sidebar}"></th:block>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="content-wrapper">
+            <!-- Search Area -->
+            <div class="search-section">
+                <h2 class="section-title-main">포트폴리오 관리</h2>
+                <p class="section-subtitle">포트폴리오를 조회하고 관리하세요</p>
+                <div class="search-container">
+                    <div class="search-row">
+                        <label class="search-label">검색</label>
+                        <div class="custom-select-wrapper">
+                            <div class="custom-select" id="searchTypeSelect">
+                                <div class="custom-select-trigger">
+                                    <span id="selectedSearchType">제목</span>
+                                    <span class="material-icons arrow-icon">expand_more</span>
+                                </div>
+                                <div class="custom-options">
+                                    <div class="custom-option selected" data-value="title">제목</div>
+                                </div>
+                            </div>
+                            <input type="hidden" id="searchType" value="title">
+                        </div>
+                        <input
+                                type="text"
+                                class="search-input"
+                                id="searchKeyword"
+                                placeholder="제목을 입력하세요"
+                        >
+                    </div>
+                    <div class="search-row">
+                        <label class="search-label">상태</label>
+                        <div class="custom-select-wrapper">
+                            <div class="custom-select" id="statusSelect">
+                                <div class="custom-select-trigger">
+                                    <span id="selectedStatus">전체</span>
+                                    <span class="material-icons arrow-icon">expand_more</span>
+                                </div>
+                                <div class="custom-options">
+                                    <div class="custom-option selected" data-value="">전체</div>
+                                    <div class="custom-option" data-value="Y">게시</div>
+                                    <div class="custom-option" data-value="N">비게시</div>
+                                </div>
+                            </div>
+                            <input type="hidden" id="searchStatus" value="">
+                        </div>
+                    </div>
+                    <div class="search-button-wrapper">
+                        <button class="search-button" id="searchButton">
+                            <span class="material-icons">search</span>
+                            검색
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Portfolio Table -->
+            <div class="table-section">
+                <div class="section-header">
+                    <h3 class="section-title">포트폴리오 목록</h3>
+                    <div class="items-per-page">
+                        <div class="custom-select-wrapper items-per-page-select">
+                            <div class="custom-select" id="itemsPerPageSelect">
+                                <div class="custom-select-trigger">
+                                    <span id="selectedItemsPerPage">5</span>
+                                    <span class="material-icons arrow-icon">expand_more</span>
+                                </div>
+                                <div class="custom-options">
+                                    <div class="custom-option selected" data-value="5">5</div>
+                                    <div class="custom-option" data-value="10">10</div>
+                                    <div class="custom-option" data-value="20">20</div>
+                                    <div class="custom-option" data-value="50">50</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                        <tr>
+                            <th>제목</th>
+                            <th>요약 이미지</th>
+                            <th>작업</th>
+                        </tr>
+                        </thead>
+                        <tbody id="portfolioTableBody">
+                            <tr data-id="1" data-title="반포 자이 아파트" data-image="/img/dog.jpg" data-status="Y">
+                                <td>반포 자이 아파트</td>
+                                <td>
+                                    <button class="preview-button" title="미리보기">
+                                        <span class="material-icons">visibility</span>
+                                        미리보기
+                                    </button>
+                                </td>
+                                <td>
+                                    <button class="action-button edit-button" title="수정">
+                                        <span class="material-icons">edit</span>
+                                    </button>
+                                    <button class="action-button delete-button" title="삭제">
+                                        <span class="material-icons">delete</span>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination-container">
+                    <button class="pagination-button" id="prevPage">
+                        <span class="material-icons">navigate_before</span>
+                    </button>
+                    <div class="pagination-numbers" id="paginationNumbers"></div>
+                    <button class="pagination-button" id="nextPage">
+                        <span class="material-icons">navigate_next</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Image Preview Modal -->
+    <div class="modal-overlay" id="imagePreviewModal">
+        <div class="modal-container image-modal">
+            <div class="modal-header">
+                <h3 class="modal-title" id="imageModalTitle">이미지 미리보기</h3>
+                <button class="modal-close" id="imageModalClose">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            <div class="modal-content image-modal-content">
+                <img src="" alt="Portfolio Image" id="previewImage" class="preview-image">
+            </div>
+        </div>
+    </div>
+
+</body>
+<th:block th:replace="~{fragments/common :: script}"></th:block>
+<th:block th:replace="~{fragments/scripts :: commonScripts}"></th:block>
+<script th:src="@{/js/portfolio/portfolio.js}"></script>
+</html>

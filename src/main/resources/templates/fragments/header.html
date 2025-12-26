@@ -47,6 +47,18 @@
                         </li>
                     </ul>
                 </li>
+                <li th:classappend="${menuActive == 'portfolio'} ? 'nav-item has-submenu open' : 'nav-item has-submenu'">
+                    <a href="#" class="nav-link">
+                        <span class="material-icons nav-icon">inventory_2</span>
+                        <span class="nav-text">포트폴리오</span>
+                        <span class="material-icons submenu-arrow">expand_more</span>
+                    </a>
+                    <ul class="submenu">
+                        <li th:classappend="${subMenuActive == 'portfolioManage'} ? 'submenu-item active' : 'submenu-item'">
+                            <a href="/portfolio" class="submenu-link">포트폴리오 관리</a>
+                        </li>
+                    </ul>
+                </li>
             </ul>
         </nav>
     </aside>
