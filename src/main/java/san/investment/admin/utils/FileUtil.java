@@ -26,6 +26,13 @@ public class FileUtil {
     @Value("${file.save.url}")
     private String saveUrl;
 
+    /**
+     * Save file to disk and return web-accessible path
+     *
+     * @param file file to save
+     * @param subDirectory subdirectory under base save directory
+     * @return web-accessible path (/uploads/...)
+     */
     public String saveFile(MultipartFile file, String subDirectory) {
 
         String fileUrl = "";
@@ -51,5 +58,43 @@ public class FileUtil {
         }
 
         return fileUrl;
+    }
+
+    /**
+     * Convert absolute file path to web-accessible path
+     *
+     * @param filePath absolute file path or web path
+     * @return web-accessible path (/uploads/...) or null if input is null/empty
+     */
+    public String convertToWebPath(String filePath) {
+        if (filePath == null || filePath.isEmpty()) {
+            return null;
+        }
+
+        // If already a web path, return as is
+        if (filePath.startsWith("/uploads/")) {
+            return filePath;
+        }
+
+        // Convert absolute file path to web path
+        // Extract the relative path after the base save directory
+        String normalizedPath = filePath.replace("\\", "/");
+        String normalizedSaveUrl = Paths.get(saveUrl).toString().replace("\\", "/");
+
+        int saveUrlIndex = normalizedPath.indexOf(normalizedSaveUrl);
+
+        if (saveUrlIndex >= 0) {
+            // Extract relative path after saveUrl
+            String relativePath = normalizedPath.substring(saveUrlIndex + normalizedSaveUrl.length());
+            // Remove leading slash if present
+            if (relativePath.startsWith("/")) {
+                relativePath = relativePath.substring(1);
+            }
+            return "/uploads/" + relativePath;
+        }
+
+        // If path format is unexpected, return original
+        log.warn("[FileUtil][convertToWebPath] Unexpected file path format: {}", filePath);
+        return filePath;
     }
 }

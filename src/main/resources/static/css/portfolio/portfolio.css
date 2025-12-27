@@ -234,6 +234,16 @@
     font-size: 14px;
 }
 
+/* Register Button */
+.items-per-page .search-button {
+    padding: 8px 12px;
+    font-size: 14px;
+}
+
+.items-per-page .search-button .material-icons {
+    font-size: 18px;
+}
+
 /* Preview Button */
 .preview-button {
     display: inline-flex;

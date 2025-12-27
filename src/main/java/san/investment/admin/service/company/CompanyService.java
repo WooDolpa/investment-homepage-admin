@@ -29,11 +29,11 @@ import san.investment.common.exception.ExceptionCode;
 @Transactional(readOnly = true)
 public class CompanyService {
 
-    @Value("${file.company.url}")
-    private String companyUrl;
-
     private final CompanyRepository companyRepository;
     private final FileUtil fileUtil;
+
+    @Value("${file.company.url}")
+    private String companyUrl;
 
     /**
      * 회사 조회
@@ -50,8 +50,8 @@ public class CompanyService {
         return CompanyResDto.builder()
                 .companyNo(findCompany.getCompanyNo())
                 .companyName(findCompany.getCompanyName())
-                .logoUrl(convertToWebPath(findCompany.getLogoUrl()))
-                .mainImgUrl(convertToWebPath(findCompany.getMainImgUrl()))
+                .logoUrl(fileUtil.convertToWebPath(findCompany.getLogoUrl()))
+                .mainImgUrl(fileUtil.convertToWebPath(findCompany.getMainImgUrl()))
                 .companyInfo(findCompany.getCompanyInfo())
                 .postCode(findCompany.getPostCode())
                 .address(findCompany.getAddress())
@@ -59,37 +59,6 @@ public class CompanyService {
                 .dataStatus(dataStatus.getKey())
                 .dataStatusStr(dataStatus.getDesc())
                 .build();
-    }
-
-    /**
-     * Convert absolute file path to web-accessible path
-     *
-     * @param filePath absolute file path or web path
-     * @return web-accessible path
-     */
-    private String convertToWebPath(String filePath) {
-        if (filePath == null || filePath.isEmpty()) {
-            return null;
-        }
-
-        // If already a web path, return as is
-        if (filePath.startsWith("/uploads/")) {
-            return filePath;
-        }
-
-        // Convert absolute file path to web path
-        // Extract the relative path after the base save directory
-        String normalizedPath = filePath.replace("\\", "/");
-        int uploadsIndex = normalizedPath.indexOf(companyUrl);
-
-        if (uploadsIndex >= 0) {
-            String relativePath = normalizedPath.substring(uploadsIndex);
-            return "/uploads/" + relativePath;
-        }
-
-        // If path format is unexpected, return original
-        log.warn("[CompanyService][convertToWebPath] Unexpected file path format: {}", filePath);
-        return filePath;
     }
 
     /**

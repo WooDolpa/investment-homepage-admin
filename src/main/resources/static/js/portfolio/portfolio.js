@@ -158,6 +158,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize pagination
     initializePagination();
 
+    // Register Button
+    const registerButton = document.getElementById('registerButton');
+    if (registerButton) {
+        registerButton.addEventListener('click', function() {
+            window.location.href = '/portfolio/register';
+        });
+    }
+
     // Search Functionality
     if (searchButton) {
         searchButton.addEventListener('click', function() {

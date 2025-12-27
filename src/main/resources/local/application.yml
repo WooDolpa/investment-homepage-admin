@@ -39,3 +39,5 @@ file:
     url: ${FILE_SAVE_URL}
   company:
     url: company/
+  portfolio:
+    url: portfolio/

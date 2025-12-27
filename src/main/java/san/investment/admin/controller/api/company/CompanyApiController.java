@@ -60,7 +60,6 @@ public class CompanyApiController {
             throw new CustomException(ExceptionCode.INVALID_PARAMETER);
         }
 
-        log.info("[CompanyApiController][updateCompany] dto: {}", dto);
         companyService.updateCompany(dto, logoFile, mainFile);
         return new ResponseEntity<>(ApiResponseDto.makeSuccessResponse(), HttpStatus.OK);
     }

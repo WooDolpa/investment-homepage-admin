@@ -3,7 +3,7 @@ const san = {
     warningAlert : function(message) {
         Swal.fire({
             icon: 'warning',
-            text: message,
+            html: message,
             confirmButtonText: '확인',
             buttonsStyling: false,
             customClass: {
@@ -16,7 +16,7 @@ const san = {
     errorAlert : function(message) {
         Swal.fire({
             icon: 'error',
-            text: message,
+            html: message,
             confirmButtonText: '확인',
             buttonsStyling: false,
             customClass: {
@@ -29,7 +29,7 @@ const san = {
     successAlert : function(message, callback) {
         Swal.fire({
             icon: 'success',
-            text: message,
+            html: message,
             confirmButtonText: '확인',
             buttonsStyling: false,
             customClass: {
@@ -46,7 +46,7 @@ const san = {
     infoAlert : function(message) {
         Swal.fire({
             icon: 'info',
-            text: message,
+            html: message,
             confirmButtonText: '확인',
             buttonsStyling: false,
             customClass: {
@@ -69,7 +69,7 @@ const san = {
         });
 
         confirm.fire({
-            text: message,
+            html: message,
             icon: 'info',
             showCancelButton: true,
             cancelButtonText: '취소',

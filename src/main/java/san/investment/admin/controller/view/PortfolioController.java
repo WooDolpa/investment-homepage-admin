@@ -21,4 +21,16 @@ public class PortfolioController {
         return "portfolio/portfolio_list";
     }
 
+    @GetMapping(path = "/portfolio/register")
+    public String portfolioRegister(HttpServletRequest request, Model model) {
+
+        String adminName = request.getHeader(ApiConstants.REQUEST_HEADER_ADMIN_NAME);
+
+        model.addAttribute("adminName", adminName);
+        model.addAttribute("menuActive", "portfolio");
+        model.addAttribute("subMenuActive", "portfolioManage");
+
+        return "portfolio/portfolio_register";
+    }
+
 }
