@@ -181,4 +181,24 @@ public class PortfolioService {
         findPortfolio.changeOrderNum(newOrderNum);
         findPortfolio.changeDataStatus(dataStatus);
     }
+
+    /**
+     * 포트폴리오 삭제
+     *
+     * @param portfolioNo
+     */
+    @Transactional
+    public void deletePortfolio(Integer portfolioNo) {
+
+        Portfolio findPortfolio = portfolioRepository.findById(portfolioNo)
+                .orElseThrow(() -> new CustomException(ExceptionCode.PORTFOLIO_NOT_FOUND));
+
+        List<Portfolio> list = portfolioRepository.findByDataStatusNotAndOrderNumGreaterThan(DataStatus.Delete, findPortfolio.getOrderNum())
+                .orElse(new ArrayList<>());
+
+        list.forEach(Portfolio::decreaseOrderNum);
+
+        findPortfolio.deleteOrderNum(0);
+        findPortfolio.changeDataStatus(DataStatus.Delete);
+    }
 }

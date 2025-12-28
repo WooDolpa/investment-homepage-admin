@@ -76,6 +76,13 @@ public class PortfolioApiController {
         return new ResponseEntity<>(ApiResponseDto.makeResponse(portfolioService.findPortfolio(portfolioNo)), HttpStatus.OK);
     }
 
+    /**
+     * 포트폴리오 수정
+     *
+     * @param file
+     * @param jsonBody
+     * @return
+     */
     @PutMapping
     public ResponseEntity<String> updatePortfolio(@RequestPart(value = "imageFile", required = false) MultipartFile file,
                                                   @RequestPart(value = "jsonBody") String jsonBody) {
@@ -90,6 +97,19 @@ public class PortfolioApiController {
         }
 
         portfolioService.updatePortfolio(dto, file);
+        return new ResponseEntity<>(ApiResponseDto.makeSuccessResponse(), HttpStatus.OK);
+    }
+
+    /**
+     * 포트폴리오 삭제
+     *
+     * @param portfolioNo
+     * @return
+     */
+    @DeleteMapping(path = "/{portfolioNo}")
+    public ResponseEntity<String> deletePortfolio(@PathVariable(name = "portfolioNo") Integer portfolioNo) {
+
+        portfolioService.deletePortfolio(portfolioNo);
         return new ResponseEntity<>(ApiResponseDto.makeSuccessResponse(), HttpStatus.OK);
     }
 }

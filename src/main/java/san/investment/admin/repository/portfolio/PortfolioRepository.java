@@ -19,4 +19,5 @@ public interface PortfolioRepository extends JpaRepository<Portfolio, Integer>, 
     Optional<List<Portfolio>> findByDataStatusNotAndOrderNumGreaterThanEqual(DataStatus dataStatus, Integer orderNum);
     Optional<List<Portfolio>> findByDataStatusNotAndOrderNumGreaterThanEqualAndOrderNumLessThan(DataStatus dataStatus, Integer newOrderNum, Integer originalOrderNum);
     Optional<List<Portfolio>> findByDataStatusNotAndOrderNumGreaterThanAndOrderNumLessThanEqual(DataStatus dataStatus, Integer originalOrderNum, Integer newOrderNum);
+    Optional<List<Portfolio>> findByDataStatusNotAndOrderNumGreaterThan(DataStatus dataStatus, Integer orderNum);
 }

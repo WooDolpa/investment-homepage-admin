@@ -42,6 +42,7 @@ public class PortfolioRepositoryImpl implements PortfolioCustomRepository {
         List<Portfolio> list = factory.select(portfolio)
                 .from(portfolio)
                 .where(
+                        portfolio.dataStatus.ne(DataStatus.Delete),
                         findSearch(findSearchType, keyword),
                         findDataStatus(findDataStatus)
                 )
@@ -53,6 +54,7 @@ public class PortfolioRepositoryImpl implements PortfolioCustomRepository {
         Long totalCount = factory.select(portfolio.count())
                 .from(portfolio)
                 .where(
+                        portfolio.dataStatus.ne(DataStatus.Delete),
                         findSearch(findSearchType, keyword),
                         findDataStatus(findDataStatus)
                 )

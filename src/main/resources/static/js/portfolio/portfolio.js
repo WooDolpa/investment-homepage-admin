@@ -425,11 +425,21 @@ document.addEventListener('DOMContentLoaded', function() {
                     const title = row.getAttribute('data-title');
 
                     san.confirm(
-                        `포트폴리오를 삭제하시겠습니까?<br><strong>${title}</strong>`,
+                        `포트폴리오를 삭제하시겠습니까?`,
                         function() {
-                            // TODO: API call to delete portfolio
-                            console.log('Delete portfolio:', { id: portfolioId });
-                            san.infoAlert('포트폴리오 삭제 기능은 준비 중입니다.');
+                            // Call DELETE API
+                            api.delete(`/portfolio/${portfolioId}`)
+                                .then(data => {
+                                    console.log('Portfolio deleted successfully:', data);
+                                    san.successAlert('포트폴리오가 삭제되었습니다.', function() {
+                                        // Reload current page
+                                        loadPortfolios();
+                                    });
+                                })
+                                .catch(error => {
+                                    console.error('Error deleting portfolio:', error);
+                                    san.errorAlert('삭제 중 오류가 발생했습니다.');
+                                });
                         }
                     );
                 });
