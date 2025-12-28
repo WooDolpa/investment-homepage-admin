@@ -45,6 +45,7 @@ public class PortfolioRepositoryImpl implements PortfolioCustomRepository {
                         findSearch(findSearchType, keyword),
                         findDataStatus(findDataStatus)
                 )
+                .orderBy(portfolio.orderNum.asc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();

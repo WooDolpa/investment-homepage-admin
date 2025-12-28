@@ -235,7 +235,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (portfolios.length === 0) {
             tableBody.innerHTML = `
                 <tr>
-                    <td colspan="4" style="text-align: center; padding: 40px; color: #666;">
+                    <td colspan="5" style="text-align: center; padding: 40px; color: #666;">
                         검색 결과가 없습니다.
                     </td>
                 </tr>
@@ -252,6 +252,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             row.innerHTML = `
                 <td>${portfolio.title}</td>
+                <td>${portfolio.orderNum || '-'}</td>
                 <td>${portfolio.statusStr || '-'}</td>
                 <td>
                     <button class="preview-button" title="미리보기">
@@ -409,11 +410,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 editButton.addEventListener('click', function(e) {
                     e.stopPropagation();
                     const portfolioId = row.getAttribute('data-id');
-                    const title = row.getAttribute('data-title');
 
-                    console.log('Edit portfolio:', { id: portfolioId, title: title });
-                    // TODO: Navigate to edit page
-                    san.infoAlert('포트폴리오 수정 기능은 준비 중입니다.');
+                    console.log('Edit portfolio:', { id: portfolioId });
+                    // Navigate to edit page
+                    window.location.href = `/portfolio/update?portfolioNo=${portfolioId}`;
                 });
             }
 

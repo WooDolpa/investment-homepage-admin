@@ -13,14 +13,18 @@ import org.springframework.web.multipart.MultipartFile;
 import san.investment.admin.dto.portfolio.PortfolioReqDto;
 import san.investment.admin.dto.portfolio.PortfolioResDto;
 import san.investment.admin.dto.portfolio.PortfolioSearchDto;
+import san.investment.admin.dto.portfolio.PortfolioUpdDto;
 import san.investment.admin.enums.SearchType;
 import san.investment.admin.repository.portfolio.PortfolioRepository;
 import san.investment.admin.utils.FileUtil;
 import san.investment.common.entity.portfolio.Portfolio;
 import san.investment.common.enums.DataStatus;
+import san.investment.common.exception.CustomException;
+import san.investment.common.exception.ExceptionCode;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * packageName : san.investment.admin.service.portfolio
@@ -110,5 +114,71 @@ public class PortfolioService {
                 .currentPage(portfolioPage.getNumber())
                 .pageSize(portfolioPage.getSize())
                 .build());
+    }
+
+    /**
+     * 포트폴리오 상세 조회
+     *
+     * @param portfolioNo
+     * @return
+     */
+    public PortfolioResDto findPortfolio(Integer portfolioNo) {
+
+        Portfolio findPortfolio = portfolioRepository.findById(portfolioNo)
+                .orElseThrow(() -> new CustomException(ExceptionCode.PORTFOLIO_NOT_FOUND));
+
+
+        return PortfolioResDto.builder()
+                .portfolioNo(findPortfolio.getPortfolioNo())
+                .title(findPortfolio.getPortfolioTitle())
+                .summary(findPortfolio.getPortfolioSummary())
+                .imageUrl(fileUtil.convertToWebPath(findPortfolio.getPortfolioImgUrl()))
+                .contents(findPortfolio.getPortfolioContents())
+                .status(findPortfolio.getDataStatus().getKey())
+                .statusStr(findPortfolio.getDataStatus().getDesc())
+                .orderNum(findPortfolio.getOrderNum())
+                .build();
+    }
+
+    /**
+     * 포트폴리오 수정
+     *
+     * @param dto
+     * @param file
+     */
+    @Transactional
+    public void updatePortfolio(PortfolioUpdDto dto, MultipartFile file) {
+
+        Portfolio findPortfolio = portfolioRepository.findById(dto.getPortfolioNo())
+                .orElseThrow(() -> new CustomException(ExceptionCode.PORTFOLIO_NOT_FOUND));
+
+        Integer originalOrderNum = findPortfolio.getOrderNum();
+        Integer newOrderNum = dto.getOrderNum();
+
+        if(!Objects.equals(originalOrderNum, newOrderNum)) {
+            if(originalOrderNum > newOrderNum) {
+                List<Portfolio> list = portfolioRepository.findByDataStatusNotAndOrderNumGreaterThanEqualAndOrderNumLessThan(DataStatus.Delete, newOrderNum, originalOrderNum)
+                        .orElse(new ArrayList<>());
+                list.forEach(Portfolio::increaseOrderNum);
+            }else {
+                List<Portfolio> list = portfolioRepository.findByDataStatusNotAndOrderNumGreaterThanAndOrderNumLessThanEqual(DataStatus.Delete, originalOrderNum, newOrderNum)
+                        .orElse(new ArrayList<>());
+                list.forEach(Portfolio::decreaseOrderNum);
+            }
+        }
+
+        DataStatus dataStatus = DataStatus.findDataStatus(dto.getDataStatus());
+
+        if(file != null && !file.isEmpty()) {
+            String subDirectory = portfolioUrl.concat(String.valueOf(findPortfolio.getPortfolioNo()));
+            String portfolioImgUrl = fileUtil.saveFile(file, subDirectory);
+            findPortfolio.changePortfolioImgUrl(portfolioImgUrl);
+        }
+
+        findPortfolio.changePortfolioTitle(dto.getTitle());
+        findPortfolio.changePortfolioSummary(dto.getSummary());
+        findPortfolio.changePortfolioContents(dto.getContents());
+        findPortfolio.changeOrderNum(newOrderNum);
+        findPortfolio.changeDataStatus(dataStatus);
     }
 }

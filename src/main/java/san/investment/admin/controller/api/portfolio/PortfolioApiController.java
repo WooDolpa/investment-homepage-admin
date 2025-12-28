@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import san.investment.admin.dto.portfolio.PortfolioReqDto;
 import san.investment.admin.dto.portfolio.PortfolioSearchDto;
+import san.investment.admin.dto.portfolio.PortfolioUpdDto;
 import san.investment.admin.service.portfolio.PortfolioService;
 import san.investment.common.dto.ApiResponseDto;
 import san.investment.common.exception.CustomException;
@@ -62,5 +63,33 @@ public class PortfolioApiController {
     @GetMapping(path = "/list")
     public ResponseEntity<String> findPortfolioList(@ModelAttribute PortfolioSearchDto dto) {
         return new ResponseEntity<>(ApiResponseDto.makeResponse(portfolioService.findPortfolioList(dto)), HttpStatus.OK);
+    }
+
+    /**
+     * 포트폴리오 상세 조회
+     *
+     * @param portfolioNo
+     * @return
+     */
+    @GetMapping(path = "/{portfolioNo}")
+    public ResponseEntity<String> findPortfolio(@PathVariable(name = "portfolioNo") Integer portfolioNo) {
+        return new ResponseEntity<>(ApiResponseDto.makeResponse(portfolioService.findPortfolio(portfolioNo)), HttpStatus.OK);
+    }
+
+    @PutMapping
+    public ResponseEntity<String> updatePortfolio(@RequestPart(value = "imageFile", required = false) MultipartFile file,
+                                                  @RequestPart(value = "jsonBody") String jsonBody) {
+
+        PortfolioUpdDto dto = null;
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            dto = mapper.readValue(jsonBody, PortfolioUpdDto.class);
+        }catch (Exception e) {
+            log.error("[PortfolioApiController][updatePortfolio] Json Parser error : {}", e.getMessage());
+            throw new CustomException(ExceptionCode.INVALID_PARAMETER);
+        }
+
+        portfolioService.updatePortfolio(dto, file);
+        return new ResponseEntity<>(ApiResponseDto.makeSuccessResponse(), HttpStatus.OK);
     }
 }

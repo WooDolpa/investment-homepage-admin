@@ -17,4 +17,6 @@ import java.util.Optional;
 public interface PortfolioRepository extends JpaRepository<Portfolio, Integer>, PortfolioCustomRepository {
     Long countByDataStatusNot(DataStatus dataStatus);
     Optional<List<Portfolio>> findByDataStatusNotAndOrderNumGreaterThanEqual(DataStatus dataStatus, Integer orderNum);
+    Optional<List<Portfolio>> findByDataStatusNotAndOrderNumGreaterThanEqualAndOrderNumLessThan(DataStatus dataStatus, Integer newOrderNum, Integer originalOrderNum);
+    Optional<List<Portfolio>> findByDataStatusNotAndOrderNumGreaterThanAndOrderNumLessThanEqual(DataStatus dataStatus, Integer originalOrderNum, Integer newOrderNum);
 }

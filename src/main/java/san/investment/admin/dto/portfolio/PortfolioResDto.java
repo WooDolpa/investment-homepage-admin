@@ -21,6 +21,7 @@ public class PortfolioResDto {
     private Integer portfolioNo;
     private String title;
     private String summary;
+    private String contents;
     private String imageUrl;
     private String status;
     private String statusStr;
