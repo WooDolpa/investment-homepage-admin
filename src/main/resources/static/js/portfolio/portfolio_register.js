@@ -123,10 +123,11 @@ document.addEventListener('DOMContentLoaded', function() {
         // Call POST API using api.post()
         api.post('/portfolio', formData)
             .then(data => {
-                console.log('Portfolio registered successfully:', data);
-                san.successAlert('포트폴리오가 등록되었습니다.', function() {
+                san.toast('포트폴리오가 등록되었습니다.', 'success');
+                setTimeout(() =>{
                     window.location.href = '/portfolio';
-                });
+                }, 700);
+
             })
             .catch(error => {
                 console.error('Error registering portfolio:', error);

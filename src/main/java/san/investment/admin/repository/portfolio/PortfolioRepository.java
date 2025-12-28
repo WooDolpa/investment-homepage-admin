@@ -14,7 +14,7 @@ import java.util.Optional;
  * date : 2025. 12. 27.
  * description :
  */
-public interface PortfolioRepository extends JpaRepository<Portfolio, Integer> {
+public interface PortfolioRepository extends JpaRepository<Portfolio, Integer>, PortfolioCustomRepository {
     Long countByDataStatusNot(DataStatus dataStatus);
     Optional<List<Portfolio>> findByDataStatusNotAndOrderNumGreaterThanEqual(DataStatus dataStatus, Integer orderNum);
 }

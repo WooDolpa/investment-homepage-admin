@@ -9,10 +9,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const imageModalTitle = document.getElementById('imageModalTitle');
 
     // Pagination variables
-    let currentPage = 1;
-    let itemsPerPage = 5;
-    let allRows = [];
-    let filteredRows = [];
+    let currentPage = 0; // 서버 사이드 페이지네이션 (0부터 시작)
+    let itemsPerPage = 10;
+    let searchParams = {
+        searchType: 'portfolioTitle',
+        keyword: '',
+        status: ''
+    };
 
     // Search Type Select
     const searchTypeSelect = document.getElementById('searchTypeSelect');
@@ -137,9 +140,9 @@ document.addEventListener('DOMContentLoaded', function() {
             selectedItemsPerPage.textContent = value;
             itemsPerPage = value;
 
-            // Reset to first page and update display
-            currentPage = 1;
-            updatePaginationDisplay();
+            // Reset to first page and reload
+            currentPage = 0;
+            loadPortfolios();
 
             // Close dropdown
             itemsPerPageSelect.classList.remove('open');
@@ -155,8 +158,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Initialize pagination
-    initializePagination();
+    // 페이지 로드 시 데이터 조회
+    loadPortfolios();
 
     // Register Button
     const registerButton = document.getElementById('registerButton');
@@ -184,53 +187,100 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Perform Search
     function performSearch() {
-        const type = searchType.value;
-        const status = searchStatus.value;
-        const keyword = searchKeyword.value.trim();
+        searchParams = {
+            searchType: searchType.value,
+            keyword: searchKeyword.value.trim(),
+            status: searchStatus.value
+        };
 
-        console.log('Searching:', {
-            type: type,
-            status: status,
-            keyword: keyword
-        });
-
-        // TODO: Implement actual search API call
-        // Filter table
-        filterTable(status, keyword);
+        // 검색 시 첫 페이지로 이동
+        currentPage = 0;
+        loadPortfolios();
     }
 
-    // Filter Table (Client-side simulation)
-    function filterTable(status, keyword) {
-        filteredRows = [];
-
-        allRows.forEach(function(row) {
-            const rowStatus = row.getAttribute('data-status');
-            const rowTitle = row.getAttribute('data-title');
-
-            // Check status filter
-            let statusMatch = !status || rowStatus === status;
-
-            // Check keyword filter
-            let keywordMatch = !keyword || rowTitle.toLowerCase().includes(keyword.toLowerCase());
-
-            if (statusMatch && keywordMatch) {
-                filteredRows.push(row);
-            }
+    // Load Portfolios from API
+    function loadPortfolios() {
+        const params = new URLSearchParams({
+            searchType: searchParams.searchType || '',
+            keyword: searchParams.keyword || '',
+            status: searchParams.status || '',
+            page: currentPage,
+            size: itemsPerPage
         });
 
-        console.log('Filtered results:', filteredRows.length);
+        api.get(`/portfolio/list?${params.toString()}`)
+            .then(response => {
+                const data = response.data;
+                if (data && data.content && data.content.length > 0) {
+                    renderTable(data.content);
+                    renderPagination(data.content[0]); // 첫 번째 항목에서 페이지 정보 추출
+                } else {
+                    renderTable([]);
+                    renderEmptyPagination();
+                }
+            })
+            .catch(error => {
+                console.error('Error loading portfolios:', error);
+                san.errorAlert('데이터를 불러오는 중 오류가 발생했습니다.');
+                renderTable([]);
+                renderEmptyPagination();
+            });
+    }
 
-        if (filteredRows.length === 0) {
-            console.log('No results found');
+    // Render Table
+    function renderTable(portfolios) {
+        const tableBody = document.getElementById('portfolioTableBody');
+        tableBody.innerHTML = '';
+
+        if (portfolios.length === 0) {
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="4" style="text-align: center; padding: 40px; color: #666;">
+                        검색 결과가 없습니다.
+                    </td>
+                </tr>
+            `;
+            return;
         }
 
-        // Reset to first page and update display
-        currentPage = 1;
-        updatePaginationDisplay();
+        portfolios.forEach(portfolio => {
+            const row = document.createElement('tr');
+            row.setAttribute('data-id', portfolio.portfolioNo);
+            row.setAttribute('data-title', portfolio.title);
+            row.setAttribute('data-image', portfolio.imageUrl || '');
+            row.setAttribute('data-status', portfolio.status);
+
+            row.innerHTML = `
+                <td>${portfolio.title}</td>
+                <td>${portfolio.statusStr || '-'}</td>
+                <td>
+                    <button class="preview-button" title="미리보기">
+                        <span class="material-icons">visibility</span>
+                        미리보기
+                    </button>
+                </td>
+                <td>
+                    <button class="action-button edit-button" title="수정">
+                        <span class="material-icons">edit</span>
+                    </button>
+                    <button class="action-button delete-button" title="삭제">
+                        <span class="material-icons">delete</span>
+                    </button>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+
+        // 버튼 이벤트 재연결
+        attachButtonListeners();
     }
 
     // Image Preview Modal Functions
     function openImageModal(imageUrl, title) {
+        if(!imageUrl) {
+            san.infoAlert('등록된 이미지가 없습니다.');
+            return;
+        }
         previewImage.src = imageUrl;
         imageModalTitle.textContent = title;
         imagePreviewModal.classList.add('active');
@@ -260,195 +310,128 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Initialize Pagination
-    function initializePagination() {
-        const tableBody = document.getElementById('portfolioTableBody');
-        allRows = Array.from(tableBody.querySelectorAll('tr'));
-        filteredRows = allRows.slice();
-
-        // Pagination buttons
-        const prevButton = document.getElementById('prevPage');
-        const nextButton = document.getElementById('nextPage');
-
-        prevButton.addEventListener('click', function() {
-            if (currentPage > 1) {
-                currentPage--;
-                updatePaginationDisplay();
-            }
-        });
-
-        nextButton.addEventListener('click', function() {
-            const totalPages = Math.ceil(filteredRows.length / itemsPerPage);
-            if (currentPage < totalPages) {
-                currentPage++;
-                updatePaginationDisplay();
-            }
-        });
-
-        updatePaginationDisplay();
-    }
-
-    // Update Pagination Display
-    function updatePaginationDisplay() {
-        const tableBody = document.getElementById('portfolioTableBody');
-        const totalPages = Math.ceil(filteredRows.length / itemsPerPage);
-        const startIndex = (currentPage - 1) * itemsPerPage;
-        const endIndex = startIndex + itemsPerPage;
-
-        // Hide all rows
-        allRows.forEach(function(row) {
-            row.style.display = 'none';
-        });
-
-        // Show only current page rows
-        filteredRows.slice(startIndex, endIndex).forEach(function(row) {
-            row.style.display = '';
-        });
-
-        // Update pagination buttons
-        updatePaginationButtons(totalPages);
-
-        // Re-attach button listeners for visible rows
-        attachButtonListeners();
-    }
-
-    // Update Pagination Buttons
-    function updatePaginationButtons(totalPages) {
-        const prevButton = document.getElementById('prevPage');
-        const nextButton = document.getElementById('nextPage');
+    // Render Pagination
+    function renderPagination(pageInfo) {
+        const totalPages = pageInfo.totalPages || 0;
         const paginationNumbers = document.getElementById('paginationNumbers');
+        const prevButton = document.getElementById('prevPage');
+        const nextButton = document.getElementById('nextPage');
 
-        // Enable/disable prev/next buttons
-        prevButton.disabled = currentPage === 1;
-        nextButton.disabled = currentPage === totalPages || totalPages === 0;
+        // 이전/다음 버튼 상태
+        prevButton.disabled = currentPage === 0;
+        nextButton.disabled = currentPage === totalPages - 1 || totalPages === 0;
 
-        // Clear pagination numbers
+        // 페이지 번호 버튼 렌더링
         paginationNumbers.innerHTML = '';
 
         if (totalPages === 0) return;
 
-        // Create page number buttons
-        for (let i = 1; i <= totalPages; i++) {
-            // Show all pages if total pages <= 7
-            // Otherwise show: 1 ... 4 5 6 ... 10
-            if (
-                totalPages <= 7 ||
-                i === 1 ||
-                i === totalPages ||
-                (i >= currentPage - 1 && i <= currentPage + 1)
-            ) {
-                const pageButton = document.createElement('button');
-                pageButton.className = 'pagination-number';
-                pageButton.textContent = i;
-
-                if (i === currentPage) {
-                    pageButton.classList.add('active');
-                }
-
-                pageButton.addEventListener('click', function() {
+        for (let i = 0; i < totalPages; i++) {
+            if (shouldShowPageNumber(i, currentPage, totalPages)) {
+                const btn = document.createElement('button');
+                btn.className = 'pagination-number';
+                btn.textContent = i + 1; // 사용자에게는 1부터 표시
+                if (i === currentPage) btn.classList.add('active');
+                btn.addEventListener('click', () => {
                     currentPage = i;
-                    updatePaginationDisplay();
+                    loadPortfolios();
                 });
-
-                paginationNumbers.appendChild(pageButton);
-            } else if (
-                i === currentPage - 2 ||
-                i === currentPage + 2
-            ) {
-                // Add ellipsis
+                paginationNumbers.appendChild(btn);
+            } else if (shouldShowEllipsis(i, currentPage, totalPages)) {
                 const ellipsis = document.createElement('div');
                 ellipsis.className = 'pagination-ellipsis';
                 ellipsis.textContent = '...';
                 paginationNumbers.appendChild(ellipsis);
             }
         }
+
+        // 이전/다음 버튼 이벤트
+        prevButton.onclick = () => {
+            if (currentPage > 0) {
+                currentPage--;
+                loadPortfolios();
+            }
+        };
+
+        nextButton.onclick = () => {
+            if (currentPage < totalPages - 1) {
+                currentPage++;
+                loadPortfolios();
+            }
+        };
+    }
+
+    // Render Empty Pagination
+    function renderEmptyPagination() {
+        const paginationNumbers = document.getElementById('paginationNumbers');
+        const prevButton = document.getElementById('prevPage');
+        const nextButton = document.getElementById('nextPage');
+
+        paginationNumbers.innerHTML = '';
+        prevButton.disabled = true;
+        nextButton.disabled = true;
+    }
+
+    // 페이지 번호 표시 여부
+    function shouldShowPageNumber(page, current, total) {
+        return total <= 7 ||
+               page === 0 ||
+               page === total - 1 ||
+               (page >= current - 1 && page <= current + 1);
+    }
+
+    // 생략 부호 표시 여부
+    function shouldShowEllipsis(page, current, total) {
+        return page === current - 2 || page === current + 2;
     }
 
     // Attach Button Listeners
     function attachButtonListeners() {
-        const visibleRows = document.querySelectorAll('#portfolioTableBody tr[style=""], #portfolioTableBody tr:not([style*="display: none"])');
+        const allRows = document.querySelectorAll('#portfolioTableBody tr');
 
-        visibleRows.forEach(function(row) {
+        allRows.forEach(function(row) {
             const previewButton = row.querySelector('.preview-button');
             const editButton = row.querySelector('.edit-button');
             const deleteButton = row.querySelector('.delete-button');
 
             // Preview button
             if (previewButton) {
-                const newPreviewButton = previewButton.cloneNode(true);
-                previewButton.parentNode.replaceChild(newPreviewButton, previewButton);
-
-                newPreviewButton.addEventListener('click', function(e) {
+                previewButton.addEventListener('click', function(e) {
                     e.stopPropagation();
-
-                    const rowElement = this.closest('tr');
-                    const imageUrl = rowElement.getAttribute('data-image');
-                    const title = rowElement.getAttribute('data-title');
-
+                    const imageUrl = row.getAttribute('data-image');
+                    const title = row.getAttribute('data-title');
                     openImageModal(imageUrl, title);
                 });
             }
 
             // Edit button
             if (editButton) {
-                const newEditButton = editButton.cloneNode(true);
-                editButton.parentNode.replaceChild(newEditButton, editButton);
-
-                newEditButton.addEventListener('click', function(e) {
+                editButton.addEventListener('click', function(e) {
                     e.stopPropagation();
+                    const portfolioId = row.getAttribute('data-id');
+                    const title = row.getAttribute('data-title');
 
-                    const rowElement = this.closest('tr');
-                    const portfolioId = rowElement.getAttribute('data-id');
-                    const title = rowElement.getAttribute('data-title');
-
-                    console.log('Edit portfolio:', {
-                        id: portfolioId,
-                        title: title
-                    });
-
-                    // TODO: Navigate to edit page or open edit modal
-                    alert('포트폴리오 수정:\n\n제목: ' + title);
+                    console.log('Edit portfolio:', { id: portfolioId, title: title });
+                    // TODO: Navigate to edit page
+                    san.infoAlert('포트폴리오 수정 기능은 준비 중입니다.');
                 });
             }
 
             // Delete button
             if (deleteButton) {
-                const newDeleteButton = deleteButton.cloneNode(true);
-                deleteButton.parentNode.replaceChild(newDeleteButton, deleteButton);
-
-                newDeleteButton.addEventListener('click', function(e) {
+                deleteButton.addEventListener('click', function(e) {
                     e.stopPropagation();
+                    const portfolioId = row.getAttribute('data-id');
+                    const title = row.getAttribute('data-title');
 
-                    const rowElement = this.closest('tr');
-                    const portfolioId = rowElement.getAttribute('data-id');
-                    const title = rowElement.getAttribute('data-title');
-
-                    if (confirm('포트폴리오를 삭제하시겠습니까?\n\n제목: ' + title)) {
-                        console.log('Delete portfolio:', {
-                            id: portfolioId,
-                            title: title
-                        });
-
-                        // TODO: API call to delete portfolio
-                        // Example:
-                        // fetch('/api/portfolio/delete', {
-                        //     method: 'DELETE',
-                        //     headers: { 'Content-Type': 'application/json' },
-                        //     body: JSON.stringify({ id: portfolioId })
-                        // })
-                        // .then(response => response.json())
-                        // .then(data => {
-                        //     alert('포트폴리오가 삭제되었습니다.');
-                        //     rowElement.remove();
-                        //     updatePaginationDisplay();
-                        // })
-                        // .catch(error => {
-                        //     console.error('Error:', error);
-                        //     alert('삭제 중 오류가 발생했습니다.');
-                        // });
-
-                        alert('포트폴리오가 삭제되었습니다.\n(실제 API 연동 시 삭제됩니다)');
-                    }
+                    san.confirm(
+                        `포트폴리오를 삭제하시겠습니까?<br><strong>${title}</strong>`,
+                        function() {
+                            // TODO: API call to delete portfolio
+                            console.log('Delete portfolio:', { id: portfolioId });
+                            san.infoAlert('포트폴리오 삭제 기능은 준비 중입니다.');
+                        }
+                    );
                 });
             }
         });

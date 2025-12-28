@@ -9,7 +9,8 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public enum SearchType {
 
-    MENU_NAME("menuName", "메뉴명")
+    MENU_NAME("menuName", "메뉴명"),
+    PORTFOLIO_TITLE("portfolioTitle", "포트폴리오 제목")
     ;
 
     private final String key;

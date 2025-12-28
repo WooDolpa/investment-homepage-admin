@@ -26,10 +26,10 @@
                                     <span class="material-icons arrow-icon">expand_more</span>
                                 </div>
                                 <div class="custom-options">
-                                    <div class="custom-option selected" data-value="title">제목</div>
+                                    <div class="custom-option selected" data-value="portfolioTitle">제목</div>
                                 </div>
                             </div>
-                            <input type="hidden" id="searchType" value="title">
+                            <input type="hidden" id="searchType" value="portfolioTitle">
                         </div>
                         <input
                                 type="text"
@@ -48,8 +48,8 @@
                                 </div>
                                 <div class="custom-options">
                                     <div class="custom-option selected" data-value="">전체</div>
-                                    <div class="custom-option" data-value="Y">게시</div>
-                                    <div class="custom-option" data-value="N">비게시</div>
+                                    <div class="custom-option" data-value="Y">사용</div>
+                                    <div class="custom-option" data-value="N">미사용</div>
                                 </div>
                             </div>
                             <input type="hidden" id="searchStatus" value="">
@@ -72,12 +72,11 @@
                         <div class="custom-select-wrapper items-per-page-select">
                             <div class="custom-select" id="itemsPerPageSelect">
                                 <div class="custom-select-trigger">
-                                    <span id="selectedItemsPerPage">5</span>
+                                    <span id="selectedItemsPerPage">10</span>
                                     <span class="material-icons arrow-icon">expand_more</span>
                                 </div>
                                 <div class="custom-options">
-                                    <div class="custom-option selected" data-value="5">5</div>
-                                    <div class="custom-option" data-value="10">10</div>
+                                    <div class="custom-option selected" data-value="10">10</div>
                                     <div class="custom-option" data-value="20">20</div>
                                     <div class="custom-option" data-value="50">50</div>
                                 </div>
@@ -95,28 +94,13 @@
                         <thead>
                         <tr>
                             <th>제목</th>
+                            <th>상태</th>
                             <th>요약 이미지</th>
                             <th>작업</th>
                         </tr>
                         </thead>
                         <tbody id="portfolioTableBody">
-                            <tr data-id="1" data-title="반포 자이 아파트" data-image="/img/dog.jpg" data-status="Y">
-                                <td>반포 자이 아파트</td>
-                                <td>
-                                    <button class="preview-button" title="미리보기">
-                                        <span class="material-icons">visibility</span>
-                                        미리보기
-                                    </button>
-                                </td>
-                                <td>
-                                    <button class="action-button edit-button" title="수정">
-                                        <span class="material-icons">edit</span>
-                                    </button>
-                                    <button class="action-button delete-button" title="삭제">
-                                        <span class="material-icons">delete</span>
-                                    </button>
-                                </td>
-                            </tr>
+                            <!-- Data will be loaded from API -->
                         </tbody>
                     </table>
                 </div>

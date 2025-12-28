@@ -5,12 +5,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import san.investment.admin.dto.portfolio.PortfolioReqDto;
+import san.investment.admin.dto.portfolio.PortfolioSearchDto;
 import san.investment.admin.service.portfolio.PortfolioService;
 import san.investment.common.dto.ApiResponseDto;
 import san.investment.common.exception.CustomException;
@@ -53,5 +51,16 @@ public class PortfolioApiController {
 
         portfolioService.addPortfolio(dto, file);
         return new ResponseEntity<>(ApiResponseDto.makeSuccessResponse(), HttpStatus.OK);
+    }
+
+    /**
+     * 포트폴리오 조회
+     *
+     * @param dto
+     * @return
+     */
+    @GetMapping(path = "/list")
+    public ResponseEntity<String> findPortfolioList(@ModelAttribute PortfolioSearchDto dto) {
+        return new ResponseEntity<>(ApiResponseDto.makeResponse(portfolioService.findPortfolioList(dto)), HttpStatus.OK);
     }
 }
