@@ -10,10 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
-import san.investment.admin.dto.portfolio.PortfolioReqDto;
-import san.investment.admin.dto.portfolio.PortfolioResDto;
-import san.investment.admin.dto.portfolio.PortfolioSearchDto;
-import san.investment.admin.dto.portfolio.PortfolioUpdDto;
+import san.investment.admin.dto.portfolio.*;
 import san.investment.admin.enums.SearchType;
 import san.investment.admin.repository.portfolio.PortfolioRepository;
 import san.investment.admin.utils.FileUtil;
@@ -191,6 +188,21 @@ public class PortfolioService {
         findPortfolio.changePortfolioContents(dto.getContents());
         findPortfolio.changeOrderNum(newOrderNum);
         findPortfolio.changeDataStatus(dataStatus);
+        findPortfolio.changePortfolioType(portfolioType);
+    }
+
+    /**
+     * 포트폴리오 타입 업데이트
+     *
+     * @param dto
+     */
+    @Transactional
+    public void updatePortfolioType(PortfolioTypeUpdDto dto) {
+
+        Portfolio findPortfolio = portfolioRepository.findById(dto.getPortfolioNo())
+                .orElseThrow(() -> new CustomException(ExceptionCode.PORTFOLIO_NOT_FOUND));
+
+        PortfolioType portfolioType = PortfolioType.findPortfolioType(dto.getPortfolioType());
         findPortfolio.changePortfolioType(portfolioType);
     }
 

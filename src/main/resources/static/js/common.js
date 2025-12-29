@@ -83,7 +83,7 @@ const san = {
            }
         });
     },
-    toast : function(message, icon = 'success', position = 'top-end', timer = 3000) {
+    toast : function(message, icon = 'success', timer = 3000, position = 'top-end') {
         const Toast = Swal.mixin({
             toast: true,
             position: position,

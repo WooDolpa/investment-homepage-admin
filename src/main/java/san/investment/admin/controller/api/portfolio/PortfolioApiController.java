@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import san.investment.admin.dto.portfolio.PortfolioReqDto;
 import san.investment.admin.dto.portfolio.PortfolioSearchDto;
+import san.investment.admin.dto.portfolio.PortfolioTypeUpdDto;
 import san.investment.admin.dto.portfolio.PortfolioUpdDto;
 import san.investment.admin.service.portfolio.PortfolioService;
 import san.investment.common.dto.ApiResponseDto;
@@ -97,6 +98,19 @@ public class PortfolioApiController {
         }
 
         portfolioService.updatePortfolio(dto, file);
+        return new ResponseEntity<>(ApiResponseDto.makeSuccessResponse(), HttpStatus.OK);
+    }
+
+    /**
+     * 포트폴리오 타입 업데이트
+     *
+     * @param dto
+     * @return
+     */
+    @PatchMapping(path = "/type/update")
+    public ResponseEntity<String> updatePortfolioType(@RequestBody PortfolioTypeUpdDto dto) {
+
+        portfolioService.updatePortfolioType(dto);
         return new ResponseEntity<>(ApiResponseDto.makeSuccessResponse(), HttpStatus.OK);
     }
 

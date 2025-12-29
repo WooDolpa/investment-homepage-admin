@@ -534,25 +534,22 @@ document.addEventListener('DOMContentLoaded', function() {
                         newType: newType
                     });
 
-                    // TODO: API 호출하여 portfolioType 업데이트
-                    // 예시:
-                    // api.put(`/portfolio/${portfolioId}/type`, { portfolioType: newType })
-                    //     .then(data => {
-                    //         // 성공 시 UI 업데이트
-                    //         row.setAttribute('data-type', newType);
-                    //         typeToggle.classList.remove('progress', 'complete');
-                    //         typeToggle.classList.add(newType === 'P' ? 'progress' : 'complete');
-                    //         san.toast('타입이 변경되었습니다.', 'success');
-                    //     })
-                    //     .catch(error => {
-                    //         console.error('Error updating type:', error);
-                    //         san.errorAlert('타입 변경 중 오류가 발생했습니다.');
-                    //     });
-
-                    // 임시: UI만 변경 (실제로는 API 호출 후 변경해야 함)
-                    row.setAttribute('data-type', newType);
-                    typeToggle.classList.remove('progress', 'complete');
-                    typeToggle.classList.add(newType === 'P' ? 'progress' : 'complete');
+                    // API 호출하여 portfolioType 업데이트
+                    api.patch('/portfolio/type/update', {
+                        portfolioNo: parseInt(portfolioId),
+                        portfolioType: newType
+                    })
+                        .then(data => {
+                            // 성공 시 UI 업데이트
+                            row.setAttribute('data-type', newType);
+                            typeToggle.classList.remove('progress', 'complete');
+                            typeToggle.classList.add(newType === 'P' ? 'progress' : 'complete');
+                            san.toast('타입이 변경되었습니다.', 'success', 1000);
+                        })
+                        .catch(error => {
+                            console.error('Error updating type:', error);
+                            san.errorAlert('타입 변경 중 오류가 발생했습니다.');
+                        });
                 });
             }
         });
