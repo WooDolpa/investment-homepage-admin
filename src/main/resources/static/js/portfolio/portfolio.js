@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchButton = document.getElementById('searchButton');
     const searchStatus = document.getElementById('searchStatus');
     const searchKeyword = document.getElementById('searchKeyword');
+    const portfolioType = document.getElementById('portfolioType');
     const imagePreviewModal = document.getElementById('imagePreviewModal');
     const imageModalClose = document.getElementById('imageModalClose');
     const previewImage = document.getElementById('previewImage');
@@ -14,7 +15,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let searchParams = {
         searchType: 'portfolioTitle',
         keyword: '',
-        status: ''
+        status: '',
+        portfolioType: ''
     };
 
     // Search Type Select
@@ -97,6 +99,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Close dropdown
             statusSelect.classList.remove('open');
+
+            // Automatically trigger search when status changes
+            performSearch();
         });
     });
 
@@ -109,6 +114,55 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Set initial selected
     statusOptions[0].classList.add('selected');
+
+    // Type Select
+    const typeSelect = document.getElementById('typeSelect');
+    const typeTrigger = typeSelect.querySelector('.custom-select-trigger');
+    const selectedType = document.getElementById('selectedType');
+    const typeOptions = typeSelect.querySelectorAll('.custom-option');
+
+    // Toggle type select
+    typeTrigger.addEventListener('click', function(e) {
+        e.stopPropagation();
+        typeSelect.classList.toggle('open');
+    });
+
+    // Select type option
+    typeOptions.forEach(function(option) {
+        option.addEventListener('click', function(e) {
+            e.stopPropagation();
+
+            // Remove selected class from all
+            typeOptions.forEach(function(opt) {
+                opt.classList.remove('selected');
+            });
+
+            // Add selected class to clicked option
+            this.classList.add('selected');
+
+            // Update display value
+            const value = this.getAttribute('data-value');
+            const text = this.textContent;
+            selectedType.textContent = text;
+            portfolioType.value = value;
+
+            // Close dropdown
+            typeSelect.classList.remove('open');
+
+            // Automatically trigger search when type changes
+            performSearch();
+        });
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+        if (!typeSelect.contains(e.target)) {
+            typeSelect.classList.remove('open');
+        }
+    });
+
+    // Set initial selected
+    typeOptions[0].classList.add('selected');
 
     // Items Per Page Select
     const itemsPerPageSelect = document.getElementById('itemsPerPageSelect');
@@ -190,7 +244,8 @@ document.addEventListener('DOMContentLoaded', function() {
         searchParams = {
             searchType: searchType.value,
             keyword: searchKeyword.value.trim(),
-            status: searchStatus.value
+            status: searchStatus.value,
+            portfolioType: portfolioType.value
         };
 
         // 검색 시 첫 페이지로 이동
@@ -204,6 +259,7 @@ document.addEventListener('DOMContentLoaded', function() {
             searchType: searchParams.searchType || '',
             keyword: searchParams.keyword || '',
             status: searchParams.status || '',
+            portfolioType: searchParams.portfolioType || '',
             page: currentPage,
             size: itemsPerPage
         });
@@ -235,7 +291,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (portfolios.length === 0) {
             tableBody.innerHTML = `
                 <tr>
-                    <td colspan="5" style="text-align: center; padding: 40px; color: #666;">
+                    <td colspan="6" style="text-align: center; padding: 40px; color: #666;">
                         검색 결과가 없습니다.
                     </td>
                 </tr>
@@ -250,10 +306,19 @@ document.addEventListener('DOMContentLoaded', function() {
             row.setAttribute('data-image', portfolio.imageUrl || '');
             row.setAttribute('data-status', portfolio.status);
 
+            // Status badge
+            const statusBadgeClass = portfolio.status === 'Y' ? 'active' : 'inactive';
+            const statusText = portfolio.statusStr || '-';
+
+            // Type badge
+            const typeBadgeClass = portfolio.portfolioType === 'P' ? 'progress' : 'complete';
+            const typeText = portfolio.portfolioTypeStr || '-';
+
             row.innerHTML = `
                 <td>${portfolio.title}</td>
                 <td>${portfolio.orderNum || '-'}</td>
-                <td>${portfolio.statusStr || '-'}</td>
+                <td><span class="status-badge ${statusBadgeClass}">${statusText}</span></td>
+                <td><span class="type-badge ${typeBadgeClass}">${typeText}</span></td>
                 <td>
                     <button class="preview-button" title="미리보기">
                         <span class="material-icons">visibility</span>

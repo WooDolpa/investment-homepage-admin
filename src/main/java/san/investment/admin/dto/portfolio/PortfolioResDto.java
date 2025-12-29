@@ -26,6 +26,8 @@ public class PortfolioResDto {
     private String status;
     private String statusStr;
     private Integer orderNum;
+    private String portfolioType;
+    private String portfolioTypeStr;
 
     private Integer totalPages;
     private Long totalElements;

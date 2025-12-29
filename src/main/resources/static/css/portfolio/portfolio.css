@@ -49,14 +49,19 @@
     min-width: 60px;
 }
 
-.search-row:first-child {
+.search-row:nth-child(1) {
     grid-column: 1 / 2;
     grid-row: 1;
 }
 
-.search-row:last-child {
+.search-row:nth-child(2) {
     grid-column: 1 / -1;
     grid-row: 2;
+}
+
+.search-row:nth-child(3) {
+    grid-column: 1 / -1;
+    grid-row: 3;
 }
 
 .search-button-wrapper {
@@ -644,6 +649,46 @@
     }
 }
 
+/* Status Badge */
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.status-badge.active {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
+.status-badge.inactive {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+/* Type Badge */
+.type-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.type-badge.progress {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+.type-badge.complete {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+
 /* Small Mobile Devices */
 @media (max-width: 480px) {
     .search-section {
@@ -669,6 +714,12 @@
 
     .preview-image {
         max-height: 50vh;
+    }
+
+    .status-badge,
+    .type-badge {
+        font-size: 11px;
+        padding: 3px 10px;
     }
 
     .pagination-container {

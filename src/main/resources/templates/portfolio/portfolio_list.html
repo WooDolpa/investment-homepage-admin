@@ -55,6 +55,23 @@
                             <input type="hidden" id="searchStatus" value="">
                         </div>
                     </div>
+                    <div class="search-row">
+                        <label class="search-label">타입</label>
+                        <div class="custom-select-wrapper">
+                            <div class="custom-select" id="typeSelect">
+                                <div class="custom-select-trigger">
+                                    <span id="selectedType">전체</span>
+                                    <span class="material-icons arrow-icon">expand_more</span>
+                                </div>
+                                <div class="custom-options">
+                                    <div class="custom-option selected" data-value="">전체</div>
+                                    <div class="custom-option" data-value="P">진행</div>
+                                    <div class="custom-option" data-value="C">완료</div>
+                                </div>
+                            </div>
+                            <input type="hidden" id="portfolioType" value="">
+                        </div>
+                    </div>
                     <div class="search-button-wrapper">
                         <button class="search-button" id="searchButton">
                             <span class="material-icons">search</span>
@@ -96,6 +113,7 @@
                             <th>제목</th>
                             <th>순번</th>
                             <th>상태</th>
+                            <th>타입</th>
                             <th>요약 이미지</th>
                             <th>작업</th>
                         </tr>

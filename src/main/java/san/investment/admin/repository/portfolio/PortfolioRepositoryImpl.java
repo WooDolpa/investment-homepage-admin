@@ -10,6 +10,7 @@ import org.springframework.util.StringUtils;
 import san.investment.admin.enums.SearchType;
 import san.investment.common.entity.portfolio.Portfolio;
 import san.investment.common.enums.DataStatus;
+import san.investment.common.enums.PortfolioType;
 
 import java.util.List;
 
@@ -33,18 +34,20 @@ public class PortfolioRepositoryImpl implements PortfolioCustomRepository {
      * @param findSearchType
      * @param keyword
      * @param findDataStatus
+     * @param portfolioType
      * @param pageable
      * @return
      */
     @Override
-    public Page<Portfolio> findPortfolio(SearchType findSearchType, String keyword, DataStatus findDataStatus, Pageable pageable) {
+    public Page<Portfolio> findPortfolio(SearchType findSearchType, String keyword, DataStatus findDataStatus, PortfolioType portfolioType, Pageable pageable) {
 
         List<Portfolio> list = factory.select(portfolio)
                 .from(portfolio)
                 .where(
                         portfolio.dataStatus.ne(DataStatus.Delete),
                         findSearch(findSearchType, keyword),
-                        findDataStatus(findDataStatus)
+                        findDataStatus(findDataStatus),
+                        findPortfolioType(portfolioType)
                 )
                 .orderBy(portfolio.orderNum.asc())
                 .offset(pageable.getOffset())
@@ -56,7 +59,8 @@ public class PortfolioRepositoryImpl implements PortfolioCustomRepository {
                 .where(
                         portfolio.dataStatus.ne(DataStatus.Delete),
                         findSearch(findSearchType, keyword),
-                        findDataStatus(findDataStatus)
+                        findDataStatus(findDataStatus),
+                        findPortfolioType(portfolioType)
                 )
                 .fetchOne();
 
@@ -88,6 +92,19 @@ public class PortfolioRepositoryImpl implements PortfolioCustomRepository {
     private BooleanExpression findDataStatus(DataStatus dataStatus) {
         if(dataStatus != null) {
             return portfolio.dataStatus.eq(dataStatus);
+        }
+        return null;
+    }
+
+    /**
+     * 포트폴리오 타입 조건
+     *
+     * @param portfolioType
+     * @return
+     */
+    private BooleanExpression findPortfolioType(PortfolioType portfolioType) {
+        if(portfolioType != null) {
+            return portfolio.portfolioType.eq(portfolioType);
         }
         return null;
     }

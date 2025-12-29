@@ -19,6 +19,7 @@ public class PortfolioSearchDto {
     private String searchType;
     private String keyword;
     private String status;
+    private String portfolioType;
     private Integer page = 0;
     private Integer size = 10;
 }

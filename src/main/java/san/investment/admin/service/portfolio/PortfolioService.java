@@ -19,6 +19,7 @@ import san.investment.admin.repository.portfolio.PortfolioRepository;
 import san.investment.admin.utils.FileUtil;
 import san.investment.common.entity.portfolio.Portfolio;
 import san.investment.common.enums.DataStatus;
+import san.investment.common.enums.PortfolioType;
 import san.investment.common.exception.CustomException;
 import san.investment.common.exception.ExceptionCode;
 
@@ -99,7 +100,9 @@ public class PortfolioService {
             findDataStatus = DataStatus.findDataStatus(dto.getStatus());
         }
 
-        Page<Portfolio> portfolioPage = portfolioRepository.findPortfolio(findSearchType, dto.getKeyword(), findDataStatus, pageable);
+        PortfolioType portfolioType = PortfolioType.findPortfolioType(dto.getPortfolioType());
+
+        Page<Portfolio> portfolioPage = portfolioRepository.findPortfolio(findSearchType, dto.getKeyword(), findDataStatus, portfolioType, pageable);
 
         return portfolioPage.map(portfolio -> PortfolioResDto.builder()
                 .portfolioNo(portfolio.getPortfolioNo())
@@ -109,6 +112,8 @@ public class PortfolioService {
                 .status(portfolio.getDataStatus().getKey())
                 .statusStr(portfolio.getDataStatus().getDesc())
                 .orderNum(portfolio.getOrderNum())
+                .portfolioType(portfolio.getPortfolioType().getKey())
+                .portfolioTypeStr(portfolio.getPortfolioType().getDesc())
                 .totalPages(portfolioPage.getTotalPages())
                 .totalElements(portfolioPage.getTotalElements())
                 .currentPage(portfolioPage.getNumber())

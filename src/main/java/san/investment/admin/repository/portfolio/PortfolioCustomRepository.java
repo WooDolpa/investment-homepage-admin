@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import san.investment.admin.enums.SearchType;
 import san.investment.common.entity.portfolio.Portfolio;
 import san.investment.common.enums.DataStatus;
+import san.investment.common.enums.PortfolioType;
 
 /**
  * packageName : san.investment.admin.repository.portfolio
@@ -14,5 +15,5 @@ import san.investment.common.enums.DataStatus;
  * description :
  */
 public interface PortfolioCustomRepository {
-    Page<Portfolio> findPortfolio(SearchType findSearchType, String keyword, DataStatus findDataStatus, Pageable pageable);
+    Page<Portfolio> findPortfolio(SearchType findSearchType, String keyword, DataStatus findDataStatus, PortfolioType portfolioType, Pageable pageable);
 }
