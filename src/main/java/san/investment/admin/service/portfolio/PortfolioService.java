@@ -67,11 +67,14 @@ public class PortfolioService {
             sortingList.forEach(Portfolio::increaseOrderNum);
         }
 
+        PortfolioType portfolioType = PortfolioType.findPortfolioType(dto.getPortfolioType());
+
         Portfolio portfolio = Portfolio.builder()
                 .portfolioTitle(dto.getTitle())
                 .portfolioSummary(dto.getSummary())
                 .portfolioContents(dto.getContents())
                 .orderNum(orderNum)
+                .portfolioType(portfolioType)
                 .dataStatus(DataStatus.Yes)
                 .build();
 
@@ -142,6 +145,8 @@ public class PortfolioService {
                 .status(findPortfolio.getDataStatus().getKey())
                 .statusStr(findPortfolio.getDataStatus().getDesc())
                 .orderNum(findPortfolio.getOrderNum())
+                .portfolioType(findPortfolio.getPortfolioType().getKey())
+                .portfolioTypeStr(findPortfolio.getPortfolioType().getDesc())
                 .build();
     }
 
@@ -173,6 +178,7 @@ public class PortfolioService {
         }
 
         DataStatus dataStatus = DataStatus.findDataStatus(dto.getDataStatus());
+        PortfolioType portfolioType = PortfolioType.findPortfolioType(dto.getPortfolioType());
 
         if(file != null && !file.isEmpty()) {
             String subDirectory = portfolioUrl.concat(String.valueOf(findPortfolio.getPortfolioNo()));
@@ -185,6 +191,7 @@ public class PortfolioService {
         findPortfolio.changePortfolioContents(dto.getContents());
         findPortfolio.changeOrderNum(newOrderNum);
         findPortfolio.changeDataStatus(dataStatus);
+        findPortfolio.changePortfolioType(portfolioType);
     }
 
     /**

@@ -20,4 +20,5 @@ public class PortfolioReqDto {
     private String summary;
     private String contents;
     private Integer orderNum;
+    private String portfolioType;
 }

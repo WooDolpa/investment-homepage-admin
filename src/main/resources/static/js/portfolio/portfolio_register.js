@@ -71,6 +71,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const portfolioSummary = document.getElementById('portfolioSummary').value;
         const portfolioOrder = document.getElementById('portfolioOrder').value;
         const portfolioDetail = document.getElementById('portfolioDetail').value;
+        const portfolioType = document.querySelector('input[name="portfolioType"]:checked').value;
         const portfolioImageFile = imageInput.files[0];
 
         // Validation
@@ -114,7 +115,8 @@ document.addEventListener('DOMContentLoaded', function() {
             title: portfolioTitle,
             summary: portfolioSummary,
             orderNum: parseInt(portfolioOrder),
-            contents: portfolioDetail
+            contents: portfolioDetail,
+            portfolioType: portfolioType
         };
 
         // Add JSON body as Blob

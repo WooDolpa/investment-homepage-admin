@@ -44,6 +44,22 @@
         </div>
 
         <div class="form-group full-width">
+          <label class="form-label">포트폴리오 타입</label>
+          <div class="radio-group">
+            <label class="radio-label">
+              <input type="radio" name="portfolioType" value="P" class="radio-input" checked>
+              <span class="radio-custom"></span>
+              <span class="radio-text">진행</span>
+            </label>
+            <label class="radio-label">
+              <input type="radio" name="portfolioType" value="C" class="radio-input">
+              <span class="radio-custom"></span>
+              <span class="radio-text">완료</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group full-width">
           <label class="form-label">상세</label>
           <div id="portfolioDetailEditor" style="height: 500px;"></div>
           <input type="hidden" id="portfolioDetail">

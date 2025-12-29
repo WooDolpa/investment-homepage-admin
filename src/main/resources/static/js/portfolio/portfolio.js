@@ -305,20 +305,28 @@ document.addEventListener('DOMContentLoaded', function() {
             row.setAttribute('data-title', portfolio.title);
             row.setAttribute('data-image', portfolio.imageUrl || '');
             row.setAttribute('data-status', portfolio.status);
+            row.setAttribute('data-type', portfolio.portfolioType);
 
             // Status badge
             const statusBadgeClass = portfolio.status === 'Y' ? 'active' : 'inactive';
             const statusText = portfolio.statusStr || '-';
 
-            // Type badge
-            const typeBadgeClass = portfolio.portfolioType === 'P' ? 'progress' : 'complete';
-            const typeText = portfolio.portfolioTypeStr || '-';
+            // Type toggle
+            const typeClass = portfolio.portfolioType === 'P' ? 'progress' : 'complete';
 
             row.innerHTML = `
                 <td>${portfolio.title}</td>
                 <td>${portfolio.orderNum || '-'}</td>
                 <td><span class="status-badge ${statusBadgeClass}">${statusText}</span></td>
-                <td><span class="type-badge ${typeBadgeClass}">${typeText}</span></td>
+                <td>
+                    <div class="type-toggle ${typeClass}" data-portfolio-id="${portfolio.portfolioNo}">
+                        <div class="type-toggle-slider"></div>
+                        <div class="type-toggle-labels">
+                            <span class="type-toggle-label">진행</span>
+                            <span class="type-toggle-label">완료</span>
+                        </div>
+                    </div>
+                </td>
                 <td>
                     <button class="preview-button" title="미리보기">
                         <span class="material-icons">visibility</span>
@@ -459,6 +467,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const previewButton = row.querySelector('.preview-button');
             const editButton = row.querySelector('.edit-button');
             const deleteButton = row.querySelector('.delete-button');
+            const typeToggle = row.querySelector('.type-toggle');
 
             // Preview button
             if (previewButton) {
@@ -507,6 +516,43 @@ document.addEventListener('DOMContentLoaded', function() {
                                 });
                         }
                     );
+                });
+            }
+
+            // Type toggle button
+            if (typeToggle) {
+                typeToggle.addEventListener('click', function(e) {
+                    e.stopPropagation();
+
+                    const portfolioId = this.getAttribute('data-portfolio-id');
+                    const currentType = row.getAttribute('data-type');
+                    const newType = currentType === 'P' ? 'C' : 'P';
+
+                    console.log('Type toggle clicked:', {
+                        portfolioId: portfolioId,
+                        currentType: currentType,
+                        newType: newType
+                    });
+
+                    // TODO: API 호출하여 portfolioType 업데이트
+                    // 예시:
+                    // api.put(`/portfolio/${portfolioId}/type`, { portfolioType: newType })
+                    //     .then(data => {
+                    //         // 성공 시 UI 업데이트
+                    //         row.setAttribute('data-type', newType);
+                    //         typeToggle.classList.remove('progress', 'complete');
+                    //         typeToggle.classList.add(newType === 'P' ? 'progress' : 'complete');
+                    //         san.toast('타입이 변경되었습니다.', 'success');
+                    //     })
+                    //     .catch(error => {
+                    //         console.error('Error updating type:', error);
+                    //         san.errorAlert('타입 변경 중 오류가 발생했습니다.');
+                    //     });
+
+                    // 임시: UI만 변경 (실제로는 API 호출 후 변경해야 함)
+                    row.setAttribute('data-type', newType);
+                    typeToggle.classList.remove('progress', 'complete');
+                    typeToggle.classList.add(newType === 'P' ? 'progress' : 'complete');
                 });
             }
         });

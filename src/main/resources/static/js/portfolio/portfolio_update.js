@@ -136,6 +136,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const portfolioOrder = document.getElementById('portfolioOrder').value;
         const portfolioDetail = document.getElementById('portfolioDetail').value;
         const portfolioStatusValue = portfolioStatus.value;
+        const portfolioType = document.querySelector('input[name="portfolioType"]:checked').value;
         const portfolioImageFile = imageInput.files[0];
 
         // Validation
@@ -178,7 +179,8 @@ document.addEventListener('DOMContentLoaded', function() {
             summary: portfolioSummary,
             orderNum: parseInt(portfolioOrder),
             contents: portfolioDetail,
-            dataStatus: portfolioStatusValue
+            dataStatus: portfolioStatusValue,
+            portfolioType: portfolioType
         };
 
         // Add JSON body as Blob
@@ -224,6 +226,14 @@ document.addEventListener('DOMContentLoaded', function() {
                                 selectedStatus.textContent = opt.textContent;
                             }
                         });
+                    }
+
+                    // Set portfolio type
+                    if (data.portfolioType) {
+                        const typeRadio = document.querySelector(`input[name="portfolioType"][value="${data.portfolioType}"]`);
+                        if (typeRadio) {
+                            typeRadio.checked = true;
+                        }
                     }
 
                     // Set Quill editor content

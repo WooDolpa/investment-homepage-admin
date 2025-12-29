@@ -22,4 +22,5 @@ public class PortfolioUpdDto {
     private String contents;
     private Integer orderNum;
     private String dataStatus;
+    private String portfolioType;
 }
