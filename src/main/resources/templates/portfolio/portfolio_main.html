@@ -3,8 +3,99 @@
 <head>
     <th:block th:replace="~{fragments/common :: head}"></th:block>
     <th:block th:replace="~{fragments/common :: dashboard}"></th:block>
+    <link rel="stylesheet" th:href="@{/css/portfolio/portfolio_main.css}" />
 </head>
 <body>
+    <th:block th:replace="~{fragments/header :: header}"></th:block>
+    <th:block th:replace="~{fragments/header :: sidebar}"></th:block>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="content-wrapper">
+            <!-- Portfolio Table -->
+            <div class="table-section">
+                <div class="section-header">
+                    <h3 class="section-title">포트폴리오 메인 노출 목록</h3>
+                    <div class="items-per-page">
+                        <button class="search-button" id="registerButton">
+                            <span class="material-icons">add</span>
+                            등록
+                        </button>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                        <tr>
+                            <th>제목</th>
+                            <th>순번</th>
+                            <th>상태</th>
+                            <th>작업</th>
+                        </tr>
+                        </thead>
+                        <tbody id="portfolioTableBody">
+                            <!-- Data will be loaded from API -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Register Modal -->
+    <div class="modal-overlay" id="registerModal">
+        <div class="modal-container modal-large">
+            <div class="modal-header">
+                <h3 class="modal-title">포트폴리오 등록</h3>
+                <button class="modal-close" id="registerModalClose">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            <div class="modal-content">
+                <!-- Search Section -->
+                <div class="modal-search-section">
+                    <div class="modal-search-row">
+                        <label class="modal-search-label">검색</label>
+                        <input
+                            type="text"
+                            class="modal-search-input"
+                            id="modalSearchKeyword"
+                            placeholder="제목을 입력하세요"
+                        >
+                        <button class="modal-search-button" id="modalSearchButton">
+                            <span class="material-icons">search</span>
+                            검색
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Portfolio Table -->
+                <div class="modal-table-container">
+                    <table class="modal-data-table">
+                        <thead>
+                        <tr>
+                            <th width="50">선택</th>
+                            <th>제목</th>
+                            <th width="100">타입</th>
+                            <th width="100">상태</th>
+                        </tr>
+                        </thead>
+                        <tbody id="modalPortfolioTableBody">
+                            <!-- Data will be loaded from API -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" id="modalCancelButton">닫기</button>
+                <button class="btn-submit" id="modalSubmitButton">등록</button>
+            </div>
+        </div>
+    </div>
 
 </body>
+<th:block th:replace="~{fragments/common :: script}"></th:block>
+<th:block th:replace="~{fragments/scripts :: commonScripts}"></th:block>
+<script th:src="@{/js/portfolio/portfolio_main.js}"></script>
 </html>

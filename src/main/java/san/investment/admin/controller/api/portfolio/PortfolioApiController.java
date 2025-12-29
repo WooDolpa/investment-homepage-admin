@@ -126,4 +126,14 @@ public class PortfolioApiController {
         portfolioService.deletePortfolio(portfolioNo);
         return new ResponseEntity<>(ApiResponseDto.makeSuccessResponse(), HttpStatus.OK);
     }
+
+    /**
+     * 포트폴리오 메인 조회
+     *
+     * @return
+     */
+    @GetMapping(path = "/main/list")
+    public ResponseEntity<String> findPortfolioMainList() {
+        return new ResponseEntity<>(ApiResponseDto.makeResponse(portfolioService.findPortfolioMainList()), HttpStatus.OK);
+    }
 }

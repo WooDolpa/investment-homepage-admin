@@ -12,9 +12,11 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import san.investment.admin.dto.portfolio.*;
 import san.investment.admin.enums.SearchType;
+import san.investment.admin.repository.portfolio.PortfolioMainRepository;
 import san.investment.admin.repository.portfolio.PortfolioRepository;
 import san.investment.admin.utils.FileUtil;
 import san.investment.common.entity.portfolio.Portfolio;
+import san.investment.common.entity.portfolio.PortfolioMain;
 import san.investment.common.enums.DataStatus;
 import san.investment.common.enums.PortfolioType;
 import san.investment.common.exception.CustomException;
@@ -41,6 +43,7 @@ public class PortfolioService {
     private String portfolioUrl;
 
     private final PortfolioRepository portfolioRepository;
+    private final PortfolioMainRepository portfolioMainRepository;
     private final FileUtil fileUtil;
 
     /**
@@ -224,5 +227,27 @@ public class PortfolioService {
 
         findPortfolio.deleteOrderNum(0);
         findPortfolio.changeDataStatus(DataStatus.Delete);
+    }
+
+    /**
+     * 포트폴리오 메인 조회
+     *
+     * @return
+     */
+    public List<PortfolioMainResDto> findPortfolioMainList() {
+
+        List<PortfolioMain> portfolioMainList = portfolioMainRepository.findPortfolioMainList()
+                .orElse(new ArrayList<>());
+
+        return portfolioMainList.stream()
+                .map(pm -> {
+                    Portfolio portfolio = pm.getPortfolio();
+                    return PortfolioMainResDto.builder()
+                            .portfolioMainNo(pm.getPortfolioMainNo())
+                            .portfolioNo(portfolio.getPortfolioNo())
+                            .portfolioTitle(portfolio.getPortfolioTitle())
+                            .orderNum(pm.getOrderNum())
+                            .build();
+                }).toList();
     }
 }
