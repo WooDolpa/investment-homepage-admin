@@ -45,4 +45,15 @@ public class PortfolioController {
         return "portfolio/portfolio_update";
     }
 
+    @GetMapping(path = "/portfolio/main")
+    public String portfolioMain(HttpServletRequest request, Model model) {
+
+        String adminName = request.getHeader(ApiConstants.REQUEST_HEADER_ADMIN_NAME);
+
+        model.addAttribute("adminName", adminName);
+        model.addAttribute("menuActive", "portfolio");
+        model.addAttribute("subMenuActive", "portfolioMain");
+
+        return "portfolio/portfolio_main";
+    }
 }
