@@ -262,13 +262,31 @@ api.put('/endpoint', formData)
 - `material-dashboard.css` - Main Material Dashboard theme styles
 - `nucleo-icons.css`, `nucleo-svg.css` - Nucleo icon sets
 - `custom.css` - Project-specific overrides and SweetAlert2 custom styles
+- Page-specific CSS files in `/css/portfolio/`, `/css/company/`, etc.
 
-### DataTables Configuration (simpleDatatables v5.3.5)
-- Configured in `fragments/scripts.html` with the `tableScripts` fragment
-- Custom layout with search and per-page selector right-aligned
-- Per-page text label removed via JavaScript DOM manipulation
-- Responsive flexbox layout with `flexWrap: 'wrap'` for mobile devices
-- Default options: searchable, fixedHeight, perPageSelect [5, 10, 15, 20, 25]
+### CSS Architecture and Responsive Design
+- **Desktop-first approach**: Base styles for desktop, media queries for smaller screens
+- **Breakpoints**: 1024px (tablet), 768px (mobile), 480px (small mobile)
+- **Badge components**: Shared `.status-badge` and `.type-badge` classes with unified styles
+- **Z-index hierarchy**: Modals (9999), SweetAlert2 (10000) - alerts always appear above modals
+- **Responsive patterns**:
+  - Desktop tables → Mobile card layouts (`.modal-cards-container` shown on mobile, `.modal-table-container` hidden)
+  - Search areas adapt: horizontal on desktop → vertical on mobile
+  - Pagination: flexbox with wrap for mobile, page info moves to separate row
+
+### Modal Patterns
+- **Desktop**: Draggable modals (drag by header, but not on close button)
+- **Mobile**: Fixed position, dragging disabled (window.innerWidth <= 768)
+- **Structure**: `.modal-overlay` → `.modal-container` → `.modal-header` + `.modal-content` + `.modal-footer`
+- **Dual rendering**: Both table and card views rendered simultaneously, CSS controls visibility
+- **Selection sync**: Table row selection syncs with card selection and vice versa
+
+### Pagination Implementation
+- JavaScript-driven pagination (not DataTables)
+- Variables: `currentPage`, `pageSize`, `totalPages`, `totalElements`
+- API response format: `{ data: { content: [...], totalPages: N, totalElements: M } }`
+- UI elements: Previous/Next buttons, page number buttons (showing currentPage ±2), page info display
+- Resets to page 0 when: search performed, page size changed, filters modified
 
 ## Common Patterns
 
@@ -328,6 +346,20 @@ san.confirm('정말 삭제하시겠습니까?',
 api.get('/auth/user')
     .then(data => console.log(data))
     .catch(error => san.errorAlert(error.message));
+
+// GET with pagination and search
+const params = new URLSearchParams({
+    page: currentPage,
+    size: pageSize,
+    keyword: searchKeyword
+});
+api.get(`/portfolio/main/list?${params.toString()}`)
+    .then(response => {
+        const data = response.data;
+        totalPages = data.totalPages;
+        totalElements = data.totalElements;
+        renderTable(data.content);
+    });
 
 // POST with JSON data
 api.post('/auth/login', { id: 'user', password: 'pass' })
@@ -402,6 +434,85 @@ fileInput.addEventListener('change', function(e) {
 });
 ```
 
+### Search + Pagination Pattern
+```javascript
+// Variables at top of DOMContentLoaded
+let currentPage = 0;
+let pageSize = 10;
+let totalPages = 0;
+let totalElements = 0;
+let searchKeyword = '';
+
+// Search event handlers
+searchButton.addEventListener('click', performSearch);
+searchInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') performSearch();
+});
+
+function performSearch() {
+    searchKeyword = searchInput.value.trim();
+    currentPage = 0;  // Always reset to first page
+    loadData();
+}
+
+// Items per page change
+itemsPerPageSelect.addEventListener('change', function() {
+    pageSize = parseInt(this.value);
+    currentPage = 0;
+    loadData();
+});
+
+// Pagination rendering
+function renderPagination() {
+    const startPage = Math.max(0, currentPage - 2);
+    const endPage = Math.min(totalPages - 1, currentPage + 2);
+
+    // Generate Previous, page numbers, Next buttons
+    // Update page info: `${currentPage + 1} / ${totalPages} 페이지`
+}
+```
+
+### Modal with Dual View (Table/Card) Pattern
+```javascript
+// Render both table and cards simultaneously
+function renderModalTable(portfolios) {
+    const tableBody = document.getElementById('modalPortfolioTableBody');
+    const cardsContainer = document.getElementById('modalPortfolioCards');
+
+    tableBody.innerHTML = '';
+    cardsContainer.innerHTML = '';
+
+    portfolios.forEach(portfolio => {
+        // Create table row
+        const row = createTableRow(portfolio);
+        tableBody.appendChild(row);
+
+        // Create card
+        const card = createCard(portfolio);
+        cardsContainer.appendChild(card);
+
+        // Sync selections between table and card
+        row.addEventListener('click', () => selectModalRow(row, portfolio));
+        card.addEventListener('click', () => selectModalCard(card, portfolio));
+    });
+}
+
+// Selection syncing
+function selectModalRow(row, portfolio) {
+    // Clear all selections
+    document.querySelectorAll('.portfolio-card').forEach(c => c.classList.remove('selected'));
+    document.querySelectorAll('#modalPortfolioTableBody tr').forEach(r => r.classList.remove('selected'));
+
+    // Set selection
+    row.classList.add('selected');
+    document.querySelector(`.portfolio-card-radio[value="${portfolio.portfolioNo}"]`)
+        .closest('.portfolio-card').classList.add('selected');
+
+    // Fill form
+    fillFormWithPortfolio(portfolio);
+}
+```
+
 ## Working Guidelines
 
 - **Multi-Module Dependency:** Always rebuild common module before admin module when entities change
@@ -411,3 +522,6 @@ fileInput.addEventListener('change', function(e) {
 - **Icons:** Use Material Symbols Rounded as primary icon system for consistency
 - **File Uploads:** Always use api.js with FormData - it handles credentials and Content-Type automatically
 - **Image URLs:** Server returns web-accessible paths (`/uploads/...`) not file system paths
+- **Inline Styles:** Avoid inline styles in HTML - use CSS classes for all styling, including widths
+- **Responsive Design:** Test on desktop (>768px) and mobile (≤768px) - modals behave differently
+- **Badge Styling:** Always use shared badge classes (`.status-badge`, `.type-badge`) with consistent `min-height` and `line-height`
