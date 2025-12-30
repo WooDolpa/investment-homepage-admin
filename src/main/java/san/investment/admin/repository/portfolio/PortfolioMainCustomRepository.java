@@ -1,5 +1,8 @@
 package san.investment.admin.repository.portfolio;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import san.investment.admin.enums.SearchType;
 import san.investment.common.entity.portfolio.PortfolioMain;
 
 import java.util.List;
@@ -13,5 +16,5 @@ import java.util.Optional;
  * description :
  */
 public interface PortfolioMainCustomRepository {
-    Optional<List<PortfolioMain>> findPortfolioMainList();
+    Page<PortfolioMain> findPortfolioMainPage(SearchType searchType, String keyword, Pageable pageable);
 }

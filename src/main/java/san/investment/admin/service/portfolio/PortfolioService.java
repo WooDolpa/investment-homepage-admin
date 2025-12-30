@@ -232,22 +232,61 @@ public class PortfolioService {
     /**
      * 포트폴리오 메인 조회
      *
+     * @param dto
      * @return
      */
-    public List<PortfolioMainResDto> findPortfolioMainList() {
+    public Page<PortfolioMainResDto> findPortfolioMainList(PortfolioMainSearchDto dto) {
 
-        List<PortfolioMain> portfolioMainList = portfolioMainRepository.findPortfolioMainList()
-                .orElse(new ArrayList<>());
+        Pageable pageable = PageRequest.of(dto.getPage(), dto.getSize());
+        SearchType findSearchType = SearchType.findSearchType(dto.getSearchType());
 
-        return portfolioMainList.stream()
-                .map(pm -> {
-                    Portfolio portfolio = pm.getPortfolio();
-                    return PortfolioMainResDto.builder()
-                            .portfolioMainNo(pm.getPortfolioMainNo())
-                            .portfolioNo(portfolio.getPortfolioNo())
-                            .portfolioTitle(portfolio.getPortfolioTitle())
-                            .orderNum(pm.getOrderNum())
-                            .build();
-                }).toList();
+        Page<PortfolioMain> portfolioMainPage = portfolioMainRepository.findPortfolioMainPage(findSearchType, dto.getKeyword(), pageable);
+
+        return portfolioMainPage.map(pm -> {
+
+            Portfolio portfolio = pm.getPortfolio();
+
+            return PortfolioMainResDto.builder()
+                    .portfolioMainNo(pm.getPortfolioMainNo())
+                    .portfolioNo(portfolio.getPortfolioNo())
+                    .portfolioTitle(portfolio.getPortfolioTitle())
+                    .orderNum(pm.getOrderNum())
+                    .totalPages(portfolioMainPage.getTotalPages())
+                    .totalElements(portfolioMainPage.getTotalElements())
+                    .currentPage(portfolioMainPage.getNumber())
+                    .pageSize(portfolioMainPage.getSize())
+                    .build();
+        });
+    }
+
+    /**
+     * 포트폴리오 메인 노출 등록
+     *
+     * @param dto
+     */
+    @Transactional
+    public void addPortfolioMain(PortfolioMainReqDto dto) {
+
+        Portfolio findPortfolio = portfolioRepository.findById(dto.getPortfolioNo())
+                .orElseThrow(() -> new CustomException(ExceptionCode.PORTFOLIO_NOT_FOUND));
+
+        boolean isExists = portfolioMainRepository.existsByPortfolio(findPortfolio);
+        if(!isExists) {
+            //TODO 의사결정 후 작업 진행
+            // 순번 조정
+            Integer orderNum = dto.getOrderNum();
+//            portfolioMainRepository.findByOrderNumGreaterThanEqual(orderNum)
+//                    .orElse(new ArrayList<>());
+
+            // 등록 로직
+            PortfolioMain portfolioMain = PortfolioMain.builder()
+                    .portfolio(findPortfolio)
+                    .orderNum(orderNum)
+                    .build();
+
+            portfolioMainRepository.save(portfolioMain);
+        }else {
+            throw new CustomException(ExceptionCode.PORTFOLIO_MAIN_ALREADY_EXISTS);
+        }
     }
 }

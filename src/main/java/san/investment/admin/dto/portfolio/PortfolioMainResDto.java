@@ -22,4 +22,9 @@ public class PortfolioMainResDto {
     private Integer portfolioNo;
     private String portfolioTitle;
     private Integer orderNum;
+
+    private Integer totalPages;
+    private Long totalElements;
+    private Integer currentPage;
+    private Integer pageSize;
 }

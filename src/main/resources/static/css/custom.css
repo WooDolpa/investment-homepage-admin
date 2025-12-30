@@ -12,6 +12,11 @@ SweetAlert2 Custom
 =========================================
  */
 
+/* SweetAlert2 z-index - 모달보다 앞에 표시 */
+.swal2-container {
+    z-index: 10000 !important;
+}
+
 /* 내용 텍스트 스타일 */
 .swal-text-default {
     color: #525f7f !important;

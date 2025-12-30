@@ -45,9 +45,9 @@ public class PortfolioRepositoryImpl implements PortfolioCustomRepository {
                 .from(portfolio)
                 .where(
                         portfolio.dataStatus.ne(DataStatus.Delete),
-                        findSearch(findSearchType, keyword),
-                        findDataStatus(findDataStatus),
-                        findPortfolioType(portfolioType)
+                        matchSearchType(findSearchType, keyword),
+                        matchDataStatus(findDataStatus),
+                        matchPortfolioType(portfolioType)
                 )
                 .orderBy(portfolio.orderNum.asc())
                 .offset(pageable.getOffset())
@@ -58,9 +58,9 @@ public class PortfolioRepositoryImpl implements PortfolioCustomRepository {
                 .from(portfolio)
                 .where(
                         portfolio.dataStatus.ne(DataStatus.Delete),
-                        findSearch(findSearchType, keyword),
-                        findDataStatus(findDataStatus),
-                        findPortfolioType(portfolioType)
+                        matchSearchType(findSearchType, keyword),
+                        matchDataStatus(findDataStatus),
+                        matchPortfolioType(portfolioType)
                 )
                 .fetchOne();
 
@@ -74,10 +74,12 @@ public class PortfolioRepositoryImpl implements PortfolioCustomRepository {
      * @param keyword
      * @return
      */
-    private BooleanExpression findSearch(SearchType searchType, String keyword) {
+    private BooleanExpression matchSearchType(SearchType searchType, String keyword) {
         if(StringUtils.hasText(keyword)) {
-            if(SearchType.PORTFOLIO_TITLE.equals(searchType)) {
-                return portfolio.portfolioTitle.like("%"+keyword+"%");
+            if(searchType != null) {
+                if(SearchType.PORTFOLIO_TITLE.equals(searchType)) {
+                    return portfolio.portfolioTitle.like("%"+keyword+"%");
+                }
             }
         }
         return null;
@@ -89,7 +91,7 @@ public class PortfolioRepositoryImpl implements PortfolioCustomRepository {
      * @param dataStatus
      * @return
      */
-    private BooleanExpression findDataStatus(DataStatus dataStatus) {
+    private BooleanExpression matchDataStatus(DataStatus dataStatus) {
         if(dataStatus != null) {
             return portfolio.dataStatus.eq(dataStatus);
         }
@@ -102,7 +104,7 @@ public class PortfolioRepositoryImpl implements PortfolioCustomRepository {
      * @param portfolioType
      * @return
      */
-    private BooleanExpression findPortfolioType(PortfolioType portfolioType) {
+    private BooleanExpression matchPortfolioType(PortfolioType portfolioType) {
         if(portfolioType != null) {
             return portfolio.portfolioType.eq(portfolioType);
         }

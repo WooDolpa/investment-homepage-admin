@@ -7,10 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import san.investment.admin.dto.portfolio.PortfolioReqDto;
-import san.investment.admin.dto.portfolio.PortfolioSearchDto;
-import san.investment.admin.dto.portfolio.PortfolioTypeUpdDto;
-import san.investment.admin.dto.portfolio.PortfolioUpdDto;
+import san.investment.admin.dto.portfolio.*;
 import san.investment.admin.service.portfolio.PortfolioService;
 import san.investment.common.dto.ApiResponseDto;
 import san.investment.common.exception.CustomException;
@@ -133,7 +130,19 @@ public class PortfolioApiController {
      * @return
      */
     @GetMapping(path = "/main/list")
-    public ResponseEntity<String> findPortfolioMainList() {
-        return new ResponseEntity<>(ApiResponseDto.makeResponse(portfolioService.findPortfolioMainList()), HttpStatus.OK);
+    public ResponseEntity<String> findPortfolioMainList(PortfolioMainSearchDto dto) {
+        return new ResponseEntity<>(ApiResponseDto.makeResponse(portfolioService.findPortfolioMainList(dto)), HttpStatus.OK);
+    }
+
+    /**
+     * 포트폴리오 메인 등록
+     *
+     * @param dto
+     * @return
+     */
+    @PostMapping(path = "/main")
+    public ResponseEntity<String> addPortfolioMain(@RequestBody PortfolioMainReqDto dto) {
+        portfolioService.addPortfolioMain(dto);
+        return new ResponseEntity<>(ApiResponseDto.makeSuccessResponse(), HttpStatus.OK);
     }
 }
