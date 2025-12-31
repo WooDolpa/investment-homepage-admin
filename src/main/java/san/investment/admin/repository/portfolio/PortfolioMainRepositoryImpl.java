@@ -42,7 +42,7 @@ public class PortfolioMainRepositoryImpl implements PortfolioMainCustomRepositor
 
         Long totalCount = factory.select(portfolioMain.count())
                 .from(portfolioMain)
-                .innerJoin(portfolioMain.portfolio).fetchJoin()
+                .innerJoin(portfolioMain.portfolio)
                 .where(
                         matchSearchType(searchType, keyword)
                 )

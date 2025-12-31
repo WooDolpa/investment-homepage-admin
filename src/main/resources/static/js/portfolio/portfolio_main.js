@@ -8,9 +8,60 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Search Variables
     let searchKeyword = '';
+    let searchType = 'portfolioTitle';
 
     // 페이지 로드 시 데이터 조회
     loadPortfolios();
+
+    // Search Type Custom Select
+    const searchTypeSelect = document.getElementById('searchTypeSelect');
+    if (searchTypeSelect) {
+        const searchTypeTrigger = searchTypeSelect.querySelector('.custom-select-trigger');
+        const selectedSearchType = document.getElementById('selectedSearchType');
+        const searchTypeInput = document.getElementById('searchType');
+        const searchTypeOptions = searchTypeSelect.querySelectorAll('.custom-option');
+
+        // Toggle search type select
+        searchTypeTrigger.addEventListener('click', function(e) {
+            e.stopPropagation();
+            searchTypeSelect.classList.toggle('open');
+        });
+
+        // Select search type option
+        searchTypeOptions.forEach(function(option) {
+            option.addEventListener('click', function(e) {
+                e.stopPropagation();
+
+                // Remove selected class from all
+                searchTypeOptions.forEach(function(opt) {
+                    opt.classList.remove('selected');
+                });
+
+                // Add selected class to clicked option
+                this.classList.add('selected');
+
+                // Update display value
+                const value = this.getAttribute('data-value');
+                const text = this.textContent;
+                selectedSearchType.textContent = text;
+                searchTypeInput.value = value;
+                searchType = value;
+
+                // Close dropdown
+                searchTypeSelect.classList.remove('open');
+            });
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!searchTypeSelect.contains(e.target)) {
+                searchTypeSelect.classList.remove('open');
+            }
+        });
+
+        // Set initial selected
+        searchTypeOptions[0].classList.add('selected');
+    }
 
     // Search Button Click Event
     const searchButton = document.getElementById('searchButton');
@@ -38,13 +89,51 @@ document.addEventListener('DOMContentLoaded', function() {
         loadPortfolios();
     }
 
-    // Items Per Page Change Event
-    const itemsPerPageSelect = document.getElementById('itemsPerPage');
-    if (itemsPerPageSelect) {
-        itemsPerPageSelect.addEventListener('change', function() {
-            pageSize = parseInt(this.value);
-            currentPage = 0;
-            loadPortfolios();
+    // Items Per Page Custom Select
+    const itemsPerPageSelectEl = document.getElementById('itemsPerPageSelect');
+    if (itemsPerPageSelectEl) {
+        const itemsPerPageTrigger = itemsPerPageSelectEl.querySelector('.custom-select-trigger');
+        const selectedItemsPerPage = document.getElementById('selectedItemsPerPage');
+        const itemsPerPageOptions = itemsPerPageSelectEl.querySelectorAll('.custom-option');
+
+        // Toggle items per page select
+        itemsPerPageTrigger.addEventListener('click', function(e) {
+            e.stopPropagation();
+            itemsPerPageSelectEl.classList.toggle('open');
+        });
+
+        // Select items per page option
+        itemsPerPageOptions.forEach(function(option) {
+            option.addEventListener('click', function(e) {
+                e.stopPropagation();
+
+                // Remove selected class from all
+                itemsPerPageOptions.forEach(function(opt) {
+                    opt.classList.remove('selected');
+                });
+
+                // Add selected class to clicked option
+                this.classList.add('selected');
+
+                // Update display value
+                const value = parseInt(this.getAttribute('data-value'));
+                selectedItemsPerPage.textContent = value;
+                pageSize = value;
+
+                // Reset to first page and reload
+                currentPage = 0;
+                loadPortfolios();
+
+                // Close dropdown
+                itemsPerPageSelectEl.classList.remove('open');
+            });
+        });
+
+        // Close items per page dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!itemsPerPageSelectEl.contains(e.target)) {
+                itemsPerPageSelectEl.classList.remove('open');
+            }
         });
     }
 
@@ -307,13 +396,13 @@ document.addEventListener('DOMContentLoaded', function() {
             // Render Table Row (Desktop)
             const row = document.createElement('tr');
             row.setAttribute('data-portfolio-no', portfolio.portfolioNo);
-            row.setAttribute('data-title', portfolio.title);
+            row.setAttribute('data-title', portfolio.portfolioTitle);
 
             row.innerHTML = `
                 <td style="text-align: center;">
                     <input type="radio" name="portfolioSelect" value="${portfolio.portfolioNo}" class="portfolio-radio">
                 </td>
-                <td>${portfolio.title}</td>
+                <td>${portfolio.portfolioTitle}</td>
                 <td><span class="type-badge ${typeBadgeClass}">${typeText}</span></td>
                 <td><span class="status-badge ${statusBadgeClass}">${statusText}</span></td>
             `;
@@ -338,12 +427,12 @@ document.addEventListener('DOMContentLoaded', function() {
             const card = document.createElement('div');
             card.className = 'portfolio-card';
             card.setAttribute('data-portfolio-no', portfolio.portfolioNo);
-            card.setAttribute('data-title', portfolio.title);
+            card.setAttribute('data-title', portfolio.portfolioTitle);
 
             card.innerHTML = `
                 <div class="portfolio-card-header">
                     <input type="radio" name="portfolioSelectCard" value="${portfolio.portfolioNo}" class="portfolio-card-radio">
-                    <div class="portfolio-card-title">${portfolio.title}</div>
+                    <div class="portfolio-card-title">${portfolio.portfolioTitle}</div>
                 </div>
                 <div class="portfolio-card-info">
                     <div class="portfolio-card-info-item">
@@ -439,7 +528,7 @@ document.addEventListener('DOMContentLoaded', function() {
             portfolioNoDisplayInput.value = portfolio.portfolioNo;
         }
         if (portfolioTitleInput) {
-            portfolioTitleInput.value = portfolio.title;
+            portfolioTitleInput.value = portfolio.portfolioTitle;
         }
     }
 
@@ -484,6 +573,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const params = new URLSearchParams({
             page: currentPage,
             size: pageSize,
+            searchType: searchType,
             keyword: searchKeyword
         });
 
@@ -493,12 +583,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data) {
                     totalPages = data.totalPages || 0;
                     totalElements = data.totalElements || 0;
-
-                    // Update total count
-                    const totalCountEl = document.getElementById('totalCount');
-                    if (totalCountEl) {
-                        totalCountEl.textContent = totalElements;
-                    }
 
                     if (data.content && data.content.length > 0) {
                         renderTable(data.content);
@@ -540,11 +624,11 @@ document.addEventListener('DOMContentLoaded', function() {
         portfolios.forEach(portfolio => {
             const row = document.createElement('tr');
             row.setAttribute('data-id', portfolio.portfolioNo);
-            row.setAttribute('data-title', portfolio.title);
+            row.setAttribute('data-title', portfolio.portfolioTitle);
 
             row.innerHTML = `
-                <td>${portfolio.title}</td>
-                <td>${portfolio.displayOrder || '-'}</td>
+                <td>${portfolio.portfolioTitle}</td>
+                <td>${portfolio.orderNum || '-'}</td>
                 <td>
                     <button class="action-button edit-button" title="수정">
                         <span class="material-icons">edit</span>
@@ -563,59 +647,65 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Render Pagination
     function renderPagination() {
-        const paginationContainer = document.getElementById('pagination');
-        paginationContainer.innerHTML = '';
+        const paginationNumbers = document.getElementById('paginationNumbers');
+        const prevButton = document.getElementById('prevPage');
+        const nextButton = document.getElementById('nextPage');
 
-        if (totalPages <= 0) {
-            return;
+        // 이전/다음 버튼 상태
+        prevButton.disabled = currentPage === 0;
+        nextButton.disabled = currentPage === totalPages - 1 || totalPages === 0;
+
+        // 페이지 번호 버튼 렌더링
+        paginationNumbers.innerHTML = '';
+
+        if (totalPages === 0) return;
+
+        for (let i = 0; i < totalPages; i++) {
+            if (shouldShowPageNumber(i, currentPage, totalPages)) {
+                const btn = document.createElement('button');
+                btn.className = 'pagination-number';
+                btn.textContent = i + 1;
+                if (i === currentPage) btn.classList.add('active');
+                btn.addEventListener('click', () => {
+                    currentPage = i;
+                    loadPortfolios();
+                });
+                paginationNumbers.appendChild(btn);
+            } else if (shouldShowEllipsis(i, currentPage, totalPages)) {
+                const ellipsis = document.createElement('div');
+                ellipsis.className = 'pagination-ellipsis';
+                ellipsis.textContent = '...';
+                paginationNumbers.appendChild(ellipsis);
+            }
         }
 
-        // Previous button
-        const prevButton = document.createElement('button');
-        prevButton.textContent = '이전';
-        prevButton.disabled = currentPage === 0;
-        prevButton.addEventListener('click', function() {
+        // 이전/다음 버튼 이벤트
+        prevButton.onclick = () => {
             if (currentPage > 0) {
                 currentPage--;
                 loadPortfolios();
             }
-        });
-        paginationContainer.appendChild(prevButton);
+        };
 
-        // Page buttons
-        const startPage = Math.max(0, currentPage - 2);
-        const endPage = Math.min(totalPages - 1, currentPage + 2);
-
-        for (let i = startPage; i <= endPage; i++) {
-            const pageButton = document.createElement('button');
-            pageButton.textContent = i + 1;
-            if (i === currentPage) {
-                pageButton.classList.add('active');
-            }
-            pageButton.addEventListener('click', function() {
-                currentPage = i;
-                loadPortfolios();
-            });
-            paginationContainer.appendChild(pageButton);
-        }
-
-        // Next button
-        const nextButton = document.createElement('button');
-        nextButton.textContent = '다음';
-        nextButton.disabled = currentPage === totalPages - 1;
-        nextButton.addEventListener('click', function() {
+        nextButton.onclick = () => {
             if (currentPage < totalPages - 1) {
                 currentPage++;
                 loadPortfolios();
             }
-        });
-        paginationContainer.appendChild(nextButton);
+        };
+    }
 
-        // Page info
-        const pageInfo = document.createElement('span');
-        pageInfo.className = 'page-info';
-        pageInfo.textContent = `${currentPage + 1} / ${totalPages} 페이지`;
-        paginationContainer.appendChild(pageInfo);
+    // 페이지 번호 표시 여부
+    function shouldShowPageNumber(page, current, total) {
+        return total <= 7 ||
+               page === 0 ||
+               page === total - 1 ||
+               (page >= current - 1 && page <= current + 1);
+    }
+
+    // 생략 부호 표시 여부
+    function shouldShowEllipsis(page, current, total) {
+        return page === current - 2 || page === current + 2;
     }
 
     // Attach Button Listeners
