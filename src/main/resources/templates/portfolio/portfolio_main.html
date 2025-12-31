@@ -195,6 +195,100 @@
         </div>
     </div>
 
+    <!-- Update Modal -->
+    <div class="modal-overlay" id="updateModal">
+        <div class="modal-container modal-large">
+            <div class="modal-header">
+                <h3 class="modal-title">포트폴리오 메인 수정</h3>
+                <button class="modal-close" id="updateModalClose">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            <div class="modal-content">
+                <!-- Search Section -->
+                <div class="modal-search-section">
+                    <div class="modal-search-row">
+                        <label class="modal-search-label">검색</label>
+                        <input
+                            type="text"
+                            class="modal-search-input"
+                            id="updateModalSearchKeyword"
+                            placeholder="제목을 입력하세요"
+                        >
+                        <button class="modal-search-button" id="updateModalSearchButton">
+                            <span class="material-icons">search</span>
+                            검색
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Portfolio Table (Desktop) -->
+                <div class="modal-table-container">
+                    <table class="modal-data-table">
+                        <thead>
+                        <tr>
+                            <th class="col-narrow">선택</th>
+                            <th>제목</th>
+                            <th class="col-small">타입</th>
+                            <th class="col-small">상태</th>
+                        </tr>
+                        </thead>
+                        <tbody id="updateModalPortfolioTableBody">
+                            <!-- Data will be loaded from API -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Portfolio Cards (Mobile) -->
+                <div class="modal-cards-container" id="updateModalPortfolioCards">
+                    <!-- Cards will be loaded from API -->
+                </div>
+
+                <!-- Update Form Section -->
+                <div class="modal-form-section">
+                    <h4 class="form-section-title">수정 정보</h4>
+                    <div class="form-group-row">
+                        <div class="form-group">
+                            <label class="form-label">포트폴리오 번호</label>
+                            <input type="hidden" id="updatePortfolioNo" name="updatePortfolioNo">
+                            <input
+                                type="text"
+                                id="updatePortfolioNoDisplay"
+                                class="form-input"
+                                readonly
+                                placeholder="테이블에서 선택하세요"
+                            >
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">포트폴리오 제목</label>
+                            <input
+                                type="text"
+                                id="updatePortfolioTitle"
+                                class="form-input"
+                                readonly
+                                placeholder="테이블에서 선택하세요"
+                            >
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required">순번</label>
+                        <input
+                            type="number"
+                            id="updateDisplayOrder"
+                            class="form-input"
+                            placeholder="순번을 입력하세요"
+                            min="1"
+                        >
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" id="updateModalCancelButton">닫기</button>
+                <button class="btn-submit" id="updateModalSubmitButton">수정</button>
+            </div>
+        </div>
+    </div>
+
 </body>
 <th:block th:replace="~{fragments/common :: script}"></th:block>
 <th:block th:replace="~{fragments/scripts :: commonScripts}"></th:block>

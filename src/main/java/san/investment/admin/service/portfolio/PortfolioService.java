@@ -260,7 +260,7 @@ public class PortfolioService {
     }
 
     /**
-     * 포트폴리오 메인 노출 등록
+     * 포트폴리오 메인 등록
      *
      * @param dto
      */
@@ -272,11 +272,17 @@ public class PortfolioService {
 
         boolean isExists = portfolioMainRepository.existsByPortfolio(findPortfolio);
         if(!isExists) {
-            //TODO 의사결정 후 작업 진행
-            // 순번 조정
+
+            int totalCount = Long.valueOf(portfolioMainRepository.count()).intValue();
             Integer orderNum = dto.getOrderNum();
-//            portfolioMainRepository.findByOrderNumGreaterThanEqual(orderNum)
-//                    .orElse(new ArrayList<>());
+            if (orderNum > totalCount) {
+                orderNum = (totalCount + 1);
+            }else {
+                List<PortfolioMain> sortingList = portfolioMainRepository.findByOrderNumGreaterThanEqual(orderNum)
+                        .orElse(new ArrayList<>());
+
+                sortingList.forEach(PortfolioMain :: increaseOrderNum);
+            }
 
             // 등록 로직
             PortfolioMain portfolioMain = PortfolioMain.builder()
@@ -288,5 +294,26 @@ public class PortfolioService {
         }else {
             throw new CustomException(ExceptionCode.PORTFOLIO_MAIN_ALREADY_EXISTS);
         }
+    }
+
+    /**
+     * 포트폴리오 메인 삭제
+     *
+     * @param portfolioMainNo
+     */
+    @Transactional
+    public void deletePortfolioMain(Integer portfolioMainNo) {
+
+        PortfolioMain findPortfolioMain = portfolioMainRepository.findById(portfolioMainNo)
+                .orElseThrow(() -> new CustomException(ExceptionCode.PORTFOLIO_MAIN_NOT_FOUND));
+
+        // 순번 당기기
+        List<PortfolioMain> list = portfolioMainRepository.findByOrderNumGreaterThan(findPortfolioMain.getOrderNum())
+                .orElse(new ArrayList<>());
+
+        list.forEach(PortfolioMain::decreaseOrderNum);
+
+        // 삭제
+        portfolioMainRepository.delete(findPortfolioMain);
     }
 }

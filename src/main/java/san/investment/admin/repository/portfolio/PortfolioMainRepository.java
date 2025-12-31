@@ -17,4 +17,5 @@ import java.util.Optional;
 public interface PortfolioMainRepository extends JpaRepository<PortfolioMain, Integer>, PortfolioMainCustomRepository {
     boolean existsByPortfolio(Portfolio portfolio);
     Optional<List<PortfolioMain>> findByOrderNumGreaterThanEqual(Integer orderNum);
+    Optional<List<PortfolioMain>> findByOrderNumGreaterThan(Integer orderNum);
 }

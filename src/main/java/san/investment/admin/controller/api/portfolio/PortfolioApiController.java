@@ -145,4 +145,17 @@ public class PortfolioApiController {
         portfolioService.addPortfolioMain(dto);
         return new ResponseEntity<>(ApiResponseDto.makeSuccessResponse(), HttpStatus.OK);
     }
+
+    /**
+     * 포트폴리오 메인 삭제
+     *
+     * @param portfolioMainNo
+     * @return
+     */
+    @DeleteMapping(path = "/main/{portfolioMainNo}")
+    public ResponseEntity<String> deletePortfolioMain(@PathVariable(name = "portfolioMainNo") Integer portfolioMainNo) {
+        portfolioService.deletePortfolioMain(portfolioMainNo);
+        return new  ResponseEntity<>(ApiResponseDto.makeSuccessResponse(), HttpStatus.OK);
+    }
+
 }

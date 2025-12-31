@@ -356,6 +356,7 @@
     font-weight: 600;
     color: #1a1a1a;
     white-space: nowrap;
+    width: 33.33%;
 }
 
 .data-table tbody tr {
@@ -370,6 +371,7 @@
 .data-table td {
     padding: 16px;
     color: #333;
+    width: 33.33%;
 }
 
 /* Badge Common Styles */
