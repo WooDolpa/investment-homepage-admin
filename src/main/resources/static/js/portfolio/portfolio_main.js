@@ -301,11 +301,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         // Clear update form
+        const updatePortfolioMainNoInput = document.getElementById('updatePortfolioMainNo');
         const updatePortfolioNoInput = document.getElementById('updatePortfolioNo');
         const updatePortfolioNoDisplayInput = document.getElementById('updatePortfolioNoDisplay');
         const updatePortfolioTitleInput = document.getElementById('updatePortfolioTitle');
         const updateDisplayOrderInput = document.getElementById('updateDisplayOrder');
 
+        if (updatePortfolioMainNoInput) updatePortfolioMainNoInput.value = '';
         if (updatePortfolioNoInput) updatePortfolioNoInput.value = '';
         if (updatePortfolioNoDisplayInput) updatePortfolioNoDisplayInput.value = '';
         if (updatePortfolioTitleInput) updatePortfolioTitleInput.value = '';
@@ -923,10 +925,16 @@ document.addEventListener('DOMContentLoaded', function() {
         selectedUpdatePortfolio = portfolio;
 
         // Auto-fill update form
+        const updatePortfolioMainNoInput = document.getElementById('updatePortfolioMainNo');
         const updatePortfolioNoInput = document.getElementById('updatePortfolioNo');
         const updatePortfolioNoDisplayInput = document.getElementById('updatePortfolioNoDisplay');
         const updatePortfolioTitleInput = document.getElementById('updatePortfolioTitle');
         const updateDisplayOrderInput = document.getElementById('updateDisplayOrder');
+
+        // Fill portfolioMainNo from current editing portfolio
+        if (currentEditingPortfolio && updatePortfolioMainNoInput) {
+            updatePortfolioMainNoInput.value = currentEditingPortfolio.portfolioMainNo || '';
+        }
 
         if (updatePortfolioNoInput) {
             updatePortfolioNoInput.value = portfolio.portfolioNo;
@@ -989,8 +997,15 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             // Get form values
+            const portfolioMainNo = document.getElementById('updatePortfolioMainNo').value;
             const portfolioNo = document.getElementById('updatePortfolioNo').value;
             const displayOrder = document.getElementById('updateDisplayOrder').value;
+
+            // Validate portfolioMainNo
+            if (!portfolioMainNo) {
+                san.errorAlert('포트폴리오 메인 번호가 없습니다.');
+                return;
+            }
 
             // Validate display order
             if (!displayOrder || displayOrder < 1) {
@@ -1001,11 +1016,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Call API to update
             api.put('/portfolio/main', {
+                portfolioMainNo: parseInt(portfolioMainNo),
                 portfolioNo: parseInt(portfolioNo),
                 orderNum: parseInt(displayOrder)
             })
                 .then(data => {
-                    san.toast('', 'success', 1000);
+                    san.toast('정상적으로 수정되었습니다.', 'success', 1000);
                     closeUpdateModal();
                     loadPortfolios();
                 })

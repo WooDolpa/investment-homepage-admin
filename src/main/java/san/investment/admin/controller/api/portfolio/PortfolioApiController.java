@@ -147,6 +147,18 @@ public class PortfolioApiController {
     }
 
     /**
+     * 포트폴리오 메인 수정
+     *
+     * @param dto
+     * @return
+     */
+    @PutMapping(path = "/main")
+    public ResponseEntity<String> updatePortfolioMain(@RequestBody PortfolioMainUpdDto dto) {
+        portfolioService.updatePortfolioMain(dto);
+        return new  ResponseEntity<>(ApiResponseDto.makeSuccessResponse(), HttpStatus.OK);
+    }
+
+    /**
      * 포트폴리오 메인 삭제
      *
      * @param portfolioMainNo

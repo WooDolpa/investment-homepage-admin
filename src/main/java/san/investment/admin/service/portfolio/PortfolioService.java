@@ -58,7 +58,7 @@ public class PortfolioService {
         // 순번
         int totalCount = portfolioRepository.countByDataStatusNot(DataStatus.Delete).intValue();
         Integer orderNum = dto.getOrderNum();
-        if(orderNum >= totalCount) {
+        if(orderNum > totalCount) {
             orderNum = (totalCount + 1);
         }else {
             List<Portfolio> sortingList = portfolioRepository.findByDataStatusNotAndOrderNumGreaterThanEqual(DataStatus.Delete, orderNum)
@@ -175,6 +175,13 @@ public class PortfolioService {
                         .orElse(new ArrayList<>());
                 list.forEach(Portfolio::decreaseOrderNum);
             }
+
+            int totalCount = portfolioRepository.countByDataStatusNot(DataStatus.Delete).intValue();
+            if(newOrderNum > totalCount) {
+                newOrderNum = totalCount;
+            }
+
+            findPortfolio.changeOrderNum(newOrderNum);
         }
 
         DataStatus dataStatus = DataStatus.findDataStatus(dto.getDataStatus());
@@ -189,7 +196,6 @@ public class PortfolioService {
         findPortfolio.changePortfolioTitle(dto.getTitle());
         findPortfolio.changePortfolioSummary(dto.getSummary());
         findPortfolio.changePortfolioContents(dto.getContents());
-        findPortfolio.changeOrderNum(newOrderNum);
         findPortfolio.changeDataStatus(dataStatus);
         findPortfolio.changePortfolioType(portfolioType);
     }
@@ -293,6 +299,58 @@ public class PortfolioService {
             portfolioMainRepository.save(portfolioMain);
         }else {
             throw new CustomException(ExceptionCode.PORTFOLIO_MAIN_ALREADY_EXISTS);
+        }
+    }
+
+    /**
+     * 포트폴리오 메인 수정
+     *
+     * @param dto
+     */
+    @Transactional
+    public void updatePortfolioMain(PortfolioMainUpdDto dto) {
+
+        PortfolioMain findPortfolioMain = portfolioMainRepository.findById(dto.getPortfolioMainNo())
+                .orElseThrow(() -> new CustomException(ExceptionCode.PORTFOLIO_MAIN_NOT_FOUND));
+
+        // 포트폴리오 중복 체크
+        Portfolio portfolio = findPortfolioMain.getPortfolio();
+        if(!Objects.equals(portfolio.getPortfolioNo(), dto.getPortfolioNo())) {
+            // 포트폴리오 변경
+            // 이미 등록된 포트폴리오가 있는지 확인
+            Portfolio findPortfolio = portfolioRepository.findById(dto.getPortfolioNo())
+                    .orElseThrow(() -> new CustomException(ExceptionCode.PORTFOLIO_NOT_FOUND));
+            boolean isExists = portfolioMainRepository.existsByPortfolio(findPortfolio);
+            if(isExists) {
+                throw new CustomException(ExceptionCode.PORTFOLIO_MAIN_ALREADY_EXISTS);
+            }
+
+            findPortfolioMain.changePortfolio(findPortfolio);
+        }
+
+        // 순번 재정렬
+        Integer originalOrderNum = findPortfolioMain.getOrderNum();
+        Integer newOrderNum = dto.getOrderNum();
+
+        if(!Objects.equals(originalOrderNum, newOrderNum)) {
+            if(originalOrderNum > newOrderNum) {
+                List<PortfolioMain> sortList = portfolioMainRepository.findByOrderNumGreaterThanEqualAndOrderNumLessThan(newOrderNum, originalOrderNum)
+                        .orElse(new ArrayList<>());
+
+                sortList.forEach(PortfolioMain :: increaseOrderNum);
+            }else {
+
+                List<PortfolioMain> sortList = portfolioMainRepository.findByOrderNumGreaterThanAndOrderNumLessThanEqual(originalOrderNum, newOrderNum)
+                        .orElse(new ArrayList<>());
+
+                sortList.forEach(PortfolioMain :: decreaseOrderNum);
+            }
+            int totalCount = Long.valueOf(portfolioMainRepository.count()).intValue();
+            if(newOrderNum > totalCount) {
+                newOrderNum = totalCount;
+            }
+
+            findPortfolioMain.changeOrderNum(newOrderNum);
         }
     }
 

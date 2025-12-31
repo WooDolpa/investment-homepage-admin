@@ -18,4 +18,6 @@ public interface PortfolioMainRepository extends JpaRepository<PortfolioMain, In
     boolean existsByPortfolio(Portfolio portfolio);
     Optional<List<PortfolioMain>> findByOrderNumGreaterThanEqual(Integer orderNum);
     Optional<List<PortfolioMain>> findByOrderNumGreaterThan(Integer orderNum);
+    Optional<List<PortfolioMain>> findByOrderNumGreaterThanEqualAndOrderNumLessThan(Integer newOrderNum, Integer originalOrderNum);
+    Optional<List<PortfolioMain>> findByOrderNumGreaterThanAndOrderNumLessThanEqual(Integer originalOrderNum, Integer newOrderNum);
 }
