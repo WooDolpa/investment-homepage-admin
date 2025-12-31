@@ -340,6 +340,16 @@ san.confirm('정말 삭제하시겠습니까?',
 );
 ```
 
+### Error Handling Pattern
+```javascript
+// api.js throws Error objects with server messages
+// Always extract error.message for user display
+.catch(error => {
+    console.error('Error description:', error.message);
+    san.errorAlert(error.message || 'Default error message');
+});
+```
+
 ### API Call Patterns
 ```javascript
 // Simple GET
@@ -513,6 +523,23 @@ function selectModalRow(row, portfolio) {
 }
 ```
 
+## Data Field Naming Conventions
+
+**Important:** Different API endpoints use different field names for the same concept:
+
+- **Portfolio List API** (`/portfolio/list`): Uses `title` for portfolio title
+- **Portfolio Main List API** (`/portfolio/main/list`): Uses `portfolioTitle` for portfolio title
+- **Portfolio Main DTOs**:
+  - `PortfolioMainReqDto`: For POST (registration) - requires `portfolioNo`, `orderNum`
+  - `PortfolioMainUpdDto`: For PUT (update) - requires `portfolioMainNo`, `portfolioNo`, `orderNum`
+  - `PortfolioMainResDto`: Response includes `portfolioMainNo`, `portfolioNo`, `portfolioTitle`, `orderNum`
+
+When working with portfolio main functionality:
+- Store both `portfolioMainNo` (for delete/update operations) and `portfolioNo` (for portfolio selection)
+- Use `data-id` for `portfolioMainNo` and `data-portfolio-no` for `portfolioNo` in table rows
+- DELETE endpoint: `/portfolio/main/{portfolioMainNo}`
+- PUT/POST endpoints: `/portfolio/main` with appropriate DTO structure
+
 ## Working Guidelines
 
 - **Multi-Module Dependency:** Always rebuild common module before admin module when entities change
@@ -525,3 +552,5 @@ function selectModalRow(row, portfolio) {
 - **Inline Styles:** Avoid inline styles in HTML - use CSS classes for all styling, including widths
 - **Responsive Design:** Test on desktop (>768px) and mobile (≤768px) - modals behave differently
 - **Badge Styling:** Always use shared badge classes (`.status-badge`, `.type-badge`) with consistent `min-height` and `line-height`
+- **Error Messages:** Always use `error.message` to extract server error messages from api.js errors
+- **Toast Notifications:** Use `san.toast(message, 'success', duration)` for non-blocking success messages
