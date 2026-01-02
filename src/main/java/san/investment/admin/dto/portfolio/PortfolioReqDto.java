@@ -16,6 +16,7 @@ import lombok.ToString;
 @ToString
 public class PortfolioReqDto {
 
+    private String date;
     private String title;
     private String summary;
     private String contents;

@@ -19,6 +19,7 @@ import lombok.NoArgsConstructor;
 public class PortfolioResDto {
 
     private Integer portfolioNo;
+    private String date;
     private String title;
     private String summary;
     private String contents;

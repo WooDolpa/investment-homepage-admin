@@ -70,6 +70,7 @@ public class PortfolioService {
         PortfolioType portfolioType = PortfolioType.findPortfolioType(dto.getPortfolioType());
 
         Portfolio portfolio = Portfolio.builder()
+                .portfolioDate(dto.getDate())
                 .portfolioTitle(dto.getTitle())
                 .portfolioSummary(dto.getSummary())
                 .portfolioContents(dto.getContents())
@@ -109,6 +110,7 @@ public class PortfolioService {
 
         return portfolioPage.map(portfolio -> PortfolioResDto.builder()
                 .portfolioNo(portfolio.getPortfolioNo())
+                .date(portfolio.getPortfolioDate())
                 .title(portfolio.getPortfolioTitle())
                 .summary(portfolio.getPortfolioSummary())
                 .imageUrl(fileUtil.convertToWebPath(portfolio.getPortfolioImgUrl()))
@@ -138,6 +140,7 @@ public class PortfolioService {
 
         return PortfolioResDto.builder()
                 .portfolioNo(findPortfolio.getPortfolioNo())
+                .date(findPortfolio.getPortfolioDate())
                 .title(findPortfolio.getPortfolioTitle())
                 .summary(findPortfolio.getPortfolioSummary())
                 .imageUrl(fileUtil.convertToWebPath(findPortfolio.getPortfolioImgUrl()))
@@ -193,6 +196,7 @@ public class PortfolioService {
             findPortfolio.changePortfolioImgUrl(portfolioImgUrl);
         }
 
+        findPortfolio.changePortfolioDate(dto.getDate());
         findPortfolio.changePortfolioTitle(dto.getTitle());
         findPortfolio.changePortfolioSummary(dto.getSummary());
         findPortfolio.changePortfolioContents(dto.getContents());

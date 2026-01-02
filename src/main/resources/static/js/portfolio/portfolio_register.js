@@ -67,6 +67,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Handle form submission
     function handleSubmit() {
         // Collect form values
+        const portfolioDate = document.getElementById('portfolioDate').value;
         const portfolioTitle = document.getElementById('portfolioTitle').value;
         const portfolioSummary = document.getElementById('portfolioSummary').value;
         const portfolioOrder = document.getElementById('portfolioOrder').value;
@@ -75,6 +76,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const portfolioImageFile = imageInput.files[0];
 
         // Validation
+        if (!portfolioDate) {
+            san.warningAlert('날짜를 입력해주세요.');
+            document.getElementById('portfolioDate').focus();
+            return;
+        }
+
         if (!portfolioTitle) {
             san.warningAlert('제목을 입력해주세요.');
             document.getElementById('portfolioTitle').focus();
@@ -112,6 +119,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Create JSON body for PortfolioDto
         const jsonBody = {
+            date: portfolioDate,
             title: portfolioTitle,
             summary: portfolioSummary,
             orderNum: parseInt(portfolioOrder),

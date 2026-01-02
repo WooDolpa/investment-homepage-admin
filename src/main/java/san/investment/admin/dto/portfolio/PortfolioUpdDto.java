@@ -17,6 +17,7 @@ import lombok.ToString;
 public class PortfolioUpdDto {
 
     private Integer portfolioNo;
+    private String date;
     private String title;
     private String summary;
     private String contents;

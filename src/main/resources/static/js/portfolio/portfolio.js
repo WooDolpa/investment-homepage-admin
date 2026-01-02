@@ -283,23 +283,43 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    // Render Table
+    // Render Table and Cards
     function renderTable(portfolios) {
         const tableBody = document.getElementById('portfolioTableBody');
+        const cardsContainer = document.getElementById('portfolioCardsContainer');
+
         tableBody.innerHTML = '';
+        cardsContainer.innerHTML = '';
 
         if (portfolios.length === 0) {
             tableBody.innerHTML = `
                 <tr>
-                    <td colspan="6" style="text-align: center; padding: 40px; color: #666;">
+                    <td colspan="7" style="text-align: center; padding: 40px; color: #666;">
                         검색 결과가 없습니다.
                     </td>
                 </tr>
+            `;
+            cardsContainer.innerHTML = `
+                <div style="text-align: center; padding: 40px; color: #666;">
+                    검색 결과가 없습니다.
+                </div>
             `;
             return;
         }
 
         portfolios.forEach(portfolio => {
+            // Status badge
+            const statusBadgeClass = portfolio.status === 'Y' ? 'active' : 'inactive';
+            const statusText = portfolio.statusStr || '-';
+
+            // Type badge
+            const typeBadgeClass = portfolio.portfolioType === 'P' ? 'progress' : 'complete';
+            const typeText = portfolio.portfolioTypeStr || '-';
+
+            // Type toggle
+            const typeClass = portfolio.portfolioType === 'P' ? 'progress' : 'complete';
+
+            // Render Table Row
             const row = document.createElement('tr');
             row.setAttribute('data-id', portfolio.portfolioNo);
             row.setAttribute('data-title', portfolio.title);
@@ -307,14 +327,8 @@ document.addEventListener('DOMContentLoaded', function() {
             row.setAttribute('data-status', portfolio.status);
             row.setAttribute('data-type', portfolio.portfolioType);
 
-            // Status badge
-            const statusBadgeClass = portfolio.status === 'Y' ? 'active' : 'inactive';
-            const statusText = portfolio.statusStr || '-';
-
-            // Type toggle
-            const typeClass = portfolio.portfolioType === 'P' ? 'progress' : 'complete';
-
             row.innerHTML = `
+                <td>${portfolio.date || '-'}</td>
                 <td>${portfolio.title}</td>
                 <td>${portfolio.orderNum || '-'}</td>
                 <td><span class="status-badge ${statusBadgeClass}">${statusText}</span></td>
@@ -343,10 +357,54 @@ document.addEventListener('DOMContentLoaded', function() {
                 </td>
             `;
             tableBody.appendChild(row);
+
+            // Render Card
+            const card = document.createElement('div');
+            card.className = 'portfolio-card';
+            card.setAttribute('data-id', portfolio.portfolioNo);
+            card.setAttribute('data-title', portfolio.title);
+            card.setAttribute('data-image', portfolio.imageUrl || '');
+
+            card.innerHTML = `
+                <div class="portfolio-card-header">
+                    <div class="portfolio-card-date">${portfolio.date || '-'}</div>
+                    <div class="portfolio-card-title">${portfolio.title}</div>
+                </div>
+                <div class="portfolio-card-info">
+                    <div class="portfolio-card-info-item">
+                        <span class="portfolio-card-info-label">순번:</span>
+                        <span>${portfolio.orderNum || '-'}</span>
+                    </div>
+                    <div class="portfolio-card-info-item">
+                        <span class="portfolio-card-info-label">타입:</span>
+                        <span class="type-badge ${typeBadgeClass}">${typeText}</span>
+                    </div>
+                    <div class="portfolio-card-info-item">
+                        <span class="portfolio-card-info-label">상태:</span>
+                        <span class="status-badge ${statusBadgeClass}">${statusText}</span>
+                    </div>
+                </div>
+                <div class="portfolio-card-actions">
+                    <button class="card-action-button preview-btn" data-action="preview">
+                        <span class="material-icons">visibility</span>
+                        <span>미리보기</span>
+                    </button>
+                    <button class="card-action-button edit-btn" data-action="edit">
+                        <span class="material-icons">edit</span>
+                        <span>수정</span>
+                    </button>
+                    <button class="card-action-button delete-btn" data-action="delete">
+                        <span class="material-icons">delete</span>
+                        <span>삭제</span>
+                    </button>
+                </div>
+            `;
+            cardsContainer.appendChild(card);
         });
 
         // 버튼 이벤트 재연결
         attachButtonListeners();
+        attachCardButtonListeners();
     }
 
     // Image Preview Modal Functions
@@ -459,7 +517,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return page === current - 2 || page === current + 2;
     }
 
-    // Attach Button Listeners
+    // Attach Button Listeners (Table)
     function attachButtonListeners() {
         const allRows = document.querySelectorAll('#portfolioTableBody tr');
 
@@ -550,6 +608,63 @@ document.addEventListener('DOMContentLoaded', function() {
                             console.error('Error updating type:', error);
                             san.errorAlert('타입 변경 중 오류가 발생했습니다.');
                         });
+                });
+            }
+        });
+    }
+
+    // Attach Card Button Listeners (Mobile Cards)
+    function attachCardButtonListeners() {
+        const allCards = document.querySelectorAll('.portfolio-card');
+
+        allCards.forEach(function(card) {
+            const portfolioId = card.getAttribute('data-id');
+            const title = card.getAttribute('data-title');
+            const imageUrl = card.getAttribute('data-image');
+
+            const previewBtn = card.querySelector('.preview-btn');
+            const editBtn = card.querySelector('.edit-btn');
+            const deleteBtn = card.querySelector('.delete-btn');
+
+            // Preview button
+            if (previewBtn) {
+                previewBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    openImageModal(imageUrl, title);
+                });
+            }
+
+            // Edit button
+            if (editBtn) {
+                editBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    console.log('Edit portfolio:', { id: portfolioId });
+                    window.location.href = `/portfolio/update?portfolioNo=${portfolioId}`;
+                });
+            }
+
+            // Delete button
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    san.confirm(
+                        `포트폴리오를 삭제하시겠습니까?`,
+                        function() {
+                            // Call DELETE API
+                            api.delete(`/portfolio/${portfolioId}`)
+                                .then(data => {
+                                    console.log('Portfolio deleted successfully:', data);
+                                    san.successAlert('포트폴리오가 삭제되었습니다.', function() {
+                                        // Reload current page
+                                        loadPortfolios();
+                                    });
+                                })
+                                .catch(error => {
+                                    console.error('Error deleting portfolio:', error);
+                                    san.errorAlert('삭제 중 오류가 발생했습니다.');
+                                });
+                        }
+                    );
                 });
             }
         });
