@@ -22,7 +22,7 @@
                                 type="text"
                                 class="search-input"
                                 id="searchKeyword"
-                                placeholder="제목을 입력하세요"
+                                placeholder="포트폴리오를 찾기버튼으로 선택해주세요."
                                 disabled
                         >
                     </div>
@@ -88,6 +88,62 @@
             </div>
         </div>
     </main>
+
+    <!-- Portfolio Selection Modal -->
+    <div class="modal-overlay" id="portfolioSelectionModal">
+        <div class="modal-container modal-large">
+            <div class="modal-header">
+                <h3 class="modal-title">포트폴리오 선택</h3>
+                <button class="modal-close" id="modalClose">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            <div class="modal-content">
+                <!-- Search Section -->
+                <div class="modal-search-section">
+                    <div class="modal-search-row">
+                        <label class="modal-search-label">검색</label>
+                        <input
+                            type="text"
+                            class="modal-search-input"
+                            id="modalSearchKeyword"
+                            placeholder="제목을 입력하세요"
+                        >
+                        <button class="modal-search-button" id="modalSearchButton">
+                            <span class="material-icons">search</span>
+                            검색
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Portfolio Table (Desktop) -->
+                <div class="modal-table-container">
+                    <table class="modal-data-table">
+                        <thead>
+                        <tr>
+                            <th class="col-narrow">선택</th>
+                            <th>제목</th>
+                            <th class="col-small">타입</th>
+                            <th class="col-small">상태</th>
+                        </tr>
+                        </thead>
+                        <tbody id="modalPortfolioTableBody">
+                            <!-- Data will be loaded from API -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Portfolio Cards (Mobile) -->
+                <div class="modal-cards-container" id="modalPortfolioCards">
+                    <!-- Cards will be loaded from API -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" id="modalCancelButton">닫기</button>
+                <button class="btn-submit" id="modalSubmitButton">선택</button>
+            </div>
+        </div>
+    </div>
 
 </body>
 <th:block th:replace="~{fragments/common :: script}"></th:block>

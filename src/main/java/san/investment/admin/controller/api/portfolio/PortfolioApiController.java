@@ -170,4 +170,9 @@ public class PortfolioApiController {
         return new  ResponseEntity<>(ApiResponseDto.makeSuccessResponse(), HttpStatus.OK);
     }
 
+    @GetMapping(path = "/{portfolioNo}/news/list")
+    public ResponseEntity<String> findPortfolioNewsList(@PathVariable(name = "portfolioNo") Integer portfolioNo) {
+
+        return new ResponseEntity<>(ApiResponseDto.makeSuccessResponse(), HttpStatus.OK);
+    }
 }
