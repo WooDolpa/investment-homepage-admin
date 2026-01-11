@@ -425,12 +425,11 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         const params = new URLSearchParams({
-            portfolioNo: selectedPortfolio.portfolioNo,
             page: currentPage,
             size: pageSize
         });
 
-        api.get(`/portfolio/news/list?${params.toString()}`)
+        api.get(`/portfolio/${selectedPortfolio.portfolioNo}/news/list?${params.toString()}`)
             .then(response => {
                 const data = response.data;
                 if (data) {
@@ -647,11 +646,209 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Register Button (TODO: implement news registration)
+    // News Registration Modal Elements
+    const newsRegistrationModal = document.getElementById('newsRegistrationModal');
+    const newsModalClose = document.getElementById('newsModalClose');
+    const newsModalCancelButton = document.getElementById('newsModalCancelButton');
+    const newsModalSubmitButton = document.getElementById('newsModalSubmitButton');
+    const newsModalContainer = newsRegistrationModal ? newsRegistrationModal.querySelector('.modal-container') : null;
+    const newsModalHeader = document.getElementById('newsModalHeader');
+
+    // News Form Elements
+    const newsUrl = document.getElementById('newsUrl');
+    const newsTitle = document.getElementById('newsTitle');
+    const newsLink = document.getElementById('newsLink');
+    const newsOrderNum = document.getElementById('newsOrderNum');
+
+    // Draggable Modal Variables for News Modal
+    let isNewsDragging = false;
+    let newsCurrentX;
+    let newsCurrentY;
+    let newsInitialX;
+    let newsInitialY;
+    let newsXOffset = 0;
+    let newsYOffset = 0;
+
+    // Register Button - Open News Registration Modal
     const registerButton = document.getElementById('registerButton');
     if (registerButton) {
         registerButton.addEventListener('click', function() {
-            console.log('Register news - TODO');
+            if (!selectedPortfolio) {
+                san.warningAlert('먼저 포트폴리오를 선택해주세요.');
+                return;
+            }
+            openNewsRegistrationModal();
+        });
+    }
+
+    // News Modal Functions
+    function openNewsRegistrationModal() {
+        if (!newsRegistrationModal) return;
+
+        newsRegistrationModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+
+        // Reset modal position (desktop only)
+        newsXOffset = 0;
+        newsYOffset = 0;
+        if (window.innerWidth > 768 && newsModalContainer) {
+            newsModalContainer.style.transform = 'translate(0px, 0px) scale(1)';
+        } else if (newsModalContainer) {
+            newsModalContainer.style.transform = 'scale(1)';
+        }
+
+        // Clear form
+        clearNewsForm();
+    }
+
+    function closeNewsRegistrationModal() {
+        if (!newsRegistrationModal) return;
+
+        newsRegistrationModal.classList.remove('active');
+        document.body.style.overflow = '';
+
+        // Clear form
+        clearNewsForm();
+    }
+
+    function clearNewsForm() {
+        if (newsUrl) newsUrl.value = '';
+        if (newsTitle) newsTitle.value = '';
+        if (newsLink) newsLink.value = '';
+        if (newsOrderNum) newsOrderNum.value = '';
+    }
+
+    // Close News Modal Events
+    if (newsModalClose) {
+        newsModalClose.addEventListener('click', closeNewsRegistrationModal);
+    }
+
+    if (newsModalCancelButton) {
+        newsModalCancelButton.addEventListener('click', closeNewsRegistrationModal);
+    }
+
+    // Close modal on overlay click
+    if (newsRegistrationModal) {
+        newsRegistrationModal.addEventListener('click', function(e) {
+            if (e.target === newsRegistrationModal) {
+                closeNewsRegistrationModal();
+            }
+        });
+    }
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && newsRegistrationModal && newsRegistrationModal.classList.contains('active')) {
+            closeNewsRegistrationModal();
+        }
+    });
+
+    // Draggable News Modal Implementation
+    if (newsModalHeader && newsModalContainer) {
+        newsModalHeader.addEventListener('mousedown', newsModalDragStart);
+        document.addEventListener('mousemove', newsModalDrag);
+        document.addEventListener('mouseup', newsModalDragEnd);
+
+        // Reset position when resizing from desktop to mobile
+        window.addEventListener('resize', function() {
+            if (window.innerWidth <= 768) {
+                if (isNewsDragging) {
+                    isNewsDragging = false;
+                    newsModalContainer.classList.remove('dragging');
+                }
+                // Reset modal position on mobile
+                if (newsRegistrationModal && newsRegistrationModal.classList.contains('active')) {
+                    newsXOffset = 0;
+                    newsYOffset = 0;
+                    newsModalContainer.style.transform = 'scale(1)';
+                }
+            }
+        });
+    }
+
+    function newsModalDragStart(e) {
+        // Only allow dragging on desktop (screen width > 768px)
+        if (window.innerWidth <= 768) {
+            return;
+        }
+
+        // Don't drag if clicking on close button
+        if (e.target.closest('.modal-close')) {
+            return;
+        }
+
+        newsInitialX = e.clientX - newsXOffset;
+        newsInitialY = e.clientY - newsYOffset;
+
+        if (e.target === newsModalHeader || e.target.closest('.modal-header')) {
+            isNewsDragging = true;
+            if (newsModalContainer) {
+                newsModalContainer.classList.add('dragging');
+            }
+        }
+    }
+
+    function newsModalDrag(e) {
+        if (isNewsDragging) {
+            e.preventDefault();
+
+            newsCurrentX = e.clientX - newsInitialX;
+            newsCurrentY = e.clientY - newsInitialY;
+
+            newsXOffset = newsCurrentX;
+            newsYOffset = newsCurrentY;
+
+            setNewsModalTranslate(newsCurrentX, newsCurrentY, newsModalContainer);
+        }
+    }
+
+    function newsModalDragEnd(e) {
+        newsInitialX = newsCurrentX;
+        newsInitialY = newsCurrentY;
+        isNewsDragging = false;
+        if (newsModalContainer) {
+            newsModalContainer.classList.remove('dragging');
+        }
+    }
+
+    function setNewsModalTranslate(xPos, yPos, el) {
+        if (el) {
+            el.style.transform = `translate(${xPos}px, ${yPos}px) scale(1)`;
+        }
+    }
+
+    // News Modal Submit Button
+    if (newsModalSubmitButton) {
+        newsModalSubmitButton.addEventListener('click', function() {
+            // Validate form
+            if (!newsUrl || !newsUrl.value.trim()) {
+                san.warningAlert('뉴스기사 URL을 입력해주세요.');
+                return;
+            }
+
+            if (!newsLink || !newsLink.value.trim()) {
+                san.warningAlert('뉴스기사 링크를 입력해주세요.');
+                return;
+            }
+
+            if (!newsOrderNum || !newsOrderNum.value) {
+                san.warningAlert('순번을 입력해주세요.');
+                return;
+            }
+
+            // TODO: Implement API call to register news
+            console.log('Register news:', {
+                url: newsUrl.value,
+                title: newsTitle.value,
+                link: newsLink.value,
+                orderNum: newsOrderNum.value,
+                portfolioNo: selectedPortfolio.portfolioNo
+            });
+
+            san.successAlert('뉴스가 등록되었습니다.', function() {
+                closeNewsRegistrationModal();
+                loadPortfolioNews();
+            });
         });
     }
 

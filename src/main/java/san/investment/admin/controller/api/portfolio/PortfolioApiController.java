@@ -170,9 +170,26 @@ public class PortfolioApiController {
         return new  ResponseEntity<>(ApiResponseDto.makeSuccessResponse(), HttpStatus.OK);
     }
 
+    /**
+     * 포트폴리오 뉴스 조회
+     *
+     * @param portfolioNo
+     * @return
+     */
     @GetMapping(path = "/{portfolioNo}/news/list")
-    public ResponseEntity<String> findPortfolioNewsList(@PathVariable(name = "portfolioNo") Integer portfolioNo) {
+    public ResponseEntity<String> findPortfolioNewsList(@PathVariable(name = "portfolioNo") Integer portfolioNo,
+                                                        PortfolioNewsSearchDto dto) {
+        return new ResponseEntity<>(ApiResponseDto.makeResponse(portfolioService.findPortfolioNewsList(portfolioNo, dto)), HttpStatus.OK);
+    }
 
-        return new ResponseEntity<>(ApiResponseDto.makeSuccessResponse(), HttpStatus.OK);
+    /**
+     * 포트폴리오 뉴스 크롤링
+     *
+     * @param targetUrl
+     * @return
+     */
+    @GetMapping(path = "/news/crawling")
+    public ResponseEntity<String> findPortfolioNewsCrawling(@RequestParam(name = "url") String targetUrl) {
+        return new ResponseEntity<>(ApiResponseDto.makeResponse(portfolioService.findPortfolioNewsCrawling(targetUrl)), HttpStatus.OK);
     }
 }

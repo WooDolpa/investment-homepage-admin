@@ -145,6 +145,67 @@
         </div>
     </div>
 
+    <!-- News Registration Modal -->
+    <div class="modal-overlay" id="newsRegistrationModal">
+        <div class="modal-container modal-medium">
+            <div class="modal-header" id="newsModalHeader">
+                <h3 class="modal-title">뉴스 등록</h3>
+                <button class="modal-close" id="newsModalClose">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            <div class="modal-content">
+                <form id="newsRegistrationForm">
+                    <div class="form-group">
+                        <label class="form-label required" for="newsUrl">뉴스기사 URL</label>
+                        <input
+                            type="text"
+                            class="form-input"
+                            id="newsUrl"
+                            placeholder="뉴스기사 URL을 입력하세요"
+                            required
+                        >
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="newsTitle">뉴스기사 제목</label>
+                        <input
+                            type="text"
+                            class="form-input"
+                            id="newsTitle"
+                            placeholder="뉴스기사 제목"
+                            readonly
+                        >
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required" for="newsLink">뉴스기사 링크</label>
+                        <input
+                            type="text"
+                            class="form-input"
+                            id="newsLink"
+                            placeholder="뉴스기사 링크를 입력하세요"
+                            required
+                        >
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required" for="newsOrderNum">순번</label>
+                        <input
+                            type="number"
+                            class="form-input"
+                            id="newsOrderNum"
+                            placeholder="순번을 입력하세요"
+                            min="1"
+                            required
+                        >
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" id="newsModalCancelButton">취소</button>
+                <button class="btn-submit" id="newsModalSubmitButton">등록</button>
+            </div>
+        </div>
+    </div>
+
 </body>
 <th:block th:replace="~{fragments/common :: script}"></th:block>
 <th:block th:replace="~{fragments/scripts :: commonScripts}"></th:block>

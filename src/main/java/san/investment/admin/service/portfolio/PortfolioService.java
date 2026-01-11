@@ -13,10 +13,13 @@ import org.springframework.web.multipart.MultipartFile;
 import san.investment.admin.dto.portfolio.*;
 import san.investment.admin.enums.SearchType;
 import san.investment.admin.repository.portfolio.PortfolioMainRepository;
+import san.investment.admin.repository.portfolio.PortfolioNewsRepository;
 import san.investment.admin.repository.portfolio.PortfolioRepository;
 import san.investment.admin.utils.FileUtil;
+import san.investment.admin.utils.WebCrawlingUtil;
 import san.investment.common.entity.portfolio.Portfolio;
 import san.investment.common.entity.portfolio.PortfolioMain;
+import san.investment.common.entity.portfolio.PortfolioNews;
 import san.investment.common.enums.DataStatus;
 import san.investment.common.enums.PortfolioType;
 import san.investment.common.exception.CustomException;
@@ -44,7 +47,9 @@ public class PortfolioService {
 
     private final PortfolioRepository portfolioRepository;
     private final PortfolioMainRepository portfolioMainRepository;
+    private final PortfolioNewsRepository portfolioNewsRepository;
     private final FileUtil fileUtil;
+    private final WebCrawlingUtil webCrawlingUtil;
 
     /**
      * 포트폴리오 등록
@@ -377,5 +382,46 @@ public class PortfolioService {
 
         // 삭제
         portfolioMainRepository.delete(findPortfolioMain);
+    }
+
+    /**
+     * 포트폴리오 뉴스 조회
+     *
+     * @param portfolioNo
+     * @param dto
+     * @return
+     */
+    public Page<PortfolioNewsResDto> findPortfolioNewsList(Integer portfolioNo, PortfolioNewsSearchDto dto) {
+
+        Portfolio findPortfolio = portfolioRepository.findById(portfolioNo)
+                .orElseThrow(() -> new CustomException(ExceptionCode.PORTFOLIO_NOT_FOUND));
+
+        Pageable pageable = PageRequest.of(dto.getPage(), dto.getSize());
+
+        Page<PortfolioNews> portfolioNewsPage = portfolioNewsRepository.findPortfolioNewsList(pageable, findPortfolio);
+
+        return portfolioNewsPage.map(pn -> {
+
+            DataStatus dataStatus = pn.getDataStatus();
+
+            return PortfolioNewsResDto.builder()
+                   .portfolioNewsNo(pn.getPortfolioNewsNo())
+                   .newsTitle(pn.getNewsTitle())
+                   .newsAgency(pn.getNewsAgency())
+                   .newsLink(pn.getNewsLink())
+                   .dataStatus(dataStatus.getKey())
+                   .dataStatusStr(dataStatus.getDesc())
+                   .build();
+        });
+    }
+
+    /**
+     * 포트폴리오 크롤링
+     *
+     * @param targetUrl
+     * @return
+     */
+    public PortfolioNewsCrawlingResDto findPortfolioNewsCrawling(String targetUrl) {
+        return webCrawlingUtil.findNewsInfo(targetUrl);
     }
 }
