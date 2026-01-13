@@ -192,4 +192,9 @@ public class PortfolioApiController {
     public ResponseEntity<String> findPortfolioNewsCrawling(@RequestParam(name = "url") String targetUrl) {
         return new ResponseEntity<>(ApiResponseDto.makeResponse(portfolioService.findPortfolioNewsCrawling(targetUrl)), HttpStatus.OK);
     }
+
+    @PostMapping(path = "/{portfolioNo}/news")
+    public ResponseEntity<String> addPortfolioNews(@PathVariable(name = "portfolioNo") Integer portfolioNo) {
+
+    }
 }

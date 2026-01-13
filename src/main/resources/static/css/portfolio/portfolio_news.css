@@ -920,6 +920,62 @@
     cursor: not-allowed;
 }
 
+/* Hidden class for form groups */
+.hidden {
+    display: none !important;
+}
+
+/* Form Input with Button (Inline) */
+.form-input-with-button {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+}
+
+.form-input-with-button .form-input {
+    flex: 1;
+}
+
+.fetch-button {
+    padding: 10px 20px;
+    background: #1a1a1a;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #ffffff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.fetch-button .material-icons {
+    font-size: 18px;
+}
+
+.fetch-button:hover {
+    background: #2d2d2d;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.fetch-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.fetch-button:disabled {
+    background: #d0d0d0;
+    color: #999;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
 /* Modal Table */
 .modal-table-container {
     overflow-x: auto;
@@ -1177,6 +1233,16 @@
 
     .form-group-row {
         grid-template-columns: 1fr;
+    }
+
+    .form-input-with-button {
+        flex-direction: column;
+    }
+
+    .fetch-button {
+        width: 100%;
+        justify-content: center;
+        padding: 12px 20px;
     }
 
     .btn-cancel,

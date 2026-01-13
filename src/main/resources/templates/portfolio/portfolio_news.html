@@ -14,7 +14,7 @@
             <!-- Search Area -->
             <div class="search-section">
                 <h2 class="section-title-main">포트폴리오 뉴스 관리</h2>
-                <p class="section-subtitle">포트폴리오에 관련된 뉴스기사를 관리하세요</p>
+                <p class="section-subtitle">포트폴리오를 선택해주세요.</p>
                 <div class="search-container">
                     <div class="search-row">
                         <label class="search-label">포트폴리오</label>
@@ -158,15 +158,21 @@
                 <form id="newsRegistrationForm">
                     <div class="form-group">
                         <label class="form-label required" for="newsUrl">뉴스기사 URL</label>
-                        <input
-                            type="text"
-                            class="form-input"
-                            id="newsUrl"
-                            placeholder="뉴스기사 URL을 입력하세요"
-                            required
-                        >
+                        <div class="form-input-with-button">
+                            <input
+                                type="text"
+                                class="form-input"
+                                id="newsUrl"
+                                placeholder="뉴스기사 URL을 입력하세요"
+                                required
+                            >
+                            <button type="button" class="fetch-button" id="fetchNewsButton">
+                                <span class="material-icons">download</span>
+                                가져오기
+                            </button>
+                        </div>
                     </div>
-                    <div class="form-group">
+                    <div class="form-group hidden" id="newsTitleGroup">
                         <label class="form-label" for="newsTitle">뉴스기사 제목</label>
                         <input
                             type="text"
@@ -176,7 +182,7 @@
                             readonly
                         >
                     </div>
-                    <div class="form-group">
+                    <div class="form-group hidden" id="newsLinkGroup">
                         <label class="form-label required" for="newsLink">뉴스기사 링크</label>
                         <input
                             type="text"
@@ -186,7 +192,16 @@
                             required
                         >
                     </div>
-                    <div class="form-group">
+                    <div class="form-group hidden" id="newsAgencyGroup">
+                        <label class="form-label" for="newsAgency">뉴스 언론사</label>
+                        <input
+                            type="text"
+                            class="form-input"
+                            id="newsAgency"
+                            placeholder="뉴스 언론사를 입력하세요"
+                        >
+                    </div>
+                    <div class="form-group hidden" id="newsOrderNumGroup">
                         <label class="form-label required" for="newsOrderNum">순번</label>
                         <input
                             type="number"

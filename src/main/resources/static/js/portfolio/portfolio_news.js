@@ -658,7 +658,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const newsUrl = document.getElementById('newsUrl');
     const newsTitle = document.getElementById('newsTitle');
     const newsLink = document.getElementById('newsLink');
+    const newsAgency = document.getElementById('newsAgency');
     const newsOrderNum = document.getElementById('newsOrderNum');
+    const fetchNewsButton = document.getElementById('fetchNewsButton');
+    const newsTitleGroup = document.getElementById('newsTitleGroup');
+    const newsLinkGroup = document.getElementById('newsLinkGroup');
+    const newsAgencyGroup = document.getElementById('newsAgencyGroup');
+    const newsOrderNumGroup = document.getElementById('newsOrderNumGroup');
 
     // Draggable Modal Variables for News Modal
     let isNewsDragging = false;
@@ -715,7 +721,76 @@ document.addEventListener('DOMContentLoaded', function() {
         if (newsUrl) newsUrl.value = '';
         if (newsTitle) newsTitle.value = '';
         if (newsLink) newsLink.value = '';
+        if (newsAgency) newsAgency.value = '';
         if (newsOrderNum) newsOrderNum.value = '';
+
+        // Hide additional fields
+        hideNewsFields();
+    }
+
+    // Show news fields (remove hidden class)
+    function showNewsFields() {
+        if (newsTitleGroup) newsTitleGroup.classList.remove('hidden');
+        if (newsLinkGroup) newsLinkGroup.classList.remove('hidden');
+        if (newsAgencyGroup) newsAgencyGroup.classList.remove('hidden');
+        if (newsOrderNumGroup) newsOrderNumGroup.classList.remove('hidden');
+    }
+
+    // Hide news fields (add hidden class)
+    function hideNewsFields() {
+        if (newsTitleGroup) newsTitleGroup.classList.add('hidden');
+        if (newsLinkGroup) newsLinkGroup.classList.add('hidden');
+        if (newsAgencyGroup) newsAgencyGroup.classList.add('hidden');
+        if (newsOrderNumGroup) newsOrderNumGroup.classList.add('hidden');
+    }
+
+    // Fetch News Button - Crawl news from URL
+    if (fetchNewsButton) {
+        fetchNewsButton.addEventListener('click', function() {
+            const url = newsUrl ? newsUrl.value.trim() : '';
+
+            if (!url) {
+                san.warningAlert('뉴스기사 URL을 입력해주세요.');
+                return;
+            }
+
+            // Disable button during fetch
+            fetchNewsButton.disabled = true;
+            const originalText = fetchNewsButton.innerHTML;
+            fetchNewsButton.innerHTML = '<span class="material-icons">hourglass_empty</span>처리중...';
+
+            // Call crawling API
+            api.get(`/portfolio/news/crawling?url=${encodeURIComponent(url)}`)
+                .then(response => {
+                    const data = response.data;
+
+                    // Fill form fields with crawled data
+                    if (newsTitle) {
+                        newsTitle.value = data.newsTitle || '';
+                    }
+                    if (newsLink) {
+                        // If newsLink doesn't exist in response, use the original URL
+                        newsLink.value = data.newsLink || url;
+                    }
+                    if (newsAgency) {
+                        newsAgency.value = data.newsAgency || '';
+                    }
+
+                    // Show the hidden fields
+                    showNewsFields();
+
+                    san.toast('뉴스 정보를 가져왔습니다.', 'success', 3000);
+                })
+                .catch(error => {
+                    console.error('Error fetching news:', error.message);
+                    san.errorAlert(error.message || '뉴스 정보를 가져오는 중 오류가 발생했습니다.');
+                })
+                .finally(() => {
+                    // Re-enable button
+                    fetchNewsButton.disabled = false;
+                    fetchNewsButton.innerHTML = originalText;
+                });
+        });
     }
 
     // Close News Modal Events
