@@ -193,8 +193,18 @@ public class PortfolioApiController {
         return new ResponseEntity<>(ApiResponseDto.makeResponse(portfolioService.findPortfolioNewsCrawling(targetUrl)), HttpStatus.OK);
     }
 
+    /**
+     * 포트폴리오 뉴스 등록
+     *
+     * @param portfolioNo
+     * @param dto
+     * @return
+     */
     @PostMapping(path = "/{portfolioNo}/news")
-    public ResponseEntity<String> addPortfolioNews(@PathVariable(name = "portfolioNo") Integer portfolioNo) {
+    public ResponseEntity<String> addPortfolioNews(@PathVariable(name = "portfolioNo") Integer portfolioNo,
+                                                   @RequestBody PortfolioNewsReqDto dto) {
 
+        portfolioService.addPortfolioNews(portfolioNo, dto);
+        return new ResponseEntity<>(ApiResponseDto.makeSuccessResponse(), HttpStatus.OK);
     }
 }

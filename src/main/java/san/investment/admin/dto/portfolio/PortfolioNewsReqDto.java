@@ -17,4 +17,5 @@ public class PortfolioNewsReqDto {
     private String newsTitle;
     private String newsAgency;
     private String newsLink;
+    private Integer orderNum;
 }

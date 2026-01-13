@@ -424,4 +424,42 @@ public class PortfolioService {
     public PortfolioNewsCrawlingResDto findPortfolioNewsCrawling(String targetUrl) {
         return webCrawlingUtil.findNewsInfo(targetUrl);
     }
+
+    /**
+     * 포트폴리오 뉴스 등록
+     *
+     * @param portfolioNo
+     * @param dto
+     */
+    @Transactional
+    public void addPortfolioNews(Integer portfolioNo, PortfolioNewsReqDto dto) {
+
+        Portfolio findPortfolio = portfolioRepository.findById(portfolioNo)
+                .orElseThrow(() -> new CustomException(ExceptionCode.PORTFOLIO_NOT_FOUND));
+
+        int totalCount = portfolioNewsRepository.countByPortfolio(findPortfolio).intValue();
+        Integer orderNum = dto.getOrderNum();
+
+        if(orderNum > totalCount) {
+            orderNum = (totalCount + 1);
+        }else {
+
+            List<PortfolioNews> sortingList = portfolioNewsRepository.findByOrderNumGreaterThanEqual(orderNum)
+                    .orElse(new ArrayList<>());
+
+            sortingList.forEach(PortfolioNews :: increaseOrderNum);
+        }
+
+        // 등록
+        PortfolioNews portfolioNews = PortfolioNews.builder()
+                .newsTitle(dto.getNewsTitle())
+                .newsAgency(dto.getNewsAgency())
+                .newsLink(dto.getNewsLink())
+                .orderNum(orderNum)
+                .dataStatus(DataStatus.Yes)
+                .portfolio(findPortfolio)
+                .build();
+
+        portfolioNewsRepository.save(portfolioNews);
+    }
 }
