@@ -22,6 +22,7 @@ public class PortfolioNewsResDto {
     private String newsTitle;
     private String newsAgency;
     private String newsLink;
+    private Integer orderNum;
     private String dataStatus;
     private String dataStatusStr;
 

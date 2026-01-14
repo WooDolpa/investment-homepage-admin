@@ -1,5 +1,6 @@
 package san.investment.admin.repository.portfolio;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -29,16 +30,30 @@ public class PortfolioNewsRepositoryImpl implements PortfolioNewsCustomRepositor
 
         List<PortfolioNews> list = factory.select(portfolioNews)
                 .from(portfolioNews)
-                .where()
+                .where(matchPortfolio(portfolio))
+                .orderBy(portfolioNews.orderNum.asc())
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch();
 
         Long totalCount = factory.select(portfolioNews.count())
                 .from(portfolioNews)
-                .where()
+                .where(matchPortfolio(portfolio))
                 .fetchOne();
 
         return new PageImpl<>(list, pageable, totalCount != null ? totalCount : 0L);
+    }
+
+    /**
+     * 포트폴리오 매칭
+     *
+     * @param portfolio
+     * @return
+     */
+    private BooleanExpression matchPortfolio(Portfolio portfolio) {
+        if(portfolio != null) {
+            return portfolioNews.portfolio.eq(portfolio);
+        }
+        return null;
     }
 }

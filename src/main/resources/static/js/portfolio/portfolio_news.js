@@ -476,10 +476,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
         newsList.forEach(news => {
             const row = document.createElement('tr');
-            row.setAttribute('data-id', news.newsNo || news.id);
+            row.setAttribute('data-id', news.portfolioNewsNo);
+            row.setAttribute('data-news-title', news.newsTitle || '');
+            row.setAttribute('data-news-link', news.newsLink || '');
+            row.setAttribute('data-news-agency', news.newsAgency || '');
+            row.setAttribute('data-order-num', news.orderNum || '');
 
             row.innerHTML = `
-                <td>${news.title || '-'}</td>
+                <td>${news.newsTitle || '-'}</td>
                 <td>${news.orderNum || '-'}</td>
                 <td>
                     <button class="action-button edit-button" title="수정">
@@ -574,9 +578,14 @@ document.addEventListener('DOMContentLoaded', function() {
             if (editButton) {
                 editButton.addEventListener('click', function(e) {
                     e.stopPropagation();
-                    const newsId = row.getAttribute('data-id');
-                    console.log('Edit news:', newsId);
-                    // TODO: implement edit news modal
+                    const newsData = {
+                        portfolioNewsNo: row.getAttribute('data-id'),
+                        newsTitle: row.getAttribute('data-news-title'),
+                        newsLink: row.getAttribute('data-news-link'),
+                        newsAgency: row.getAttribute('data-news-agency'),
+                        orderNum: row.getAttribute('data-order-num')
+                    };
+                    openNewsEditModal(newsData);
                 });
             }
 
@@ -902,7 +911,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             if (!newsLink || !newsLink.value.trim()) {
-                san.warningAlert('뉴스기사 링크를 입력해주세요.');
+                san.warningAlert('먼저 가져오기 버튼을 클릭하여 뉴스 정보를 가져와주세요.');
                 return;
             }
 
@@ -911,19 +920,210 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
-            // TODO: Implement API call to register news
-            console.log('Register news:', {
-                url: newsUrl.value,
-                title: newsTitle.value,
-                link: newsLink.value,
-                orderNum: newsOrderNum.value,
-                portfolioNo: selectedPortfolio.portfolioNo
-            });
+            // Request body
+            const requestBody = {
+                newsTitle: newsTitle ? newsTitle.value.trim() : '',
+                newsAgency: newsAgency ? newsAgency.value.trim() : '',
+                newsLink: newsLink.value.trim(),
+                orderNum: parseInt(newsOrderNum.value)
+            };
 
-            san.successAlert('뉴스가 등록되었습니다.', function() {
-                closeNewsRegistrationModal();
-                loadPortfolioNews();
-            });
+            // Call API to register news
+            api.post(`/portfolio/${selectedPortfolio.portfolioNo}/news`, requestBody)
+                .then(response => {
+                    closeNewsRegistrationModal();
+                    loadPortfolioNews();
+                    san.toast('뉴스가 등록되었습니다.', 'success', 3000);
+                })
+                .catch(error => {
+                    console.error('Error registering news:', error.message);
+                    san.errorAlert(error.message || '뉴스 등록 중 오류가 발생했습니다.');
+                });
+        });
+    }
+
+    // ========================================
+    // News Edit Modal
+    // ========================================
+    const newsEditModal = document.getElementById('newsEditModal');
+    const newsEditModalClose = document.getElementById('newsEditModalClose');
+    const newsEditModalCancelButton = document.getElementById('newsEditModalCancelButton');
+    const newsEditModalSubmitButton = document.getElementById('newsEditModalSubmitButton');
+    const newsEditModalContainer = newsEditModal ? newsEditModal.querySelector('.modal-container') : null;
+    const newsEditModalHeader = document.getElementById('newsEditModalHeader');
+
+    // Edit Form Elements
+    const editPortfolioNewsNo = document.getElementById('editPortfolioNewsNo');
+    const editNewsTitle = document.getElementById('editNewsTitle');
+    const editNewsLink = document.getElementById('editNewsLink');
+    const editNewsAgency = document.getElementById('editNewsAgency');
+    const editNewsOrderNum = document.getElementById('editNewsOrderNum');
+
+    // Draggable Edit Modal Variables
+    let isEditDragging = false;
+    let editCurrentX;
+    let editCurrentY;
+    let editInitialX;
+    let editInitialY;
+    let editXOffset = 0;
+    let editYOffset = 0;
+
+    // Open News Edit Modal
+    function openNewsEditModal(newsData) {
+        if (!newsEditModal) return;
+
+        newsEditModal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+
+        // Reset modal position (desktop only)
+        editXOffset = 0;
+        editYOffset = 0;
+        if (window.innerWidth > 768 && newsEditModalContainer) {
+            newsEditModalContainer.style.transform = 'translate(0px, 0px) scale(1)';
+        } else if (newsEditModalContainer) {
+            newsEditModalContainer.style.transform = 'scale(1)';
+        }
+
+        // Fill form with news data
+        if (editPortfolioNewsNo) editPortfolioNewsNo.value = newsData.portfolioNewsNo || '';
+        if (editNewsTitle) editNewsTitle.value = newsData.newsTitle || '';
+        if (editNewsLink) editNewsLink.value = newsData.newsLink || '';
+        if (editNewsAgency) editNewsAgency.value = newsData.newsAgency || '';
+        if (editNewsOrderNum) editNewsOrderNum.value = newsData.orderNum || '';
+    }
+
+    // Close News Edit Modal
+    function closeNewsEditModal() {
+        if (!newsEditModal) return;
+
+        newsEditModal.classList.remove('active');
+        document.body.style.overflow = '';
+
+        // Clear form
+        if (editPortfolioNewsNo) editPortfolioNewsNo.value = '';
+        if (editNewsTitle) editNewsTitle.value = '';
+        if (editNewsLink) editNewsLink.value = '';
+        if (editNewsAgency) editNewsAgency.value = '';
+        if (editNewsOrderNum) editNewsOrderNum.value = '';
+    }
+
+    // Close Edit Modal Events
+    if (newsEditModalClose) {
+        newsEditModalClose.addEventListener('click', closeNewsEditModal);
+    }
+
+    if (newsEditModalCancelButton) {
+        newsEditModalCancelButton.addEventListener('click', closeNewsEditModal);
+    }
+
+    // Close modal on overlay click
+    if (newsEditModal) {
+        newsEditModal.addEventListener('click', function(e) {
+            if (e.target === newsEditModal) {
+                closeNewsEditModal();
+            }
+        });
+    }
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && newsEditModal && newsEditModal.classList.contains('active')) {
+            closeNewsEditModal();
+        }
+    });
+
+    // Draggable Edit Modal Implementation
+    if (newsEditModalHeader && newsEditModalContainer) {
+        newsEditModalHeader.addEventListener('mousedown', editModalDragStart);
+        document.addEventListener('mousemove', editModalDrag);
+        document.addEventListener('mouseup', editModalDragEnd);
+
+        window.addEventListener('resize', function() {
+            if (window.innerWidth <= 768) {
+                if (isEditDragging) {
+                    isEditDragging = false;
+                    newsEditModalContainer.classList.remove('dragging');
+                }
+                if (newsEditModal && newsEditModal.classList.contains('active')) {
+                    editXOffset = 0;
+                    editYOffset = 0;
+                    newsEditModalContainer.style.transform = 'scale(1)';
+                }
+            }
+        });
+    }
+
+    function editModalDragStart(e) {
+        if (window.innerWidth <= 768) return;
+        if (e.target.closest('.modal-close')) return;
+
+        editInitialX = e.clientX - editXOffset;
+        editInitialY = e.clientY - editYOffset;
+
+        if (e.target === newsEditModalHeader || e.target.closest('.modal-header')) {
+            isEditDragging = true;
+            if (newsEditModalContainer) {
+                newsEditModalContainer.classList.add('dragging');
+            }
+        }
+    }
+
+    function editModalDrag(e) {
+        if (isEditDragging) {
+            e.preventDefault();
+
+            editCurrentX = e.clientX - editInitialX;
+            editCurrentY = e.clientY - editInitialY;
+
+            editXOffset = editCurrentX;
+            editYOffset = editCurrentY;
+
+            if (newsEditModalContainer) {
+                newsEditModalContainer.style.transform = `translate(${editCurrentX}px, ${editCurrentY}px) scale(1)`;
+            }
+        }
+    }
+
+    function editModalDragEnd(e) {
+        editInitialX = editCurrentX;
+        editInitialY = editCurrentY;
+        isEditDragging = false;
+        if (newsEditModalContainer) {
+            newsEditModalContainer.classList.remove('dragging');
+        }
+    }
+
+    // Edit Modal Submit Button
+    if (newsEditModalSubmitButton) {
+        newsEditModalSubmitButton.addEventListener('click', function() {
+            // Validate form
+            if (!editNewsOrderNum || !editNewsOrderNum.value) {
+                san.warningAlert('순번을 입력해주세요.');
+                return;
+            }
+
+            const portfolioNewsNo = editPortfolioNewsNo ? editPortfolioNewsNo.value : '';
+            if (!portfolioNewsNo) {
+                san.errorAlert('뉴스 정보를 찾을 수 없습니다.');
+                return;
+            }
+
+            // Request body
+            const requestBody = {
+                orderNum: parseInt(editNewsOrderNum.value)
+            };
+
+            // Call API to update news
+            api.put(`/portfolio/news/${portfolioNewsNo}`, requestBody)
+                .then(response => {
+                    closeNewsEditModal();
+                    loadPortfolioNews();
+                    san.toast('뉴스가 수정되었습니다.', 'success', 3000);
+                })
+                .catch(error => {
+                    console.error('Error updating news:', error.message);
+                    san.errorAlert(error.message || '뉴스 수정 중 오류가 발생했습니다.');
+                });
         });
     }
 

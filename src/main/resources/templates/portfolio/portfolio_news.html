@@ -188,8 +188,8 @@
                             type="text"
                             class="form-input"
                             id="newsLink"
-                            placeholder="뉴스기사 링크를 입력하세요"
-                            required
+                            placeholder="뉴스기사 링크"
+                            readonly
                         >
                     </div>
                     <div class="form-group hidden" id="newsAgencyGroup">
@@ -198,7 +198,8 @@
                             type="text"
                             class="form-input"
                             id="newsAgency"
-                            placeholder="뉴스 언론사를 입력하세요"
+                            placeholder="뉴스 언론사"
+                            readonly
                         >
                     </div>
                     <div class="form-group hidden" id="newsOrderNumGroup">
@@ -217,6 +218,68 @@
             <div class="modal-footer">
                 <button class="btn-cancel" id="newsModalCancelButton">취소</button>
                 <button class="btn-submit" id="newsModalSubmitButton">등록</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- News Edit Modal -->
+    <div class="modal-overlay" id="newsEditModal">
+        <div class="modal-container modal-medium">
+            <div class="modal-header" id="newsEditModalHeader">
+                <h3 class="modal-title">뉴스 수정</h3>
+                <button class="modal-close" id="newsEditModalClose">
+                    <span class="material-icons">close</span>
+                </button>
+            </div>
+            <div class="modal-content">
+                <form id="newsEditForm">
+                    <input type="hidden" id="editPortfolioNewsNo">
+                    <div class="form-group">
+                        <label class="form-label" for="editNewsTitle">뉴스기사 제목</label>
+                        <input
+                            type="text"
+                            class="form-input"
+                            id="editNewsTitle"
+                            placeholder="뉴스기사 제목"
+                            readonly
+                        >
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="editNewsLink">뉴스기사 링크</label>
+                        <input
+                            type="text"
+                            class="form-input"
+                            id="editNewsLink"
+                            placeholder="뉴스기사 링크"
+                            readonly
+                        >
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="editNewsAgency">뉴스 언론사</label>
+                        <input
+                            type="text"
+                            class="form-input"
+                            id="editNewsAgency"
+                            placeholder="뉴스 언론사"
+                            readonly
+                        >
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label required" for="editNewsOrderNum">순번</label>
+                        <input
+                            type="number"
+                            class="form-input"
+                            id="editNewsOrderNum"
+                            placeholder="순번을 입력하세요"
+                            min="1"
+                            required
+                        >
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" id="newsEditModalCancelButton">취소</button>
+                <button class="btn-submit" id="newsEditModalSubmitButton">수정</button>
             </div>
         </div>
     </div>

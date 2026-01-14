@@ -405,13 +405,14 @@ public class PortfolioService {
             DataStatus dataStatus = pn.getDataStatus();
 
             return PortfolioNewsResDto.builder()
-                   .portfolioNewsNo(pn.getPortfolioNewsNo())
-                   .newsTitle(pn.getNewsTitle())
-                   .newsAgency(pn.getNewsAgency())
-                   .newsLink(pn.getNewsLink())
-                   .dataStatus(dataStatus.getKey())
-                   .dataStatusStr(dataStatus.getDesc())
-                   .build();
+                    .portfolioNewsNo(pn.getPortfolioNewsNo())
+                    .newsTitle(pn.getNewsTitle())
+                    .newsAgency(pn.getNewsAgency())
+                    .newsLink(pn.getNewsLink())
+                    .orderNum(pn.getOrderNum())
+                    .dataStatus(dataStatus.getKey())
+                    .dataStatusStr(dataStatus.getDesc())
+                    .build();
         });
     }
 
@@ -461,5 +462,11 @@ public class PortfolioService {
                 .build();
 
         portfolioNewsRepository.save(portfolioNews);
+    }
+
+    @Transactional
+    public void updatePortfolioNews(Integer portfolioNo, PortfolioNewsUpdDto dto) {
+
+
     }
 }

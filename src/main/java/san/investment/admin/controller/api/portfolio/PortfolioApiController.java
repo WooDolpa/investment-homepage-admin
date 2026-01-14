@@ -207,4 +207,12 @@ public class PortfolioApiController {
         portfolioService.addPortfolioNews(portfolioNo, dto);
         return new ResponseEntity<>(ApiResponseDto.makeSuccessResponse(), HttpStatus.OK);
     }
+
+    @PutMapping(path = "/{portfolioNo}/news")
+    public ResponseEntity<String> updatePortfolioNews(@PathVariable(name = "portfolioNo") Integer portfolioNo,
+                                                      @RequestBody PortfolioNewsUpdDto dto) {
+
+        portfolioService.updatePortfolioNews(portfolioNo, dto);
+        return new ResponseEntity<>(ApiResponseDto.makeSuccessResponse(), HttpStatus.OK);
+    }
 }
