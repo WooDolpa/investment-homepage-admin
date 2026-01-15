@@ -464,9 +464,67 @@ public class PortfolioService {
         portfolioNewsRepository.save(portfolioNews);
     }
 
+    /**
+     * 포트폴리오 뉴스 수정
+     *
+     * @param dto
+     */
     @Transactional
-    public void updatePortfolioNews(Integer portfolioNo, PortfolioNewsUpdDto dto) {
+    public void updatePortfolioNews(PortfolioNewsUpdDto dto) {
 
+        PortfolioNews findPortfolioNews = portfolioNewsRepository.findById(dto.getPortfolioNewsNo())
+                .orElseThrow(() -> new CustomException(ExceptionCode.PORTFOLIO_NEW_NOT_FOUND));
 
+        Portfolio portfolio = findPortfolioNews.getPortfolio();
+
+        // 순번 재정렬
+        Integer originalOrderNum = findPortfolioNews.getOrderNum();
+        Integer newOrderNum = dto.getOrderNum();
+
+        if(!Objects.equals(originalOrderNum, newOrderNum)) {
+            if(originalOrderNum > newOrderNum) {
+
+                List<PortfolioNews> sortList = portfolioNewsRepository.findByPortfolioAndOrderNumGreaterThanEqualAndOrderNumLessThan(portfolio, newOrderNum, originalOrderNum)
+                        .orElse(new ArrayList<>());
+
+                sortList.forEach(PortfolioNews :: increaseOrderNum);
+            }else {
+
+                List<PortfolioNews> sortList = portfolioNewsRepository.findByPortfolioAndOrderNumGreaterThanAndOrderNumLessThanEqual(portfolio, originalOrderNum, newOrderNum)
+                        .orElse(new ArrayList<>());
+
+                sortList.forEach(PortfolioNews :: decreaseOrderNum);
+            }
+
+            int totalCount = portfolioNewsRepository.countByPortfolio(portfolio).intValue();
+            if(newOrderNum > totalCount) {
+                newOrderNum = totalCount;
+            }
+
+            findPortfolioNews.changeOrderNum(newOrderNum);
+        }
+    }
+
+    /**
+     * 포트폴리오 뉴스 삭제
+     *
+     * @param portfolioNewsNo
+     */
+    @Transactional
+    public void deletePortfolioNews(Integer portfolioNewsNo) {
+
+        PortfolioNews findPortfolioNews = portfolioNewsRepository.findById(portfolioNewsNo)
+                .orElseThrow(() -> new CustomException(ExceptionCode.PORTFOLIO_NEW_NOT_FOUND));
+
+        Portfolio findPortfolio = findPortfolioNews.getPortfolio();
+
+        // 순번 당기기
+        List<PortfolioNews> sortList = portfolioNewsRepository.findByPortfolioAndOrderNumGreaterThan(findPortfolio, findPortfolioNews.getOrderNum())
+                .orElse(new ArrayList<>());
+
+        sortList.forEach(PortfolioNews :: decreaseOrderNum);
+
+        // 삭제
+        portfolioNewsRepository.delete(findPortfolioNews);
     }
 }

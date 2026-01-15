@@ -62,6 +62,18 @@ public class WebCrawlingUtil {
                 }else if("og:url".equals(key)) {
                     link = value;
                 }
+
+                // 네이버에서 뉴스기사 호출
+                if(!StringUtils.hasText(title)) {
+                    if("twitter:title".equals(key)) {
+                        title = value;
+                    }
+                }
+                if(!StringUtils.hasText(agency)) {
+                    if("twitter:creator".equals(key)) {
+                        agency = value;
+                    }
+                }
             }
 
             if(!StringUtils.hasText(link)) {

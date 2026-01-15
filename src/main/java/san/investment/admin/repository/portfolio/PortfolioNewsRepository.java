@@ -17,4 +17,7 @@ import java.util.Optional;
 public interface PortfolioNewsRepository extends JpaRepository<PortfolioNews, Integer>, PortfolioNewsCustomRepository {
     Long countByPortfolio(Portfolio portfolio);
     Optional<List<PortfolioNews>> findByOrderNumGreaterThanEqual(Integer orderNum);
+    Optional<List<PortfolioNews>> findByPortfolioAndOrderNumGreaterThanEqualAndOrderNumLessThan(Portfolio portfolio, Integer newOrderNum, Integer originalOrderNum);
+    Optional<List<PortfolioNews>> findByPortfolioAndOrderNumGreaterThanAndOrderNumLessThanEqual(Portfolio portfolio, Integer originalOrderNum, Integer newOrderNum);
+    Optional<List<PortfolioNews>> findByPortfolioAndOrderNumGreaterThan(Portfolio portfolio, Integer orderNum);
 }

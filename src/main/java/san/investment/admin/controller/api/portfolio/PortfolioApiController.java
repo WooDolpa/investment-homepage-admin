@@ -208,11 +208,29 @@ public class PortfolioApiController {
         return new ResponseEntity<>(ApiResponseDto.makeSuccessResponse(), HttpStatus.OK);
     }
 
-    @PutMapping(path = "/{portfolioNo}/news")
-    public ResponseEntity<String> updatePortfolioNews(@PathVariable(name = "portfolioNo") Integer portfolioNo,
-                                                      @RequestBody PortfolioNewsUpdDto dto) {
+    /**
+     * 포트폴리오 뉴스 수정
+     *
+     * @param dto
+     * @return
+     */
+    @PutMapping(path = "/news")
+    public ResponseEntity<String> updatePortfolioNews(@RequestBody PortfolioNewsUpdDto dto) {
 
-        portfolioService.updatePortfolioNews(portfolioNo, dto);
+        portfolioService.updatePortfolioNews(dto);
+        return new ResponseEntity<>(ApiResponseDto.makeSuccessResponse(), HttpStatus.OK);
+    }
+
+    /**
+     * 포트폴리오 뉴스 삭제
+     *
+     * @param portfolioNewsNo
+     * @return
+     */
+    @DeleteMapping(path = "/news/{portfolioNewsNo}")
+    public ResponseEntity<String> deletePortfolioNews(@PathVariable(name = "portfolioNewsNo") Integer portfolioNewsNo) {
+
+        portfolioService.deletePortfolioNews(portfolioNewsNo);
         return new ResponseEntity<>(ApiResponseDto.makeSuccessResponse(), HttpStatus.OK);
     }
 }

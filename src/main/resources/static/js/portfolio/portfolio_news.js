@@ -598,8 +598,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     san.confirm(
                         '뉴스를 삭제하시겠습니까?',
                         function() {
-                            // TODO: implement delete API
-                            console.log('Delete news:', newsId);
+                            api.delete(`/portfolio/news/${newsId}`)
+                                .then(response => {
+                                    loadPortfolioNews();
+                                    san.toast('뉴스가 삭제되었습니다.', 'success', 3000);
+                                })
+                                .catch(error => {
+                                    console.error('Error deleting news:', error.message);
+                                    san.errorAlert(error.message || '뉴스 삭제 중 오류가 발생했습니다.');
+                                });
                         }
                     );
                 });
@@ -1110,11 +1117,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Request body
             const requestBody = {
+                portfolioNewsNo: parseInt(portfolioNewsNo),
                 orderNum: parseInt(editNewsOrderNum.value)
             };
 
             // Call API to update news
-            api.put(`/portfolio/news/${portfolioNewsNo}`, requestBody)
+            api.put('/portfolio/news', requestBody)
                 .then(response => {
                     closeNewsEditModal();
                     loadPortfolioNews();
