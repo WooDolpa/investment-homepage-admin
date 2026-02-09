@@ -11,6 +11,7 @@ This is a Spring Boot 3.5.7 admin application for an investment homepage system.
 - Spring Boot 3.5.7 (Web, JPA, Security, Thymeleaf)
 - QueryDSL 5.0.0
 - JWT (jjwt 0.12.5)
+- Jsoup 1.17.2 (web scraping for news articles)
 - MariaDB
 - Gradle
 
@@ -47,15 +48,17 @@ This is a Spring Boot 3.5.7 admin application for an investment homepage system.
 src/main/java/san/investment/admin/
 ├── config/          - Configuration classes (Security, JPA, QueryDSL, Beans)
 ├── controller/
-│   ├── api/         - REST API controllers (@RestController)
-│   └── view/        - View controllers (@Controller)
+│   ├── api/         - REST API controllers (@RestController), organized by domain (auth/, company/, menu/, portfolio/)
+│   └── view/        - View controllers (@Controller) for Thymeleaf pages
 ├── dto/             - Data Transfer Objects
 ├── filter/          - Servlet filters (AuthenticationFilter)
 ├── http/            - Custom HTTP wrappers (CustomHttpServletRequest)
 ├── repository/      - JPA repositories
 ├── security/        - Security components (CustomUserDetailService)
 ├── service/         - Business logic services
-└── utils/           - Utility classes (JWTUtil)
+├── utils/           - Utility classes (JWTUtil, FileUtil, PageableUtil, WebCrawlingUtil)
+├── constants/       - Admin-specific constants (AdminConstants)
+└── enums/           - Enums (SearchType)
 ```
 
 ## Architecture Notes
@@ -179,6 +182,48 @@ String fileUrl = fileUtil.saveFile(file, subDirectory); // Returns "/uploads/com
 entity.changeLogoUrl(fileUrl); // Save web path to database
 ```
 
+### Web Crawling (News Articles)
+- **WebCrawlingUtil** extracts metadata from news article URLs using Jsoup
+- Parses Open Graph meta tags (`og:title`, `og:site_name`, `og:url`)
+- Falls back to Twitter meta tags (`twitter:title`, `twitter:creator`) for Naver news articles
+- If `og:url` is missing, uses the original target URL as the link
+- Endpoint: `GET /v1/portfolio/news/crawling?url={targetUrl}`
+- Returns `PortfolioNewsCrawlingResDto` with `newsTitle`, `newsAgency`, `newsLink`
+
+### Admin Constants and Enums
+- `AdminConstants.COMPANY_ID = 1` - Single-company system, always uses company ID 1
+- `SearchType` enum: `MENU_NAME("menuName")`, `PORTFOLIO_TITLE("portfolioTitle")` - used for dynamic search filtering in QueryDSL repositories
+- `PageableUtil.createPageable(sort, direction, page, size)` - Static factory for creating Spring `Pageable` objects with sorting
+
+### REST API Endpoints
+
+| Method | Path | Description |
+|--------|------|-------------|
+| POST | `/v1/auth/login` | Login (public) |
+| POST | `/v1/auth/logout` | Logout (public) |
+| GET | `/v1/auth/password` | Password utility (public) |
+| GET | `/v1/company` | Get company info |
+| PUT | `/v1/company` | Update company (multipart) |
+| PUT | `/v1/company/business/card` | Update business card (multipart) |
+| GET | `/v1/company/generate/url` | Generate external URL |
+| GET | `/v1/menu/list` | List menus (with search/filter) |
+| PUT | `/v1/menu` | Update menu |
+| GET | `/v1/portfolio/list` | List portfolios (paginated) |
+| GET | `/v1/portfolio/{portfolioNo}` | Get portfolio detail |
+| POST | `/v1/portfolio` | Create portfolio (multipart) |
+| PUT | `/v1/portfolio` | Update portfolio (multipart) |
+| PATCH | `/v1/portfolio/type/update` | Update portfolio type |
+| DELETE | `/v1/portfolio/{portfolioNo}` | Delete portfolio |
+| GET | `/v1/portfolio/main/list` | List main portfolios (paginated) |
+| POST | `/v1/portfolio/main` | Register main portfolio |
+| PUT | `/v1/portfolio/main` | Update main portfolio |
+| DELETE | `/v1/portfolio/main/{portfolioMainNo}` | Delete main portfolio |
+| GET | `/v1/portfolio/{portfolioNo}/news/list` | List portfolio news (paginated) |
+| GET | `/v1/portfolio/news/crawling?url=` | Crawl news URL metadata |
+| POST | `/v1/portfolio/{portfolioNo}/news` | Add news article |
+| PUT | `/v1/portfolio/news` | Update news article |
+| DELETE | `/v1/portfolio/news/{portfolioNewsNo}` | Delete news article |
+
 ## Frontend Architecture
 
 ### Template Structure (Thymeleaf)
@@ -187,7 +232,7 @@ entity.changeLogoUrl(fileUrl); // Save web path to database
   - `fragments/common.html` - Head section with CSS/font imports
   - `fragments/header.html` - Sidebar and navbar fragments
   - `fragments/scripts.html` - JavaScript imports
-- Main pages: `login/login.html`, `company/company.html`
+- Main pages: `login/login.html`, `company/company.html`, `menu/menu.html`, `portfolio/portfolio.html`, `portfolio/portfolio_register.html`, `portfolio/portfolio_update.html`, `portfolio/portfolio_main.html`, `portfolio/portfolio_news.html`
 
 ### Menu System (header.html)
 - Dynamic menu activation using Thymeleaf conditionals:
@@ -212,12 +257,21 @@ entity.changeLogoUrl(fileUrl); // Save web path to database
 ### JavaScript Organization
 ```
 src/main/resources/static/js/
-├── material-dashboard.js  - Core dashboard functionality (sidebar toggle, etc.)
-├── common.js              - SweetAlert2 wrapper utilities (san object)
-├── api.js                 - API request utilities (api object)
-├── auth.js                - Authentication helpers
-├── common/navbar.js       - Navbar event handlers (logout, etc.)
-└── login/login_cc.js         - Login page logic
+├── api.js                           - API request utilities (api object)
+├── common.js                        - SweetAlert2 wrapper utilities (san object)
+├── auth.js                          - Authentication helpers
+├── common/navbar.js                 - Navbar event handlers (logout, etc.)
+├── login/login.js                   - Login page logic
+├── dashboard/dashboard.js           - Dashboard page logic
+├── company/company.js               - Company info page
+├── company/company_update.js        - Company update logic
+├── company/business_card.js         - Business card management
+├── menu/menu.js                     - Menu management page
+├── portfolio/portfolio.js           - Portfolio list page
+├── portfolio/portfolio_register.js  - Portfolio registration
+├── portfolio/portfolio_update.js    - Portfolio update
+├── portfolio/portfolio_main.js      - Portfolio main exposure management
+└── portfolio/portfolio_news.js      - Portfolio news article management
 ```
 
 ### Frontend Utilities

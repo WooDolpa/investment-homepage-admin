@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import san.investment.admin.dto.company.BusinessCardUpdDto;
 import san.investment.admin.dto.company.CompanyUpdDto;
 import san.investment.admin.service.company.CompanyService;
 import san.investment.common.dto.ApiResponseDto;
@@ -64,11 +65,28 @@ public class CompanyApiController {
         return new ResponseEntity<>(ApiResponseDto.makeSuccessResponse(), HttpStatus.OK);
     }
 
+    /**
+     * 명함 업데이트
+     *
+     * @param businessCard1File
+     * @param businessCard2File
+     * @return
+     */
     @PutMapping(path = "/business/card")
-    public ResponseEntity<String> updateBusinessCard(@RequestPart(value = "businessCard1", required = false) MultipartFile businessCard1,
-                                                     @RequestPart(value = "businessCard2", required = false) MultipartFile businessCard2) {
+    public ResponseEntity<String> updateBusinessCard(@RequestPart(value = "businessCard1File", required = false) MultipartFile businessCard1File,
+                                                     @RequestPart(value = "businessCard2File", required = false) MultipartFile businessCard2File,
+                                                     @RequestPart(value = "jsonBody") String jsonBody) {
 
-        companyService.updateBusinessCard(businessCard1, businessCard2);
+        BusinessCardUpdDto dto = null;
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            dto = mapper.readValue(jsonBody, BusinessCardUpdDto.class);
+        }catch (Exception e) {
+            log.error("[CompanyApiController][updateBusinessCard] Json Parser error : {}", e.getMessage());
+            throw new CustomException(ExceptionCode.INVALID_PARAMETER);
+        }
+
+        companyService.updateBusinessCard(dto, businessCard1File, businessCard2File);
         return new ResponseEntity<>(ApiResponseDto.makeSuccessResponse(), HttpStatus.OK);
     }
 

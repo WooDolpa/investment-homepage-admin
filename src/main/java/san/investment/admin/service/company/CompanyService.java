@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import san.investment.admin.constants.AdminConstants;
 import san.investment.admin.dto.company.BusinessCardResDto;
+import san.investment.admin.dto.company.BusinessCardUpdDto;
 import san.investment.admin.dto.company.CompanyResDto;
 import san.investment.admin.dto.company.CompanyUpdDto;
 import san.investment.admin.repository.company.CompanyRepository;
@@ -120,11 +121,27 @@ public class CompanyService {
     /**
      * 명함 이미지 업데이트
      *
-     * @param businessCard1
-     * @param businessCard2
+     * @param dto
+     * @param businessCard1File
+     * @param businessCard2File
      */
-    public void updateBusinessCard(MultipartFile businessCard1, MultipartFile businessCard2) {
+    @Transactional
+    public void updateBusinessCard(BusinessCardUpdDto dto, MultipartFile businessCard1File, MultipartFile businessCard2File) {
 
+        Company findCompany = companyRepository.findById(dto.getCompanyNo())
+                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_COMPANY));
+
+        if(businessCard1File != null && !businessCard1File.isEmpty()) {
+            String subDirectory = companyUrl.concat(String.valueOf(findCompany.getCompanyNo()));
+            String businessCard1FilePath = fileUtil.saveFile(businessCard1File, subDirectory);
+            findCompany.changeBusinessCard1(businessCard1FilePath);
+        }
+
+        if(businessCard2File != null && !businessCard2File.isEmpty()) {
+            String subDirectory = companyUrl.concat(String.valueOf(findCompany.getCompanyNo()));
+            String businessCard2FilePath = fileUtil.saveFile(businessCard2File, subDirectory);
+            findCompany.changeBusinessCard2(businessCard2FilePath);
+        }
     }
 
     /**

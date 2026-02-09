@@ -42,17 +42,22 @@ document.addEventListener('DOMContentLoaded', function() {
             const formData = new FormData();
 
             if (cardImageFile1) {
-                formData.append('cardImage1', cardImageFile1);
+                formData.append('businessCard1File', cardImageFile1);
             }
             if (cardImageFile2) {
-                formData.append('cardImage2', cardImageFile2);
+                formData.append('businessCard2File', cardImageFile2);
             }
 
-            api.put('/company/business/card/image', formData)
+            const companyNo = document.getElementById('companyNo').value;
+            const jsonBody = { companyNo: companyNo };
+            formData.append('jsonBody', new Blob([JSON.stringify(jsonBody)], { type: 'application/json' }));
+
+            api.put('/company/business/card', formData)
                 .then(function() {
-                    san.successAlert('명함 이미지가 수정되었습니다.', function() {
+                    san.toast('명함 이미지가 수정되었습니다.', 'success', 1000);
+                    setTimeout(function() {
                         window.location.reload();
-                    });
+                    }, 1000);
                 })
                 .catch(function(error) {
                     san.errorAlert(error.message || '이미지 수정 중 오류가 발생했습니다.');
