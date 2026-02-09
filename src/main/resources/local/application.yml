@@ -44,4 +44,4 @@ file:
 
 company:
   output:
-    url: http://localhost:8090/output/verify
+    url: http://localhost:8090/business/card/verify

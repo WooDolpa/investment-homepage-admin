@@ -41,3 +41,7 @@ file:
     url: company/
   portfolio:
     url: portfolio/
+
+company:
+  output:
+    url: http://19341.synology.me:4105/business/card/verify
