@@ -63,4 +63,23 @@ public class CompanyApiController {
         companyService.updateCompany(dto, logoFile, mainFile);
         return new ResponseEntity<>(ApiResponseDto.makeSuccessResponse(), HttpStatus.OK);
     }
+
+    @PutMapping(path = "/business/card")
+    public ResponseEntity<String> updateBusinessCard(@RequestPart(value = "businessCard1", required = false) MultipartFile businessCard1,
+                                                     @RequestPart(value = "businessCard2", required = false) MultipartFile businessCard2) {
+
+        companyService.updateBusinessCard(businessCard1, businessCard2);
+        return new ResponseEntity<>(ApiResponseDto.makeSuccessResponse(), HttpStatus.OK);
+    }
+
+    /**
+     * 외부 URL 생성
+     *
+     * @param id
+     * @return
+     */
+    @GetMapping(path = "/generate/url")
+    public ResponseEntity<String> generateUrl(@RequestParam(name = "id") Integer id) {
+        return new ResponseEntity<>(ApiResponseDto.makeResponse(companyService.generateUrl(id)), HttpStatus.OK);
+    }
 }

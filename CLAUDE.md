@@ -228,6 +228,7 @@ src/main/resources/static/js/
 - `san.successAlert(message, callback)` - Success dialog with optional callback
 - `san.infoAlert(message)` - Info dialog
 - `san.confirm(message, confirmCallback, cancelCallback)` - Confirmation dialog
+- `san.toast(message, icon, timer, position)` - Non-blocking toast notification (defaults: icon='success', timer=3000, position='top-end')
 
 **Custom styling:** SweetAlert2 uses custom classes defined in `custom.css`:
 - `.swal-popup-custom` - Popup container
@@ -323,205 +324,34 @@ List<Entity> results = queryFactory
    ```
 3. Use `th:classappend` for dynamic menu activation based on `menuActive` and `subMenuActive`
 
-### Frontend Alert Patterns
+### Frontend API + Alert Pattern
 ```javascript
-// Simple alert
-san.errorAlert('오류가 발생했습니다.');
+// API calls always use error.message for user-facing errors
+api.get('/endpoint')
+    .then(data => { /* handle data.data */ })
+    .catch(error => san.errorAlert(error.message || '오류가 발생했습니다.'));
 
-// With callback
-san.successAlert('저장되었습니다.', function() {
-    window.location.href = '/list';
-});
-
-// Confirmation
-san.confirm('정말 삭제하시겠습니까?',
-    function() { /* delete */ },
-    function() { /* cancel */ }
-);
-```
-
-### Error Handling Pattern
-```javascript
-// api.js throws Error objects with server messages
-// Always extract error.message for user display
-.catch(error => {
-    console.error('Error description:', error.message);
-    san.errorAlert(error.message || 'Default error message');
-});
-```
-
-### API Call Patterns
-```javascript
-// Simple GET
-api.get('/auth/user')
-    .then(data => console.log(data))
-    .catch(error => san.errorAlert(error.message));
-
-// GET with pagination and search
-const params = new URLSearchParams({
-    page: currentPage,
-    size: pageSize,
-    keyword: searchKeyword
-});
-api.get(`/portfolio/main/list?${params.toString()}`)
-    .then(response => {
-        const data = response.data;
-        totalPages = data.totalPages;
-        totalElements = data.totalElements;
-        renderTable(data.content);
-    });
-
-// POST with JSON data
-api.post('/auth/login', { id: 'user', password: 'pass' })
-    .then(response => {
-        san.successAlert('로그인 성공', () => {
-            window.location.href = '/dashboard';
-        });
-    });
-
-// PUT with file upload (multipart/form-data)
+// File upload with multipart/form-data
 const formData = new FormData();
-if (logoFile) {
-    formData.append('logoFile', logoFile);
-}
-if (mainFile) {
-    formData.append('mainFile', mainFile);
-}
-const jsonBody = {
-    companyNo: companyNo,
-    companyName: companyName,
-    // ... other fields
-};
-formData.append('jsonBody', new Blob([JSON.stringify(jsonBody)], { type: 'application/json' }));
-
-api.put('/company', formData)
-    .then(data => {
-        san.successAlert('저장되었습니다.', () => {
-            window.location.reload();
-        });
-    })
-    .catch(error => {
-        san.errorAlert('저장 중 오류가 발생했습니다.');
-    });
-```
-
-### File Upload with Image Preview Pattern
-```javascript
-// Load existing image from server
-function loadImagePreview(imageUrl, previewContainer) {
-    if (imageUrl) {
-        previewContainer.innerHTML = `<img src="${imageUrl}" alt="Existing Image">`;
-        previewContainer.classList.add('active');
-        previewContainer.parentElement.querySelector('.file-upload-placeholder').style.display = 'none';
-    }
-}
-
-// On page load, display existing images
-api.get('/company')
-    .then(data => {
-        if (data && data.data) {
-            if (data.data.logoUrl) {
-                loadImagePreview(data.data.logoUrl, logoPreview);
-            }
-            if (data.data.mainImgUrl) {
-                loadImagePreview(data.data.mainImgUrl, mainPreview);
-            }
-        }
-    });
-
-// Handle new file selection
-fileInput.addEventListener('change', function(e) {
-    const file = e.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            previewContainer.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
-            previewContainer.classList.add('active');
-            // Hide placeholder
-        };
-        reader.readAsDataURL(file);
-    }
-});
+formData.append('file', fileInput.files[0]);
+formData.append('jsonBody', new Blob([JSON.stringify(data)], { type: 'application/json' }));
+api.put('/endpoint', formData)
+    .then(() => san.successAlert('저장되었습니다.', () => window.location.reload()))
+    .catch(error => san.errorAlert(error.message));
 ```
 
 ### Search + Pagination Pattern
-```javascript
-// Variables at top of DOMContentLoaded
-let currentPage = 0;
-let pageSize = 10;
-let totalPages = 0;
-let totalElements = 0;
-let searchKeyword = '';
-
-// Search event handlers
-searchButton.addEventListener('click', performSearch);
-searchInput.addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') performSearch();
-});
-
-function performSearch() {
-    searchKeyword = searchInput.value.trim();
-    currentPage = 0;  // Always reset to first page
-    loadData();
-}
-
-// Items per page change
-itemsPerPageSelect.addEventListener('change', function() {
-    pageSize = parseInt(this.value);
-    currentPage = 0;
-    loadData();
-});
-
-// Pagination rendering
-function renderPagination() {
-    const startPage = Math.max(0, currentPage - 2);
-    const endPage = Math.min(totalPages - 1, currentPage + 2);
-
-    // Generate Previous, page numbers, Next buttons
-    // Update page info: `${currentPage + 1} / ${totalPages} 페이지`
-}
-```
+- State variables: `currentPage` (0-indexed), `pageSize`, `totalPages`, `totalElements`
+- API response format: `{ data: { content: [...], totalPages: N, totalElements: M } }`
+- Always reset `currentPage = 0` on search, filter change, or page size change
+- Page numbers display: `currentPage ±2` range
+- See existing page JS files (e.g., `portfolio.js`, `portfolio_main.js`) for full implementation
 
 ### Modal with Dual View (Table/Card) Pattern
-```javascript
-// Render both table and cards simultaneously
-function renderModalTable(portfolios) {
-    const tableBody = document.getElementById('modalPortfolioTableBody');
-    const cardsContainer = document.getElementById('modalPortfolioCards');
-
-    tableBody.innerHTML = '';
-    cardsContainer.innerHTML = '';
-
-    portfolios.forEach(portfolio => {
-        // Create table row
-        const row = createTableRow(portfolio);
-        tableBody.appendChild(row);
-
-        // Create card
-        const card = createCard(portfolio);
-        cardsContainer.appendChild(card);
-
-        // Sync selections between table and card
-        row.addEventListener('click', () => selectModalRow(row, portfolio));
-        card.addEventListener('click', () => selectModalCard(card, portfolio));
-    });
-}
-
-// Selection syncing
-function selectModalRow(row, portfolio) {
-    // Clear all selections
-    document.querySelectorAll('.portfolio-card').forEach(c => c.classList.remove('selected'));
-    document.querySelectorAll('#modalPortfolioTableBody tr').forEach(r => r.classList.remove('selected'));
-
-    // Set selection
-    row.classList.add('selected');
-    document.querySelector(`.portfolio-card-radio[value="${portfolio.portfolioNo}"]`)
-        .closest('.portfolio-card').classList.add('selected');
-
-    // Fill form
-    fillFormWithPortfolio(portfolio);
-}
-```
+- Both table rows and card views are rendered simultaneously
+- CSS controls visibility: tables on desktop, cards on mobile (≤768px)
+- Selection must sync between table rows and cards
+- See `portfolio_main.js` for full implementation reference
 
 ## Data Field Naming Conventions
 

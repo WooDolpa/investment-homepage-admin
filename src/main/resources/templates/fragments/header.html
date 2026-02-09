@@ -33,6 +33,9 @@
                         <li th:classappend="${subMenuActive == 'companyManage'} ? 'submenu-item active' : 'submenu-item'">
                             <a href="/company" class="submenu-link">회사 정보</a>
                         </li>
+                        <li th:classappend="${subMenuActive == 'businessCard'} ? 'submenu-item active' : 'submenu-item'">
+                            <a href="/company/business/card" class="submenu-link">명함 관리</a>
+                        </li>
                     </ul>
                 </li>
                 <li th:classappend="${menuActive == 'menu'} ? 'nav-item has-submenu open' : 'nav-item has-submenu'">

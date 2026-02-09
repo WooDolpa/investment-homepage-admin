@@ -41,3 +41,7 @@ file:
     url: company/
   portfolio:
     url: portfolio/
+
+company:
+  output:
+    url: http://localhost:8090/output/verify

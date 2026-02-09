@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import san.investment.admin.constants.AdminConstants;
+import san.investment.admin.dto.company.BusinessCardResDto;
 import san.investment.admin.dto.company.CompanyResDto;
 import san.investment.admin.dto.company.CompanyUpdDto;
 import san.investment.admin.repository.company.CompanyRepository;
@@ -15,6 +16,8 @@ import san.investment.common.entity.company.Company;
 import san.investment.common.enums.DataStatus;
 import san.investment.common.exception.CustomException;
 import san.investment.common.exception.ExceptionCode;
+
+import java.util.Base64;
 
 /**
  * packageName : san.investment.admin.service
@@ -34,6 +37,8 @@ public class CompanyService {
 
     @Value("${file.company.url}")
     private String companyUrl;
+    @Value("${company.output.url}")
+    private String outputUrl;
 
     /**
      * 회사 조회
@@ -92,5 +97,55 @@ public class CompanyService {
         findCompany.changePostCode(dto.getPostCode());
         findCompany.changeAddress(dto.getAddress());
         findCompany.changeAddressDetail(dto.getAddressDetail());
+    }
+
+    /**
+     * 명함관련 정보
+     *
+     * @return
+     */
+    public BusinessCardResDto findBusinessCard() {
+
+        Company findCompany = companyRepository.findById(AdminConstants.COMPANY_ID)
+                .orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_COMPANY));
+
+        return BusinessCardResDto.builder()
+                .companyNo(findCompany.getCompanyNo())
+                .outputUrl(generateOutputUrl(findCompany.getCompanyNo()))
+                .businessCard1(fileUtil.convertToWebPath(findCompany.getBusinessCard1()))
+                .businessCard2(fileUtil.convertToWebPath(findCompany.getBusinessCard2()))
+                .build();
+    }
+
+    /**
+     * 명함 이미지 업데이트
+     *
+     * @param businessCard1
+     * @param businessCard2
+     */
+    public void updateBusinessCard(MultipartFile businessCard1, MultipartFile businessCard2) {
+
+    }
+
+    /**
+     * 외부 URL 생성
+     *
+     * @param id
+     * @return
+     */
+    public String generateUrl(Integer id) {
+
+        companyRepository.findById(id).orElseThrow(() -> new CustomException(ExceptionCode.NOT_FOUND_COMPANY));
+        return generateOutputUrl(id);
+    }
+
+    private String generateOutputUrl(Integer id) {
+        return outputUrl +
+                "?id=" +
+                encodeToString(String.valueOf(id));
+    }
+
+    private String encodeToString(String str) {
+        return Base64.getEncoder().encodeToString(str.getBytes());
     }
 }

@@ -39,4 +39,17 @@ public class CompanyController {
 
         return "company/company_update";
     }
+
+    @GetMapping(path = "/company/business/card")
+    public String companyBusinessCard(HttpServletRequest request, Model model) {
+
+        String adminName = request.getHeader(ApiConstants.REQUEST_HEADER_ADMIN_NAME);
+
+        model.addAttribute("adminName", adminName);
+        model.addAttribute("menuActive", "company");
+        model.addAttribute("subMenuActive", "businessCard");
+        model.addAttribute("dto", companyService.findBusinessCard());
+
+        return "company/business_card";
+    }
 }

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <th:block th:replace="~{fragments/common :: head}"></th:block>
+  <th:block th:replace="~{fragments/common :: dashboard}"></th:block>
+  <link rel="stylesheet" th:href="@{/css/company/business_card.css}">
+</head>
+<body>
+  <th:block th:replace="~{fragments/header :: header}"></th:block>
+  <th:block th:replace="~{fragments/header :: sidebar}"></th:block>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="content-wrapper">
+      <!-- Page Header -->
+      <div class="page-header">
+        <div class="page-title-section">
+          <h2 class="page-title">명함 관리</h2>
+          <p class="page-subtitle">명함 정보를 조회하고 관리하세요</p>
+        </div>
+      </div>
+
+      <!-- Top Section -->
+      <div class="card-section" id="topSection">
+        <div class="card-section-header">
+          <h3 class="card-section-title">외부 URL 정보</h3>
+        </div>
+        <div class="card-section-body">
+          <div class="form-group-inline">
+            <label class="form-label">외부 URL</label>
+            <input type="text" class="form-input" id="externalUrl" th:value="${dto.outputUrl}" placeholder="외부 URL을 입력하세요" readonly>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Section -->
+      <input type="hidden" id="companyNo" th:value="${dto.companyNo}">
+      <div class="card-section" id="bottomSection">
+        <div class="card-section-header">
+          <h3 class="card-section-title">명함 이미지</h3>
+          <button class="edit-button" id="updateImageButton">
+            <span class="material-icons">upload_file</span>
+            수정
+          </button>
+        </div>
+        <div class="card-section-body">
+          <div class="image-upload-row">
+            <div class="image-upload-item">
+              <label class="form-label">명함 이미지 1</label>
+              <div class="file-upload-area" id="cardImage1Area">
+                <input type="file" class="file-input" id="cardImage1" accept="image/*">
+                <div class="file-upload-placeholder" id="cardImage1Placeholder" th:classappend="${dto.businessCard1 != null} ? 'hidden'">
+                  <span class="material-icons">cloud_upload</span>
+                  <p>클릭하여 이미지를 업로드하세요</p>
+                </div>
+                <div class="file-preview" id="cardImage1Preview" th:classappend="${dto.businessCard1 != null} ? 'active'">
+                  <img th:if="${dto.businessCard1 != null}" th:src="${dto.businessCard1}" alt="명함 이미지 1">
+                </div>
+              </div>
+            </div>
+            <div class="image-upload-item">
+              <label class="form-label">명함 이미지 2</label>
+              <div class="file-upload-area" id="cardImage2Area">
+                <input type="file" class="file-input" id="cardImage2" accept="image/*">
+                <div class="file-upload-placeholder" id="cardImage2Placeholder" th:classappend="${dto.businessCard2 != null} ? 'hidden'">
+                  <span class="material-icons">cloud_upload</span>
+                  <p>클릭하여 이미지를 업로드하세요</p>
+                </div>
+                <div class="file-preview" id="cardImage2Preview" th:classappend="${dto.businessCard2 != null} ? 'active'">
+                  <img th:if="${dto.businessCard2 != null}" th:src="${dto.businessCard2}" alt="명함 이미지 2">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+</body>
+<th:block th:replace="~{fragments/common :: script}"></th:block>
+<th:block th:replace="~{fragments/scripts :: commonScripts}"></th:block>
+<script th:src="@{/js/company/business_card.js}"></script>
+</html>
