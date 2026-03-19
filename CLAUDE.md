@@ -79,6 +79,7 @@ src/main/java/san/investment/admin/
   - Database: `MARIADB_URL`, `MARIADB_USERNAME`, `MARIADB_PASSWORD`
   - JWT: `JWT_SECRET_KEY` (used for token signing)
   - File Upload: `FILE_SAVE_URL` (base directory for uploaded files)
+  - External URL: `COMPANY_OUTPUT_URL` (base URL for generated external company links)
 
 ### QueryDSL Setup
 - Generated Q-classes are placed in `src/main/generated`
@@ -194,6 +195,7 @@ entity.changeLogoUrl(fileUrl); // Save web path to database
 - `AdminConstants.COMPANY_ID = 1` - Single-company system, always uses company ID 1
 - `SearchType` enum: `MENU_NAME("menuName")`, `PORTFOLIO_TITLE("portfolioTitle")` - used for dynamic search filtering in QueryDSL repositories
 - `PageableUtil.createPageable(sort, direction, page, size)` - Static factory for creating Spring `Pageable` objects with sorting
+- `QuerySpec.getOrderSpecifiers(pageable, path)` - Converts Spring `Pageable` sort into QueryDSL `OrderSpecifier` list; supports `createdDate` and `orderNum` fields
 
 ### REST API Endpoints
 
@@ -232,7 +234,7 @@ entity.changeLogoUrl(fileUrl); // Save web path to database
   - `fragments/common.html` - Head section with CSS/font imports
   - `fragments/header.html` - Sidebar and navbar fragments
   - `fragments/scripts.html` - JavaScript imports
-- Main pages: `login/login.html`, `company/company.html`, `menu/menu.html`, `portfolio/portfolio.html`, `portfolio/portfolio_register.html`, `portfolio/portfolio_update.html`, `portfolio/portfolio_main.html`, `portfolio/portfolio_news.html`
+- Main pages: `login/login.html`, `company/company.html`, `company/company_update.html`, `company/business_card.html`, `menu/menu.html`, `portfolio/portfolio_list.html`, `portfolio/portfolio_register.html`, `portfolio/portfolio_update.html`, `portfolio/portfolio_main.html`, `portfolio/portfolio_news.html`
 
 ### Menu System (header.html)
 - Dynamic menu activation using Thymeleaf conditionals:
