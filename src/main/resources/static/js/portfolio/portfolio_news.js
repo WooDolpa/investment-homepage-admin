@@ -22,6 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Main Search Elements
     const searchButton = document.getElementById('searchButton');
     const searchKeywordInput = document.getElementById('searchKeyword');
+    const selectAllCheckbox = document.getElementById('selectAllCheckbox');
 
     // Draggable Modal Variables
     let isDragging = false;
@@ -463,10 +464,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
         tableBody.innerHTML = '';
 
+        if (selectAllCheckbox) {
+            selectAllCheckbox.checked = false;
+            selectAllCheckbox.indeterminate = false;
+        }
+        if (deleteBulkButton) deleteBulkButton.disabled = true;
+
         if (newsList.length === 0) {
             tableBody.innerHTML = `
                 <tr>
-                    <td colspan="3" style="text-align: center; padding: 40px; color: #666;">
+                    <td colspan="4" style="text-align: center; padding: 40px; color: #666;">
                         등록된 뉴스가 없습니다.
                     </td>
                 </tr>
@@ -483,6 +490,9 @@ document.addEventListener('DOMContentLoaded', function() {
             row.setAttribute('data-order-num', news.orderNum || '');
 
             row.innerHTML = `
+                <td class="checkbox-cell">
+                    <input type="checkbox" class="row-checkbox news-checkbox">
+                </td>
                 <td>${news.newsTitle || '-'}</td>
                 <td>${news.orderNum || '-'}</td>
                 <td>
@@ -495,6 +505,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 </td>
             `;
             tableBody.appendChild(row);
+
+            const checkbox = row.querySelector('.news-checkbox');
+            checkbox.addEventListener('change', updateSelectAllState);
         });
 
         // 버튼 이벤트 연결
@@ -564,6 +577,68 @@ document.addEventListener('DOMContentLoaded', function() {
     // 생략 부호 표시 여부
     function shouldShowEllipsis(page, current, total) {
         return page === current - 2 || page === current + 2;
+    }
+
+    // Bulk Delete Button
+    const deleteBulkButton = document.getElementById('deleteBulkButton');
+
+    // Select All / Deselect All
+    function updateSelectAllState() {
+        const checkboxes = document.querySelectorAll('#portfolioTableBody .news-checkbox');
+        if (checkboxes.length === 0) {
+            if (selectAllCheckbox) {
+                selectAllCheckbox.checked = false;
+                selectAllCheckbox.indeterminate = false;
+            }
+            if (deleteBulkButton) deleteBulkButton.disabled = true;
+            return;
+        }
+
+        const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
+
+        if (selectAllCheckbox) {
+            selectAllCheckbox.checked = checkedCount === checkboxes.length;
+            selectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < checkboxes.length;
+        }
+
+        if (deleteBulkButton) deleteBulkButton.disabled = checkedCount === 0;
+    }
+
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function() {
+            const checkboxes = document.querySelectorAll('#portfolioTableBody .news-checkbox');
+            checkboxes.forEach(cb => { cb.checked = this.checked; });
+            if (deleteBulkButton) deleteBulkButton.disabled = !this.checked;
+        });
+    }
+
+    // Bulk Delete Click
+    if (deleteBulkButton) {
+        deleteBulkButton.addEventListener('click', function() {
+            const checkedBoxes = document.querySelectorAll('#portfolioTableBody .news-checkbox:checked');
+            if (checkedBoxes.length === 0) {
+                san.warningAlert('삭제할 뉴스를 선택해주세요.');
+                return;
+            }
+
+            const portfolioNewsNos = Array.from(checkedBoxes).map(cb => {
+                return parseInt(cb.closest('tr').getAttribute('data-id'));
+            });
+
+            san.confirm(
+                `선택한 뉴스 ${portfolioNewsNos.length}건을 삭제하시겠습니까?`,
+                function() {
+                    api.delete('/portfolio/news/delete', { portfolioNewsNos })
+                        .then(() => {
+                            loadPortfolioNews();
+                            san.toast(`뉴스 ${portfolioNewsNos.length}건이 삭제되었습니다.`, 'success', 3000);
+                        })
+                        .catch(error => {
+                            san.errorAlert(error.message || '일괄 삭제 중 오류가 발생했습니다.');
+                        });
+                }
+            );
+        });
     }
 
     // Attach News Button Listeners

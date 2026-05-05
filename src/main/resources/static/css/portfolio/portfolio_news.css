@@ -219,6 +219,44 @@
     font-size: 18px;
 }
 
+/* Bulk Delete Button */
+.btn-bulk-delete {
+    padding: 8px 12px;
+    background: #dc2626;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #ffffff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+}
+
+.btn-bulk-delete .material-icons {
+    font-size: 18px;
+}
+
+.btn-bulk-delete:hover:not(:disabled) {
+    background: #b91c1c;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+.btn-bulk-delete:active:not(:disabled) {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.2);
+}
+
+.btn-bulk-delete:disabled {
+    background: #f5c6c6;
+    color: #999;
+    cursor: not-allowed;
+}
+
 /* Register Button */
 .search-button {
     padding: 12px 24px;
@@ -355,7 +393,12 @@
     font-weight: 600;
     color: #1a1a1a;
     white-space: nowrap;
-    width: 33.33%;
+}
+
+.data-table th.col-checkbox {
+    width: 48px;
+    text-align: center;
+    padding: 16px 12px;
 }
 
 .data-table tbody tr {
@@ -370,7 +413,19 @@
 .data-table td {
     padding: 16px;
     color: #333;
-    width: 33.33%;
+}
+
+.data-table td.checkbox-cell {
+    text-align: center;
+    padding: 16px 12px;
+}
+
+.row-checkbox {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    accent-color: #1a1a1a;
+    vertical-align: middle;
 }
 
 /* Badge Common Styles */
@@ -545,6 +600,11 @@
     .data-table td {
         padding: 12px 8px;
         font-size: 13px;
+    }
+
+    .data-table th.col-checkbox,
+    .data-table td.checkbox-cell {
+        padding: 12px 6px;
     }
 
     .status-badge,

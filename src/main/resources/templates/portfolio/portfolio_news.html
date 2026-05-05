@@ -53,6 +53,10 @@
                                 </div>
                             </div>
                         </div>
+                        <button class="btn-bulk-delete" id="deleteBulkButton" disabled>
+                            <span class="material-icons">delete_sweep</span>
+                            일괄삭제
+                        </button>
                         <button class="search-button" id="registerButton">
                             <span class="material-icons">add</span>
                             등록
@@ -64,6 +68,9 @@
                     <table class="data-table">
                         <thead>
                         <tr>
+                            <th class="col-checkbox">
+                                <input type="checkbox" id="selectAllCheckbox" class="row-checkbox">
+                            </th>
                             <th>제목</th>
                             <th>순번</th>
                             <th>작업</th>

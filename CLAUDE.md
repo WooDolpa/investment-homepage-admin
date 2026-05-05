@@ -41,6 +41,7 @@ This is a Spring Boot 3.5.7 admin application for an investment homepage system.
 ```bash
 ./gradlew test
 ```
+> **Note:** No test classes exist in this project — `./gradlew test` completes without running any tests.
 
 ## Project Structure
 
@@ -72,19 +73,27 @@ src/main/java/san/investment/admin/
 - `@ComponentScan` scans both `san.investment.admin` and `san.investment.common` for Spring components
 
 ### Profile-Based Configuration
-- Profile is configured in build.gradle (line 58)
+- Profile is set via `ext.profile` in build.gradle (defaults to `'local'` if not specified)
 - Default profile is 'local'
 - Resources are loaded from `src/main/resources/{profile}/`
 - Environment variables required:
   - Database: `MARIADB_URL`, `MARIADB_USERNAME`, `MARIADB_PASSWORD`
   - JWT: `JWT_SECRET_KEY` (used for token signing)
   - File Upload: `FILE_SAVE_URL` (base directory for uploaded files)
-  - External URL: `COMPANY_OUTPUT_URL` (base URL for generated external company links)
+  - External URL: `company.output.url` in `application.yml` (hardcoded per profile — `http://localhost:8090/business/card/verify` in local, `http://saninvestment.kr/business/card/verify` in prod)
 
 ### QueryDSL Setup
 - Generated Q-classes are placed in `src/main/generated`
-- Clean task removes all generated Q-classes (build.gradle line 55)
+- Clean task removes all generated Q-classes (`clean { delete file('src/main/generated') }` in build.gradle)
 - JPAQueryFactory is configured in QueryDSLConfig.java
+
+### QueryDSL Custom Repository Pattern
+Each entity with complex queries uses a three-class pattern:
+1. `{Entity}CustomRepository` — interface defining the custom query methods
+2. `{Entity}RepositoryImpl` — implements the interface using `JPAQueryFactory`
+3. `{Entity}Repository` — extends both `JpaRepository<Entity, ID>` and `{Entity}CustomRepository`
+
+Spring Data detects `RepositoryImpl` by naming convention and wires it automatically.
 
 ### Security Architecture
 - JWT-based authentication (stateless sessions)
@@ -93,7 +102,7 @@ src/main/java/san/investment/admin/
 - Public endpoints: `/js/**`, `/css/**`, `/image/**`, `/scss/**`, `/uploads/**`, `/favicon.ico`, `/.well-known/**`
 - Public routes: `GET /`, `GET /login`, `GET /company`, `POST /v1/auth/login`, `POST /v1/auth/logout`, `GET /v1/auth/password`
 - All other endpoints require authentication
-- CORS configured with `http://localhost:8080` (SecurityConfig.java:65)
+- CORS configured with `http://localhost:8080` (SecurityConfig.java)
 - BCrypt password encoding
 
 ### JWT Implementation
@@ -101,7 +110,7 @@ src/main/java/san/investment/admin/
 - Secret key loaded from environment variable `JWT_SECRET_KEY`
 - Access token contains: loginId (subject), id (claim), adminName (claim)
 - JWTUtil provides `getExpirationAsLocalDateTime()` to extract expiration from tokens
-- **Timezone**: Token expiration dates are converted to "Asia/Seoul" timezone (JWTUtil.java:152)
+- **Timezone**: Token expiration dates are converted to "Asia/Seoul" timezone
 
 ### Authentication Flow
 1. **Login:**
@@ -164,7 +173,9 @@ src/main/java/san/investment/admin/
 - **FileUtil**: Returns web-accessible paths (e.g., `/uploads/company/1/logo.png`) instead of absolute file system paths
 - **Security**: `/uploads/**` is publicly accessible (configured in SecurityConfig)
 - **Multipart Config**: Max file size 500MB, max request size 500MB (application.yml)
-- **Path Convention**: `file.company.url: company/` - subdirectory for company-related files
+- **Path Convention**:
+  - `file.company.url: company/` - subdirectory for company-related files
+  - `file.portfolio.url: portfolio/` - subdirectory for portfolio-related files
 
 **File Upload Pattern:**
 ```java
@@ -344,6 +355,9 @@ api.put('/endpoint', formData)
 - API response format: `{ data: { content: [...], totalPages: N, totalElements: M } }`
 - UI elements: Previous/Next buttons, page number buttons (showing currentPage ±2), page info display
 - Resets to page 0 when: search performed, page size changed, filters modified
+
+### Pagination Fields in Response DTOs
+`PortfolioResDto` and `PortfolioMainResDto` embed pagination metadata directly (`totalPages`, `totalElements`, `currentPage`, `pageSize`) rather than using a generic wrapper. When building list endpoints, the service sets these fields on the first element of the list (see existing portfolio services for the pattern).
 
 ## Common Patterns
 

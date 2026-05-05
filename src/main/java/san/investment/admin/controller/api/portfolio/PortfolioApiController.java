@@ -233,4 +233,16 @@ public class PortfolioApiController {
         portfolioService.deletePortfolioNews(portfolioNewsNo);
         return new ResponseEntity<>(ApiResponseDto.makeSuccessResponse(), HttpStatus.OK);
     }
+
+    /**
+     * 포트포리오 뉴스 다중 삭제
+     *
+     * @param dto
+     * @return
+     */
+    @DeleteMapping(path = "/news/delete")
+    public ResponseEntity<String> deletePortfolioNewsArray(@RequestBody PortfolioNewsDeleteDto dto) {
+        portfolioService.deletePortfolioNewsArray(dto);
+        return new ResponseEntity<>(ApiResponseDto.makeSuccessResponse(), HttpStatus.OK);
+    }
 }

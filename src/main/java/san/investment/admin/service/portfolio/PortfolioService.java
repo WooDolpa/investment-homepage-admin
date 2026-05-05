@@ -527,4 +527,32 @@ public class PortfolioService {
         // 삭제
         portfolioNewsRepository.delete(findPortfolioNews);
     }
+
+    /**
+     * 포트폴리오 뉴스 일괄 삭제
+     *
+     * @param dto
+     */
+    @Transactional
+    public void deletePortfolioNewsArray(PortfolioNewsDeleteDto dto) {
+
+        // 한 번에 조회 후 orderNum 내림차순 정렬 → 삭제 예정 항목에 불필요한 orderNum UPDATE 방지
+        List<PortfolioNews> newsList = dto.getPortfolioNewsNos().stream()
+                .map(no -> portfolioNewsRepository.findById(no)
+                        .orElseThrow(() -> new CustomException(ExceptionCode.PORTFOLIO_NEW_NOT_FOUND)))
+                .sorted((a, b) -> b.getOrderNum() - a.getOrderNum())
+                .toList();
+
+        for (PortfolioNews findPortfolioNews : newsList) {
+
+            Portfolio findPortfolio = findPortfolioNews.getPortfolio();
+
+            List<PortfolioNews> sortList = portfolioNewsRepository.findByPortfolioAndOrderNumGreaterThan(findPortfolio, findPortfolioNews.getOrderNum())
+                    .orElse(new ArrayList<>());
+
+            sortList.forEach(PortfolioNews::decreaseOrderNum);
+
+            portfolioNewsRepository.delete(findPortfolioNews);
+        }
+    }
 }
